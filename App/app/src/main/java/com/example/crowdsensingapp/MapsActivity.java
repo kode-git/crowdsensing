@@ -11,7 +11,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -19,41 +25,77 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.crowdsensingapp.databinding.ActivityMapsBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+    private Location actuaLocation = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+//permission request if the permissions are denied
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            System.out.println("location request");
-        }else {
-//setting the location listener
-            LocationListener locListener = new LocationListener() {
-                public void onLocationChanged(Location location) {
-                }
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }else{
+            //using a localization based service
+            FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-                public void onStatusChanged(String provider, int status,
-                                            Bundle extras) {
-                }
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                actuaLocation = location;
+                                if (mMap!=null){
+                                    LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
+                                    mMap.addMarker(new MarkerOptions().position(latLngLoc).title("Your position"));
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLoc));
+                                    System.out.println("YOLO "+ location);
+                                }
 
-                public void onProviderEnabled(String provider) {
-                }
+                            }
+                        }
 
-                public void onProviderDisabled(String provider) {
-                }
-            };
+                    });
 
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locListener);
-            Location lastKnownlocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            //setting the location request
+            LocationRequest mLocationRequest = LocationRequest.create();
+            mLocationRequest.setInterval(1000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+
+        //my location callback
+           LocationCallback mLocationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    for (Location location : locationResult.getLocations()) {
+                            System.out.println(location + "$$$$");
+                    }
+                } };
+        //setting the location updates
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    Looper.getMainLooper());
         }
+
+
+
+
+
+
+
+
+
+
+
 
 //binding the map fragment
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
@@ -78,9 +120,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 }
