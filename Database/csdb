@@ -2,7 +2,7 @@
 -- PostgreSQL database cluster dump
 --
 
--- Started on 2021-08-23 14:02:44 CEST
+-- Started on 2021-08-24 19:22:47 CEST
 
 SET default_transaction_read_only = off;
 
@@ -38,7 +38,7 @@ ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION
 -- Dumped from database version 13.4
 -- Dumped by pg_dump version 13.4
 
--- Started on 2021-08-23 14:02:44 CEST
+-- Started on 2021-08-24 19:22:47 CEST
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -51,7 +51,7 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Completed on 2021-08-23 14:02:44 CEST
+-- Completed on 2021-08-24 19:22:47 CEST
 
 --
 -- PostgreSQL database dump complete
@@ -68,7 +68,7 @@ SET row_security = off;
 -- Dumped from database version 13.4
 -- Dumped by pg_dump version 13.4
 
--- Started on 2021-08-23 14:02:44 CEST
+-- Started on 2021-08-24 19:22:47 CEST
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -104,7 +104,7 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- Completed on 2021-08-23 14:02:44 CEST
+-- Completed on 2021-08-24 19:22:47 CEST
 
 --
 -- PostgreSQL database dump complete
@@ -123,7 +123,7 @@ SET row_security = off;
 -- Dumped from database version 13.4
 -- Dumped by pg_dump version 13.4
 
--- Started on 2021-08-23 14:02:44 CEST
+-- Started on 2021-08-24 19:22:47 CEST
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -137,6 +137,25 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- TOC entry 7 (class 2615 OID 18407)
+-- Name: topology; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA topology;
+
+
+ALTER SCHEMA topology OWNER TO postgres;
+
+--
+-- TOC entry 4248 (class 0 OID 0)
+-- Dependencies: 7
+-- Name: SCHEMA topology; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA topology IS 'PostGIS Topology schema';
+
+
+--
 -- TOC entry 2 (class 3079 OID 16384)
 -- Name: adminpack; Type: EXTENSION; Schema: -; Owner: -
 --
@@ -145,7 +164,7 @@ CREATE EXTENSION IF NOT EXISTS adminpack WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 3245 (class 0 OID 0)
+-- TOC entry 4249 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION adminpack; Type: COMMENT; Schema: -; Owner: 
 --
@@ -153,13 +172,259 @@ CREATE EXTENSION IF NOT EXISTS adminpack WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION adminpack IS 'administrative functions for PostgreSQL';
 
 
--- Completed on 2021-08-23 14:02:44 CEST
+--
+-- TOC entry 3 (class 3079 OID 17405)
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- TOC entry 4250 (class 0 OID 0)
+-- Dependencies: 3
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+
+
+--
+-- TOC entry 4 (class 3079 OID 18408)
+-- Name: postgis_topology; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_topology WITH SCHEMA topology;
+
+
+--
+-- TOC entry 4251 (class 0 OID 0)
+-- Dependencies: 4
+-- Name: EXTENSION postgis_topology; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis_topology IS 'PostGIS topology spatial types and functions';
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 216 (class 1259 OID 18573)
+-- Name: location; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.location (
+    id integer NOT NULL,
+    user_id character varying(64),
+    value bigint,
+    coordinates public.geography
+);
+
+
+ALTER TABLE public.location OWNER TO postgres;
+
+--
+-- TOC entry 215 (class 1259 OID 18571)
+-- Name: location_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.location_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.location_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 4252 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.location_id_seq OWNED BY public.location.id;
+
+
+--
+-- TOC entry 4093 (class 2604 OID 18576)
+-- Name: location id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.location ALTER COLUMN id SET DEFAULT nextval('public.location_id_seq'::regclass);
+
+
+--
+-- TOC entry 4242 (class 0 OID 18573)
+-- Dependencies: 216
+-- Data for Name: location; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.location (id, user_id, value, coordinates) FROM stdin;
+1	user_01	10312	0103000020E610000001000000060000006765FB90B76952C0AB77B81D1ABA4640DF6C73637A6952C0C00303081FBA4640CC6262F3716952C064AF777FBCB946405227A089B06952C053B3075A81B94640C763062AE36952C08FC70C54C6B946406765FB90B76952C0AB77B81D1ABA4640
+\.
+
+
+--
+-- TOC entry 4086 (class 0 OID 17710)
+-- Dependencies: 205
+-- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4087 (class 0 OID 18411)
+-- Dependencies: 210
+-- Data for Name: topology; Type: TABLE DATA; Schema: topology; Owner: postgres
+--
+
+COPY topology.topology (id, name, srid, "precision", hasz) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4088 (class 0 OID 18424)
+-- Dependencies: 211
+-- Data for Name: layer; Type: TABLE DATA; Schema: topology; Owner: postgres
+--
+
+COPY topology.layer (topology_id, layer_id, schema_name, table_name, feature_column, feature_type, level, child_id) FROM stdin;
+\.
+
+
+--
+-- TOC entry 4253 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: location_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.location_id_seq', 1, true);
+
+
+--
+-- TOC entry 4105 (class 2606 OID 18581)
+-- Name: location location_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.location
+    ADD CONSTRAINT location_pkey PRIMARY KEY (id);
+
+
+-- Completed on 2021-08-24 19:22:48 CEST
 
 --
 -- PostgreSQL database dump complete
 --
 
--- Completed on 2021-08-23 14:02:44 CEST
+--
+-- Database "template_postgis" dump
+--
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 13.4
+
+-- Started on 2021-08-24 19:22:48 CEST
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 4103 (class 1262 OID 16395)
+-- Name: template_postgis; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE template_postgis WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'C';
+
+
+ALTER DATABASE template_postgis OWNER TO postgres;
+
+\connect template_postgis
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 4104 (class 0 OID 0)
+-- Name: template_postgis; Type: DATABASE PROPERTIES; Schema: -; Owner: postgres
+--
+
+ALTER DATABASE template_postgis IS_TEMPLATE = true;
+
+
+\connect template_postgis
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2 (class 3079 OID 16396)
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
+
+
+--
+-- TOC entry 4105 (class 0 OID 0)
+-- Dependencies: 2
+-- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial types and functions';
+
+
+--
+-- TOC entry 3959 (class 0 OID 16701)
+-- Dependencies: 202
+-- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM stdin;
+\.
+
+
+-- Completed on 2021-08-24 19:22:48 CEST
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- Completed on 2021-08-24 19:22:48 CEST
 
 --
 -- PostgreSQL database cluster dump complete
