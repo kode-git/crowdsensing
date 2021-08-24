@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CrowdSensingApp</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="google_maps_key">AIzaSyC4dF0E5h8DO3XimPxOOSxNNbtNGjmQb8k</string>
 </resources>
