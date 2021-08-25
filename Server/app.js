@@ -26,12 +26,6 @@ app.post('/createLocation', api.createLocation)
 app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
 
-// Users API
-app.get('/getUsers', api.getUsers)
-app.get('/getUser/:id', api.getUserById)
-app.post('/createUser', api.createUser)
-app.put('/updateUser/:id', api.updateUser)
-app.delete('/deleteUser/:id', api.deleteUser)
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
