@@ -1,52 +1,26 @@
-const express = require('express');
-const app = express();
-const port = 5000;
-const api = require('./api');
-const {Pool} = require("pg");
-const hbs  = require('express-handlebars');
-require('dotenv').config()
+const express = require('express')
+const bodyParser = require('body-parser')
+const app = express()
+const api = require('./api')
+const port = 3000
 
-// parsing data in json form, so express use it
-app.use(express.json());
+app.use(bodyParser.json())
+app.use(
+    bodyParser.urlencoded({
+        extended: true,
+    })
+)
 
-// setting on a static folder for express
-app.use(express.static(`${__dirname}/public`));
-
-
-//adding dotenv to protect the database credentials (dummy privacy)
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASS,
-    port: process.env.DB_PORT
-});
-
-
-//using handlebars
-app.engine('hbs', hbs({defaultLayout:'main', extname: 'hbs'}));
-app.set('view engine', 'hbs');
-
-// mapdessin
 app.get('/', (request, response) => {
-    response.render('mapdessin')
+    response.json({ info: 'Node.js, Express, and Postgres API' })
 })
 
-// data display from postgres using hbs page
-app.get('/data/', api.dataDisplay)
-
-// dummy dashboard main request
-app.get('/dashboard/', api.dashboard);
-
-// Dummy object management
-app.get('/getDummies/', api.getDummies);
-app.post('/addDummy/', api.addDummy);
-app.put('/updateDummy/', api.updateDummy);
-app.delete('/deleteDummy/', api.deleteDummy);
-
-
+app.get('/users', api.getUsers)
+app.get('/users/:id', api.getUserById)
+app.post('/users', api.createUser)
+app.put('/users/:id', api.updateUser)
+app.delete('/users/:id', api.deleteUser)
 
 app.listen(port, () => {
-    console.log(`app.js is running on port ${port}.`);
-});
-
+    console.log(`App running on port ${port}.`)
+})
