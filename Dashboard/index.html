@@ -25,20 +25,45 @@
 
 <script type="text/javascript">
 
+    //Get current position
+    var options = {
+    enableHighAccuracy: true,
+    timeout: 5000,
+    maximumAge: 0
+    };
+
+
     // TODO: Set the map informations in according to the displayed data
     // View coordinates of London (dummy one, need to be a variable in according to the dashboard infos
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    var map = L.map('map').fitWorld();
 
-    // Using openStreetMap for the drawing a map layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        tileSize: 512,
+        zoomOffset: -1
     }).addTo(map);
 
-    // dummy marker with a simple popup
+    map.locate({setView: true, maxZoom: 16});
+   
+    function onLocationFound(e) {
+    //var radius = e.accuracy;
 
+    L.marker(e.latlng).addTo(map)
+        .bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+    //L.circle(e.latlng, radius).addTo(map);
+    }
+
+    map.on('locationfound', onLocationFound);
+
+    // dummy marker with a simple popup
     L.marker([51.5, -0.09]).addTo(map)
         .bindPopup('It\' only a popup.<br> Dummy is here')
         .openPopup();
+
+   
+
 </script>
 </body>
 </html>
