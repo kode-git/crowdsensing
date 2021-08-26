@@ -20,6 +20,15 @@
 
 
  />
+    <Button
+        android:id="@+id/settings"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:text="@string/settings"
+        android:layout_alignParentLeft="true"
+
+
+        />
 
 
 

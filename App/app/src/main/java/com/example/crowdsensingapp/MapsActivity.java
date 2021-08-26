@@ -34,13 +34,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,SettingsView.SettingsAdderViewListener {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     private Location actuaLocation = null;
     private MediaRecorder  mRecorder;
     private Button recordButton;
+    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +49,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //binding the map fragment
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        //setContentView(R.layout.activity_maps);
         recordButton = (Button) findViewById(R.id.record_btn);
+        settingsButton = (Button) findViewById(R.id.settings);
+
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openSettings();
+
+            }
+        });
 
 
         recordButton.setOnClickListener(new View.OnClickListener() {
@@ -158,6 +168,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return  (mRecorder.getMaxAmplitude());
         else
             return 0;
+
+    }
+
+    public void openSettings(){
+        SettingsView settingsView = new SettingsView();
+        settingsView.show(getSupportFragmentManager(), "settings");
+    }
+
+    public void applyAdder(MyScript s){
 
     }
 
