@@ -3,25 +3,47 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+    <script src="heatmap.js"></script>
     <style type="text/css">
         /* TODO: Set the dimension for the map in according to the dashboards labels and fields */
-        #map {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            z-index: 10;
-        }
+    #map-wrapper {
+    width: 100%;
+    height: 500px;
+    position: relative;
+    border: 1px solid black;
+    }
+
+    #map {
+    width: 100%;
+    height: 100%;
+    }
+
+    #button-wrapper {
+    position: absolute;
+    bottom: -47px;
+    width: 100%;
+    margin-left: 10px;
+    }
+     
     </style>
+    
 </head>
 <body>
 
-<!-- This is an example using Leaftlet -->
-<div id="map"></div>
+
+<div class="span9" style="height:100%">
+    <div id="map-wrapper">
+        <div id="map"></div>
+        <div id="button-wrapper">
+            <button class="btn btn-primary" type="submit" id="marker">Show Noise Markers</button>
+            <button class="btn btn-primary" type="submit" id="heatmap">Show Noise Heatmap</button>
+        </div> 
+    </div>
+  </div>
 
 <script type="text/javascript">
 
@@ -39,7 +61,7 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 18,
+        maxZoom: 10,
         tileSize: 512,
         zoomOffset: -1
     }).addTo(map);
@@ -47,23 +69,46 @@
     map.locate({setView: true, maxZoom: 16});
    
     function onLocationFound(e) {
-    //var radius = e.accuracy;
-
-    L.marker(e.latlng).addTo(map)
-        .bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-    //L.circle(e.latlng, radius).addTo(map);
     }
 
     map.on('locationfound', onLocationFound);
 
-    // dummy marker with a simple popup
-    L.marker([51.5, -0.09]).addTo(map)
-        .bindPopup('It\' only a popup.<br> Dummy is here')
-        .openPopup();
+    $("#marker").on("click", e=>{
+        e.preventDefault();
+        $.ajax({
+            url: "/getLocations",
+            type: "POST",
+            dataType: "json",
+            
+            success: function(data){
+                console.log(data);
+                for(i=0;i<data.length;i++){
+                    L.marker([data[i].point.x, data[i].point.y]).addTo(map)
+                .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].point.x+ ', '+data[i].point.y)
+                .openPopup();
+                }
+                
+                }
+        });
+    });
 
+
+    $("#heatmap").on("click", e=>{
+        e.preventDefault();
+        $.ajax({
+            url: "/getLocations",
+            type: "POST",
+            dataType: "json",
+            
+            success: function(data){
+                var heat = L.heatLayer([[50.5, 30.5, 0.2], [50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
+                }
+        });
+    });
+
+    
+       
    
-
 </script>
 </body>
 </html>

@@ -23,13 +23,13 @@ const getLocations = (request, response) => {
 }
 
 const getLocationById = (request, response) => {
-    const id = parseInt(request.params.id)
+    const id = parseInt(request.body.id)
     pool.query('select * from loc_ref_points where id=$1', [id], (error, results) => {
         if(error) {
             // location not found => 404 page redirect
             throw error
         }
-        response.status(200).json(results.rows)
+        response.status(200).json(results)
     })
 }
 

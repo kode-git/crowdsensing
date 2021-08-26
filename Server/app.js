@@ -20,8 +20,8 @@ app.get('/', (request, response) => {
 })
 
 // Locations API
-app.get('/getLocations',api.getLocations )
-app.get('/getLocation/:id',api.getLocationById )
+app.post('/getLocations',api.getLocations )
+app.post('/getLocation',api.getLocationById )
 app.post('/createLocation', api.createLocation)
 app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
