@@ -5,6 +5,8 @@ import static java.lang.Math.log10;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import java.io.UnsupportedEncodingException;
 import java.lang.*;
 import android.Manifest;
 import android.content.Context;
@@ -15,9 +17,20 @@ import android.location.LocationManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -32,6 +45,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.crowdsensingapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,SettingsView.SettingsAdderViewListener {
@@ -42,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MediaRecorder  mRecorder;
     private Button recordButton;
     private Button settingsButton;
+    private MyScript actualSettings = new MyScript(1,1000);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 double powerDb = 10 * log10(getAmplitude());
                 System.out.println(powerDb + " My actual DB recorded");
+                sendRecordToServer(powerDb);
 
             }
         });
@@ -114,6 +132,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onLocationResult(LocationResult locationResult) {
                     for (Location location : locationResult.getLocations()) {
                             System.out.println(location + "$$$$");
+                            actuaLocation=location;
                     }
                 } };
         //setting the location updates
@@ -177,7 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void applyAdder(MyScript s){
-
+        System.out.println(s.getnNeighbour() + " neigh");
     }
 
     /**
@@ -192,6 +211,68 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+    }
+
+    public void sendRecordToServer(double myDB){
+
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            String URL = "localhost:3000/createLocation";
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("Neighbour", actualSettings.getnNeighbour());
+            jsonBody.put("Range", actualSettings.getRange());
+            jsonBody.put("Db", myDB);
+            jsonBody.put("Long", actuaLocation.getLongitude());
+            jsonBody.put("Lat", actuaLocation.getLatitude());
+            final String requestBody = jsonBody.toString();
+
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.i("VOLLEY", response);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("VOLLEY", error.toString());
+                }
+            }) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    try {
+                        return requestBody == null ? null : requestBody.getBytes("utf-8");
+                    } catch (UnsupportedEncodingException uee) {
+                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                        return null;
+                    }
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    String responseString = "";
+                    if (response != null) {
+                        responseString = String.valueOf(response.statusCode);
+                        // can get more details such as response.headers
+                    }
+                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                }
+            };
+
+            requestQueue.add(stringRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
 
     }
 }

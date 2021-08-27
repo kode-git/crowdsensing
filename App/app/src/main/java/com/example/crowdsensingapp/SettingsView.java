@@ -33,11 +33,9 @@ public class SettingsView extends AppCompatDialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final View view = inflater.inflate(R.layout.SettingsViewL, null);
-        ButtonSound = view.findViewById(R.id.buttonVolume);
-        ButtonBlue = view.findViewById(R.id.buttonBlueT);
-        ButtonWiFi = view.findViewById(R.id.buttonWiFi);
-        myTime = view.findViewById(R.id.timePicker1);
+        final View view = inflater.inflate(R.layout.settings_view_l, null);
+
+
 
 
 
@@ -52,7 +50,7 @@ public class SettingsView extends AppCompatDialogFragment {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        MyScript script = new MyScript();
+                        MyScript script = new MyScript(1,1000);
                         listener.applyAdder(script);
                     }
                 });
