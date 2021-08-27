@@ -13,7 +13,7 @@ const pool = new Pool({
 
 // --- Locations API ---
 const getLocations = (request, response) => {
-    pool.query('select * from loc_ref_points', (error, results) => {
+    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if(error){
             // not happen
             throw error
@@ -24,7 +24,7 @@ const getLocations = (request, response) => {
 
 const getLocationById = (request, response) => {
     const id = parseInt(request.body.id)
-    pool.query('select * from loc_ref_points where id=$1', [id], (error, results) => {
+    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points where id=$1', [id], (error, results) => {
         if(error) {
             // location not found => 404 page redirect
             throw error
@@ -34,23 +34,23 @@ const getLocationById = (request, response) => {
 }
 
 const createLocation = (request, response) => {
-    const { noise, point } = request.body
+    const { Neighbour, Range, Db, Long, Lat } = request.body
 
-    pool.query('INSERT INTO loc_ref_points (noise, point) VALUES ($1, $2)', [noise, point], (error, results) => {
+    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
         if (error) {
             throw error
         }
-        response.status(201).send(`Point added with ID: ${results.insertId}`)
+        // temporal response, we don't know yet what we need on it
+        response.status(201).send(`Point on coordinates (${Long}, ${Lat}) added with ID: ${results.insertId}`)
     })
 }
 
 const updateLocation = (request, response) => {
-    const id = parseInt(request.params.id)
-    const { noise, point } = request.body
-    // TODO: Define how to pass coordinates
+    const { id, Neighbour, Range, Db, Long, Lat } = request.body
+    // TODO: Define data referent for update operation
     pool.query(
-        'UPDATE loc_ref_points SET noise = $1, point = $2 WHERE id = $3',
-        [noise, point, id],
+        'UPDATE loc_ref_points SET neighbour = $1, range = $2, db = $3, coordinates = st_point($4, $5), WHERE id = $6 ',
+        [Neighbour, Range, Db, Long, Lat, id],
         (error, results) => {
             if (error) {
                 throw error
