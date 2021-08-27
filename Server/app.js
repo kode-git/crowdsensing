@@ -14,9 +14,11 @@ app.use(
     })
 )
 
+app.use("/static", express.static('./static/'));
+
 
 app.get('/', (request, response) => {
-    response.sendFile(path.resolve(__dirname+"/../Dashboard/index/index.html"));
+    response.sendFile(path.join(__dirname, '../Dashboard/index/index.html'));
 })
 
 // Locations API
