@@ -16,7 +16,7 @@ app.use(
 
 
 app.get('/', (request, response) => {
-    response.sendFile(path.resolve(__dirname+"/../Dashboard/index.html"));
+    response.sendFile(path.resolve(__dirname+"/../Dashboard/index/index.html"));
 })
 
 // Locations API

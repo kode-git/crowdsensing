@@ -7,7 +7,7 @@
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
-    <script src="heatmap.js"></script>
+    <script src="../dist/leaflet-heat.js"></script>
     <style type="text/css">
         /* TODO: Set the dimension for the map in according to the dashboards labels and fields */
     #map-wrapper {
@@ -101,7 +101,10 @@
             dataType: "json",
             
             success: function(data){
-                var heat = L.heatLayer([[50.5, 30.5, 0.2], [50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
+                console.log("FUNZIONA");
+                var heat = L.heatLayer([
+                [50.5, 30.5, 0.2], // lat, lng, intensity
+                [50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
                 }
         });
     });
