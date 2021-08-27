@@ -56,11 +56,10 @@
 
     // TODO: Set the map informations in according to the displayed data
     // View coordinates of London (dummy one, need to be a variable in according to the dashboard infos
-    var map = L.map('map').fitWorld();
+    var map = L.map('map');
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 10,
         tileSize: 512,
         zoomOffset: -1
     }).addTo(map);
@@ -72,6 +71,10 @@
 
     map.on('locationfound', onLocationFound);
 
+    let marker;
+    let heat;
+    markerLayers = [];
+    heatmapLayers=[];
     $("#marker").on("click", e=>{
         e.preventDefault();
         $.ajax({
@@ -81,12 +84,24 @@
             
             success: function(data){
                 console.log(data);
+
+                for(i=0;i<markerLayers.length;i++){
+                    map.removeLayer(markerLayers[i]);
+                }
+
                 for(i=0;i<data.length;i++){
-                    L.marker([data[i].point.x, data[i].point.y]).addTo(map)
+
+                markerLayers[i]= new L.layerGroup();
+
+                marker= new L.marker([data[i].point.x, data[i].point.y])
                 .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].point.x+ ', '+data[i].point.y)
                 .openPopup();
+               
+                markerLayers[i].addLayer(marker);
+                map.addLayer(markerLayers[i]);  
                 }
                 
+
                 }
         });
     });
@@ -100,10 +115,26 @@
             dataType: "json",
             
             success: function(data){
-                var heat = L.heatLayer([
-                [44.4, 11.3, 0.2], // lat, lng, intensity
-                [50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
+
+                for(i=0;i<markerLayers.length;i++){
+                    map.removeLayer(markerLayers[i]);
+                    map.removeLayer(heatmapLayers[i]);
                 }
+                
+
+                for(i=0;i<data.length;i++){
+                
+                heatmapLayers[i]= new L.layerGroup();
+                    heat = new L.heatLayer([
+                    [data[i].point.x, data[i].point.y, data[i].noise]], 
+                    {radius: 20});
+                    
+                heatmapLayers[i].addLayer(heat);
+                map.addLayer(heatmapLayers[i]); 
+                }
+                
+            }
+                
         });
     });
 
