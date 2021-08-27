@@ -27,13 +27,10 @@
     width: 100%;
     margin-left: 10px;
     }
-     
     </style>
-    
 </head>
+
 <body>
-
-
 <div class="span9" style="height:100%">
     <div id="map-wrapper">
         <div id="map"></div>
@@ -53,9 +50,6 @@
     maximumAge: 0
     };
 
-
-    // TODO: Set the map informations in according to the displayed data
-    // View coordinates of London (dummy one, need to be a variable in according to the dashboard infos
     var map = L.map('map');
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -75,6 +69,7 @@
     let heat;
     markerLayers = [];
     heatmapLayers=[];
+
     $("#marker").on("click", e=>{
         e.preventDefault();
         $.ajax({
@@ -83,26 +78,26 @@
             dataType: "json",
             
             success: function(data){
-                console.log(data);
 
                 for(i=0;i<markerLayers.length;i++){
                     map.removeLayer(markerLayers[i]);
                 }
+                
+                for(i=0;i<heatmapLayers.length;i++){
+                    map.removeLayer(heatmapLayers[i]);
+                }
 
                 for(i=0;i<data.length;i++){
+                    markerLayers[i]= new L.layerGroup();
 
-                markerLayers[i]= new L.layerGroup();
-
-                marker= new L.marker([data[i].point.x, data[i].point.y])
-                .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].point.x+ ', '+data[i].point.y)
-                .openPopup();
-               
-                markerLayers[i].addLayer(marker);
-                map.addLayer(markerLayers[i]);  
-                }
+                    marker= new L.marker([data[i].point.x, data[i].point.y])
+                    .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].point.x+ ', '+data[i].point.y)
+                    .openPopup();
                 
-
+                    markerLayers[i].addLayer(marker);
+                    map.addLayer(markerLayers[i]);  
                 }
+            }
         });
     });
 
@@ -118,19 +113,22 @@
 
                 for(i=0;i<markerLayers.length;i++){
                     map.removeLayer(markerLayers[i]);
-                    map.removeLayer(heatmapLayers[i]);
                 }
                 
+                for(i=0;i<heatmapLayers.length;i++){
+                    map.removeLayer(heatmapLayers[i]);
+                }
 
                 for(i=0;i<data.length;i++){
                 
-                heatmapLayers[i]= new L.layerGroup();
-                    heat = new L.heatLayer([
-                    [data[i].point.x, data[i].point.y, data[i].noise]], 
-                    {radius: 20});
+                    heatmapLayers[i]= new L.layerGroup();
                     
-                heatmapLayers[i].addLayer(heat);
-                map.addLayer(heatmapLayers[i]); 
+                    heat = new L.heatLayer([
+                        [data[i].point.x, data[i].point.y, data[i].noise]], 
+                        {radius: 20});
+                        
+                    heatmapLayers[i].addLayer(heat);
+                    map.addLayer(heatmapLayers[i]); 
                 }
                 
             }
