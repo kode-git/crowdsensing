@@ -28,7 +28,8 @@ app.post('/createLocation', api.createLocation)
 app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
 
-
+// Clustering API
+app.get('/showClustering', api.showClustering)
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
 })

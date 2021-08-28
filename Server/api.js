@@ -1,6 +1,8 @@
 // module of the app.js with every kinds of exportable REST Apis
 
 const Pool = require('pg').Pool
+const pg = require('pg')
+const kmeans = require('./static/js/kmeans')
 
 // connection at the init
 const pool = new Pool({
@@ -18,9 +20,34 @@ const getLocations = (request, response) => {
             // not happen
             throw error
         }
-        response.status(200).json(results.rows)
+        dataset = {
+            "length" : results.rows.length,
+            "locations" : results.rows,
+        }
+        response.status(200).json(dataset)
     })
 }
+
+const showClustering = (request, response) => {
+    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+        if(error){
+            // not happen
+            throw error
+        }
+        // TODO: Put here the clustering JSON making
+
+        dataset = {
+            "length" : results.rows.length,
+            "locations" : results.rows,
+        }
+
+        dataset.centroids = kmeans.getRandomCentroids(dataset, 2)
+        dataset.clusters = kmeans.getClusters(dataset)
+        console.log(dataset)
+        response.status(200).json(dataset)
+    })
+}
+
 
 const getLocationById = (request, response) => {
     const id = parseInt(request.body.id)
@@ -78,5 +105,6 @@ module.exports = {
     getLocationById,
     createLocation,
     updateLocation,
-    deleteLocation
+    deleteLocation,
+    showClustering,
 }
