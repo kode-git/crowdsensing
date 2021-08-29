@@ -10,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.*;
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -49,6 +50,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.prefs.Preferences;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,SettingsView.SettingsAdderViewListener {
 
@@ -59,10 +63,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button recordButton;
     private Button settingsButton;
     private MyScript actualSettings = new MyScript(1,1000);
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+    //restoring privacy preferences
+        pref = getPreferences(Context.MODE_PRIVATE);
+        Map <String, ?> privacySett= (Map<String, Integer>) pref.getAll();
+        for (Map.Entry<String, ?> entry : privacySett.entrySet()) {
+            System.out.println(entry.getValue());
+            if(entry.getKey().equals("nNeighbour")) {
+                actualSettings.setnNeighbour((int) entry.getValue());
+            }else {
+                actualSettings.setRange((int) entry.getValue());
+            }
+        }
+
+
+
         //binding the map fragment
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -187,16 +207,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return  (mRecorder.getMaxAmplitude());
         else
             return 0;
-
     }
 
     public void openSettings(){
         SettingsView settingsView = new SettingsView();
         settingsView.show(getSupportFragmentManager(), "settings");
     }
-
+//interface between the dialog fragment and the main activity
     public void applyAdder(MyScript s){
-        System.out.println(s.getnNeighbour() + " neigh");
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("nNeighbour", s.getnNeighbour());
+        editor.putInt("range", s.getRange());
+        editor.commit();
     }
 
     /**
