@@ -73,10 +73,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         pref = getPreferences(Context.MODE_PRIVATE);
         Map <String, ?> privacySett= (Map<String, Integer>) pref.getAll();
         for (Map.Entry<String, ?> entry : privacySett.entrySet()) {
-            System.out.println(entry.getValue());
+
             if(entry.getKey().equals("nNeighbour")) {
                 actualSettings.setnNeighbour((int) entry.getValue());
-            }else {
+                System.out.println(entry.getValue() + " restoring");
+            }else if (entry.getKey().equals("range")){
                 actualSettings.setRange((int) entry.getValue());
             }
         }
@@ -211,11 +212,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void openSettings(){
         SettingsView settingsView = new SettingsView();
+        Bundle bundle = new Bundle();
+        System.out.println(actualSettings.getRange() + "ZZZZ");
+        bundle.putInt("range",actualSettings.getRange());
+        bundle.putInt("neigh",actualSettings.getnNeighbour());
+        settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
 //interface between the dialog fragment and the main activity
     public void applyAdder(MyScript s){
         SharedPreferences.Editor editor = pref.edit();
+        actualSettings.setnNeighbour(s.getnNeighbour());
+        actualSettings.setRange(s.getRange());
         editor.putInt("nNeighbour", s.getnNeighbour());
         editor.putInt("range", s.getRange());
         editor.commit();

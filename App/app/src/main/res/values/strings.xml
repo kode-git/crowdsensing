@@ -5,4 +5,6 @@
     <string name="button_record">Send Record</string>
     <string name="settings">Settings</string>
     <string name="settingsP">Privacy Settings</string>
+    <string name="TitleNeigh">Min. neigh:</string>
+    <string name="TitleRange">Range in meters: </string>
 </resources>

@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -20,23 +22,74 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 
 public class SettingsView extends AppCompatDialogFragment {
     private SettingsAdderViewListener listener;
-    private int ButtonSoundStat = 0;
-    private int ButtonBlueStat = 0;
-    private int ButtonWiFiStat = 0;
-    private ImageButton ButtonSound;
-    private ImageButton ButtonBlue;
-    private ImageButton ButtonWiFi;
-    private TimePicker myTime;
-    NotificationManager mNotificationManager;
+    private TextView neighText;
+    private TextView rangeText;
+    private SeekBar seekNeigh;
+    private SeekBar seekRange;
+    private MyScript script;
+
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+
+
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         final View view = inflater.inflate(R.layout.settings_view_l, null);
+        Bundle bundle = getArguments();
+        int actualRange = bundle.getInt("range",1000);
+        System.out.println(actualRange + " AAAAA");
+        int actualNeigh = bundle.getInt("neigh",1);
+        script = new MyScript(actualNeigh,actualRange);
 
 
 
+        neighText = (TextView) view.findViewById(R.id.titleNeigh);
+        rangeText = (TextView) view.findViewById(R.id.titleRange);
+        seekNeigh = (SeekBar) view.findViewById(R.id.seek);
+        seekRange = (SeekBar) view.findViewById(R.id.seekRange);
+        neighText.setText("Min. neigh: "+ actualNeigh+"+");
+        seekNeigh.setProgress(script.getnNeighbour());
+        rangeText.setText("Range in meters: "+ actualRange);
+        seekRange.setProgress(script.getRange());
+
+        seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                script.setnNeighbour(i);
+                neighText.setText("Min. neigh: "+ i+"+");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekRange.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                script.setRange(i);
+                rangeText.setText("Range in meters: "+ i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
 
 
@@ -50,7 +103,7 @@ public class SettingsView extends AppCompatDialogFragment {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        MyScript script = new MyScript(1,1000);
+                        //MyScript script = new MyScript(1,1000);
                         listener.applyAdder(script);
                     }
                 });
