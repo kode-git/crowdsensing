@@ -25,7 +25,7 @@
 
     #button-wrapper {
     position: absolute;
-    bottom: -47px;
+    bottom: -75px;
     width: 100%;
     margin-left: 10px;
     }
@@ -39,7 +39,14 @@
         <div id="button-wrapper">
             <button class="btn btn-primary" type="submit" id="marker">Show Noise Markers</button>
             <button class="btn btn-primary" type="submit" id="heatmap">Show Noise Heatmap</button>
+            <button class="btn btn-primary" type="submit" id="clustering">Show Noise Clustering</button>
+            <div class="slidecontainer" min="0" max="10" value="2" step="10">
+                <input type="range" min="1" max="50" value="20" step="0.1" class="slider" id="blur">
+                <input type="range" min="1" max="100" value="25" step="0.1" class="slider" id="radius">
+              </div>
+              
         </div> 
+        
     </div>
   </div>
 
@@ -149,27 +156,38 @@
     });
    
 
-    geoJson2heat = function(geojson) {
-        console.log(geojson.features);
-return geojson.features.map(function(feature) {
-return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.noise];
-});
+    
+    $("#clustering").on("click", e=>{
+        e.preventDefault();
+        $.ajax({
+            url: "/getLocations",
+            type: "POST",
+            dataType: "json",
+            
+            success: function(data){
+            }
+        })
+    });
+
+geoJson2heat = function(geojson) {
+    return geojson.features.map(function(feature) {
+    return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.noise];
+    });
 }
 
-
-    var provalayer = new L.layerGroup();
+var heatMap=0;
+const provalayer = new L.layerGroup();
 map.on('click', function(ev){
-    
-
 
     var geodati= {
     "type": "FeatureCollection",
+    "prova": 12,
     "features": [{
             "type": "Feature",
             "properties": {
                 "Name": "Yishun Community Hospital",
                 "Status": "Operational",
-                "noise": 0.2
+                "noise": 3.0
             },
             "geometry": {
                 "type": "Point",
@@ -183,7 +201,7 @@ map.on('click', function(ev){
             "properties": {
                 "Name": "Orso Hospital",
                 "Status": "Operational",
-                "noise": 0.4
+                "noise": 3.4
             },
             "geometry": {
                 "type": "Point",
@@ -196,7 +214,7 @@ map.on('click', function(ev){
             "type": "Feature",
             "properties": {
                 "VINC": "0",
-                "noise": 1
+                "noise": 4.7
             },
             "geometry": {
                 "type": "Point",
@@ -209,45 +227,38 @@ map.on('click', function(ev){
     
 
 var geoData = geoJson2heat(geodati, 1);
-console.log(geoData);
-var heatMap = new L.heatLayer(geoData,{radius: 40, blur: 25, maxZoom: 17});
 
-map.addLayer(heatMap);
+ heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17});
 
- /*
-  var latlng = map.mouseEventToLatLng(ev.originalEvent);
-  let i = 0;
-map.eachLayer(function(){ i += 1; });
-console.log('Map has', i, 'layers.');
-var test = L.marker([51.5, -0.09]);
-provalayer.addLayer(test);
-console.log(provalayer);
+provalayer.clearLayers();
+provalayer.addLayer(heatMap);
 
-var heat = L.heatLayer([
-	[44.5011307,  11.3322379, 20],
-    [44.5021307,  11.3332379, 20],
-    [44.5031307,  11.3342379, 20], // lat, lng, intensity
-	[50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
-  console.log(latlng.lat + ', ' + latlng.lng);
+map.addLayer(provalayer);
 
-
-  heatmapLayers[1]=  L.layerGroup();
-  heat = new L.heatLayer([
-                        [latlng.lat, latlng.lng, 30]], 
-                        {blur:17.2}).addTo(map);
-         
-         
-                        var layerGroup = L.layerGroup().addTo(map);
-
-for (i = 0; i < coordinates.length; i++) {
-    marker = L.marker([coordinates[i][0], coordinates[i][1]]);
-    layerGroup.addLayer(marker);
-}
-
-var overlay = {'markers': layerGroup};
-L.control.layers(null, overlay).addTo(map);*/
 
 });
+
+
+var blurslider=document.getElementById("blur");
+blurslider.oninput=function(){
+    heatMap.setOptions({
+        blur: parseInt(this.value)
+    });
+    // render the new options
+    heatMap.redraw();
+    document.getElementById("radius").disabled;
+}
+
+
+var radiusslider=document.getElementById("radius");
+radiusslider.oninput=function(){
+   heatMap.setOptions({
+        radius: parseInt(this.value)
+    });
+    // render the new options
+    heatMap.redraw();
+    console.log(this.value);
+}
    
 </script>
 </body>
