@@ -19,7 +19,7 @@ const convertLocations = (results) => {
             },
             "geometry" : {
                 "type" : "Point",
-                "coordinates" : [row.st_x, row.st_y] // inverted respect postGIS data
+                "coordinates" : [ row.st_y,row.st_x] // inverted respect postGIS data
             }
         }
         geoJSON.features.push(feature)

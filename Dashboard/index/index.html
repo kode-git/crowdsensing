@@ -25,15 +25,16 @@
 
     #button-wrapper {
     position: absolute;
-    bottom: -75px;
+    bottom: -220px;
     width: 100%;
-    margin-left: 10px;
+    margin-left: 20px;
     }
     </style>
 </head>
 
 <body>
 <div class="span9" style="height:100%">
+    
     <div id="map-wrapper">
         <div id="map"></div>
         <div id="button-wrapper">
@@ -42,10 +43,26 @@
             <button class="btn btn-primary" type="submit" id="clustering">Show Noise Clustering</button>
             <div class="slidecontainer" min="0" max="10" value="2" step="10">
                 <input type="range" min="1" max="50" value="20" step="0.1" class="slider" id="blur">
-                <input type="range" min="1" max="100" value="25" step="0.1" class="slider" id="radius">
+                <input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius">
               </div>
-              
-        </div> 
+              <p>Select a map type:</p>
+
+                <div>
+                <input type="radio" id="mapnik" name="drone" value="mapnik"
+                        checked>
+                <label for="huey">OpenStreetMap Mapnik</label>
+                </div>
+
+                <div>
+                <input type="radio" id="stadia" name="drone" value="stadia">
+                <label for="dewey">Stadia Alidade Smooth Dark</label>
+                </div>
+
+                <div>
+                <input type="radio" id="thunder" name="drone" value="thunder">
+                <label for="louie">Thunder Forest Transport</label>
+                </div>   
+            </div> 
         
     </div>
   </div>
@@ -60,11 +77,10 @@
     };
 
     var map = L.map('map');
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      
-    }).addTo(map);
+	maxZoom: 19,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
 
     map.locate({setView: true, maxZoom: 16});
    var latitudine;
@@ -90,30 +106,35 @@
             dataType: "json",
             
             success: function(data){
-                console.log(provalayer);
-                console.log(data[1].st_x);
-                
-                for(i=0;i<markerLayers.length;i++){
-                    map.removeLayer(markerLayers[1]);
-                }
-                
-                for(i=0;i<heatmapLayers.length;i++){
-                    map.removeLayer(heatmapLayers[i]);
-                }
+               
+                var geojsonMarkerOptions = {
+                    radius: 10,
+                    fillColor: "#0f8bff",
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                };
+                marker=L.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, geojsonMarkerOptions);
+                    },onEachFeature: function (feature, layer) {
+    layer.bindPopup('<p>Latitude: '+feature.geometry.coordinates[1]+'</p> <p>Longitude: '+feature.geometry.coordinates[0]+'\n </p>');
+  }
 
-                for(i=0;i<data.length;i++){
-                    markerLayers[1]= new L.layerGroup();
+                });
 
-                    marker= new L.marker([data[i].st_x, data[i].st_y])
-                    .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].st_x+ ', '+data[i].st_y)
-                    .openPopup();
+                markerlayer.clearLayers();
+                heatmaplayer.clearLayers();
+                markerlayer.addLayer(marker);
+                console.log(data);
+                map.addLayer(markerlayer);
                 
-                    markerLayers[1].addLayer(marker);
-                    map.addLayer(markerLayers[1]);  
-                }
+                
             }
         });
     });
+
 
 
     $("#heatmap").on("click", e=>{
@@ -124,32 +145,14 @@
             dataType: "json",
             
             success: function(data){
-
-                for(i=0;i<markerLayers.length;i++){
-                    map.removeLayer(markerLayers[i]);
-                }
+                var geoData = geoJson2heat(data, 1);
+                heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17});
+                markerlayer.clearLayers();
+                heatmaplayer.clearLayers();
                 
-                for(i=0;i<heatmapLayers.length;i++){
-                    map.removeLayer(heatmapLayers[i]);
-                }
-
-                for(i=0;i<data.length;i++){
+                heatmaplayer.addLayer(heatMap);
                 
-                    heatmapLayers=  L.layerGroup();
-                    
-                    heat = L.heatLayer([
-                        [data[i].st_x, data[i].st_y, data[i].db]], 
-                        {blur: 17.2});
-                        
-                    heatmapLayers.addLayer(heat);
-                    
-                    
-                    console.log("HEAT INSIDE: "+heat);
-                 
-                }
-                
-               var prova= L.layerGroup(heatmapLayers);
-               heat.addTo(map);
+                map.addLayer(heatmaplayer);
             }
                 
         });
@@ -171,19 +174,20 @@
 
 geoJson2heat = function(geojson) {
     return geojson.features.map(function(feature) {
-    return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.noise];
+    return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),(feature.properties.db)];
     });
 }
 
 var heatMap=0;
-const provalayer = new L.layerGroup();
+const heatmaplayer = new L.layerGroup();
+const markerlayer = new L.layerGroup();
 map.on('click', function(ev){
 
     var geodati= {
-    "type": "FeatureCollection",
+    "type": "blabla",
     "prova": 12,
     "features": [{
-            "type": "Feature",
+            "type": "prova",
             "properties": {
                 "Name": "Yishun Community Hospital",
                 "Status": "Operational",
@@ -191,13 +195,12 @@ map.on('click', function(ev){
             },
             "geometry": {
                 "type": "Point",
-                "coordinates": [11.3322379,
-                44.5021307
+                "coordinates": [44.5021307,11.3322379            
                 ]
             }
         },
         {
-            "type": "Feature",
+            "type": "aaa",
             "properties": {
                 "Name": "Orso Hospital",
                 "Status": "Operational",
@@ -205,21 +208,21 @@ map.on('click', function(ev){
             },
             "geometry": {
                 "type": "Point",
-                "coordinates": [11.3332379,
-                44.5021307
+                "coordinates": [44.5021307,11.3332379
+                
                 ]
             }
         },
         {
-            "type": "Feature",
+            "type": "Featurrre",
             "properties": {
                 "VINC": "0",
                 "noise": 4.7
             },
             "geometry": {
                 "type": "Point",
-                "coordinates": [11.3342379,
-                44.5021307
+                "coordinates": [
+                44.5021307,11.3342379
                 ]
             }
         }
@@ -228,12 +231,8 @@ map.on('click', function(ev){
 
 var geoData = geoJson2heat(geodati, 1);
 
- heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17});
+ heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17}).addTo(map);
 
-provalayer.clearLayers();
-provalayer.addLayer(heatMap);
-
-map.addLayer(provalayer);
 
 
 });
@@ -242,7 +241,8 @@ map.addLayer(provalayer);
 var blurslider=document.getElementById("blur");
 blurslider.oninput=function(){
     heatMap.setOptions({
-        blur: parseInt(this.value)
+        blur: parseInt(this.value),
+                minOpacity: 0.7
     });
     // render the new options
     heatMap.redraw();
@@ -253,13 +253,29 @@ blurslider.oninput=function(){
 var radiusslider=document.getElementById("radius");
 radiusslider.oninput=function(){
    heatMap.setOptions({
-        radius: parseInt(this.value)
+        radius: parseInt(this.value),
+                minOpacity: 0.7
     });
     // render the new options
     heatMap.redraw();
     console.log(this.value);
 }
    
+$('input[type="radio"]').on('click',function(){
+     var value = $(this).val();
+     
+     var name = $(this).attr('value');
+     if(value=='stadia'){
+     L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+	maxZoom: 18,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+}else{
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	maxZoom: 19,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);}
+});
 </script>
 </body>
 </html>
