@@ -24,12 +24,13 @@ app.get('/', (request, response) => {
 // Locations API
 app.post('/getLocations',api.getLocations )
 app.post('/getLocation',api.getLocationById )
-app.post('/createLocation', api.createLocation)
+app.get('/createLocation', api.createLocation)
 app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
 
 // Clustering API
 app.get('/showClustering', api.showClustering)
+
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
 })

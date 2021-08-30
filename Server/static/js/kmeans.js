@@ -2,14 +2,6 @@
 // functions used for the k-means clustering classification on a dataset of points
 // k-means is adopted on db values of points and centroids are taken from random points on the dataset
 
-/*
-Dataset structure
-     dataset = {
-            "length" : results.rows.length,
-            "locations" : arrayJSON,
-            "centroids" : subset(arrayJSON),
-        }
- */
 const MAX_ITERATIONS = 30;
 
 // Getting the random value between min and max
@@ -42,7 +34,7 @@ const getRandomCentroids = (dataset, k) => {
         const centroid = dataset.locations[centroidsIndex[i]];
         centroids.push(centroid);
     }
-    return centroids;
+    return centroids; // list of points
 }
 
 const getClusters = (dataset) => {
@@ -88,8 +80,64 @@ const getClusters = (dataset) => {
     return clusters
 }
 
+// recalculation the centroids of the dataset
+// given the dataset, return the new collection of centroid
+const recalculateCentroids = (dataset) => {
+    /*
+        we recalculate the cluster’s centroid.
+        We do this by calculating the group mean.
+        This will shift the centroid to the center of the cluster
+    */
+    let centroid;
+    const centroidList = [];
+
+    for (let k = 0; k < dataset.clusters.length; k++) {
+        const cluster = dataset.clusters[k]
+        if (cluster.locations.length > 0) {
+            // find mean:
+            centroid = getPointsMean(cluster);
+        } else {
+            // get new random centroid, k = 1
+            centroid = getRandomCentroids(dataset, 1)[0]; // taking a new random centroid
+        }
+        dataset.clusters[k].centroid = centroid // update the centroid
+        centroidList.push(centroid);
+    }
+    dataset.centroids = centroidList
+    return centroidList;
+}
+
+// Given a cluster, return the converge mean point as the new centroid
+const getPointsMean = (cluster) => {
+    // Taking locations
+    locations = cluster.locations
+    length = locations.length
+    centroid = cluster.centroid
+    sum = 0
+    for(let i = 0; i < length; i++){
+        sum = sum + locations[i].db
+    }
+    mean = sum / length
+    for(let i = 0; i < length; i++){
+        current = locations[i]
+        if((current.db - mean) < (centroid.db - mean)){
+            centroid = current
+        }
+    }
+
+    return centroid // new centroid
+}
+
+const apply = (dataset, k) => {
+    dataset.centroids = getRandomCentroids(dataset, k) // insert the initial set of centroids
+    dataset.clusters = getClusters(dataset) // insert the initial clusters
+    dataset.centroids = recalculateCentroids(dataset) // update clusters and centroids based on k-mean algorithm
+    return dataset
+}
 
 module.exports = {
     getRandomCentroids,
     getClusters,
+    recalculateCentroids,
+    apply,
 }

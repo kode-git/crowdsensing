@@ -3,6 +3,7 @@
 const Pool = require('pg').Pool
 const pg = require('pg')
 const kmeans = require('./static/js/kmeans')
+const utility = require('./static/js/utility')
 
 // connection at the init
 const pool = new Pool({
@@ -13,6 +14,9 @@ const pool = new Pool({
     port: 5432,
 })
 
+// TODO: Setting geoJSON
+
+
 // --- Locations API ---
 const getLocations = (request, response) => {
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
@@ -20,10 +24,7 @@ const getLocations = (request, response) => {
             // not happen
             throw error
         }
-        dataset = {
-            "length" : results.rows.length,
-            "locations" : results.rows,
-        }
+        dataset = utility.convertLocations(results)
         response.status(200).json(dataset)
     })
 }
@@ -36,14 +37,14 @@ const showClustering = (request, response) => {
         }
         // TODO: Put here the clustering JSON making
 
+
         dataset = {
             "length" : results.rows.length,
             "locations" : results.rows,
         }
-
-        dataset.centroids = kmeans.getRandomCentroids(dataset, 2)
-        dataset.clusters = kmeans.getClusters(dataset)
-        console.log(dataset)
+        dataset = kmeans.apply(dataset,3)
+        json = utility.convertClusters(results)
+        // response.status(200).json(json)
         response.status(200).json(dataset)
     })
 }
