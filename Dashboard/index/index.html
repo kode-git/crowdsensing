@@ -8,6 +8,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
     <script src="/static/js/leaflet-heat.js"></script>
+    <scritp src="./leaflet.ajax.min.js"></script>
+    
     <style type="text/css">
     #map-wrapper {
     width: 100%;
@@ -54,13 +56,16 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        tileSize: 512,
-        zoomOffset: -1
+      
     }).addTo(map);
 
     map.locate({setView: true, maxZoom: 16});
-   
+   var latitudine;
+   var longitudine;
     function onLocationFound(e) {
+        latitudine=e.latitude;
+        longitudine=e.longitude;
+        console.log(e.latitude+' .... ' +e.longitude);
     }
 
     map.on('locationfound', onLocationFound);
@@ -78,9 +83,11 @@
             dataType: "json",
             
             success: function(data){
-
+                console.log(provalayer);
+                console.log(data[1].st_x);
+                
                 for(i=0;i<markerLayers.length;i++){
-                    map.removeLayer(markerLayers[i]);
+                    map.removeLayer(markerLayers[1]);
                 }
                 
                 for(i=0;i<heatmapLayers.length;i++){
@@ -88,14 +95,14 @@
                 }
 
                 for(i=0;i<data.length;i++){
-                    markerLayers[i]= new L.layerGroup();
+                    markerLayers[1]= new L.layerGroup();
 
-                    marker= new L.marker([data[i].point.x, data[i].point.y])
-                    .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].point.x+ ', '+data[i].point.y)
+                    marker= new L.marker([data[i].st_x, data[i].st_y])
+                    .bindPopup('Noise: ' + data[i].noise + ' <br>Location: '+ data[i].st_x+ ', '+data[i].st_y)
                     .openPopup();
                 
-                    markerLayers[i].addLayer(marker);
-                    map.addLayer(markerLayers[i]);  
+                    markerLayers[1].addLayer(marker);
+                    map.addLayer(markerLayers[1]);  
                 }
             }
         });
@@ -121,23 +128,126 @@
 
                 for(i=0;i<data.length;i++){
                 
-                    heatmapLayers[i]= new L.layerGroup();
+                    heatmapLayers=  L.layerGroup();
                     
-                    heat = new L.heatLayer([
-                        [data[i].point.x, data[i].point.y, data[i].noise]], 
-                        {radius: 20});
+                    heat = L.heatLayer([
+                        [data[i].st_x, data[i].st_y, data[i].db]], 
+                        {blur: 17.2});
                         
-                    heatmapLayers[i].addLayer(heat);
-                    map.addLayer(heatmapLayers[i]); 
+                    heatmapLayers.addLayer(heat);
+                    
+                    
+                    console.log("HEAT INSIDE: "+heat);
+                 
                 }
                 
+               var prova= L.layerGroup(heatmapLayers);
+               heat.addTo(map);
             }
                 
         });
     });
+   
 
+    geoJson2heat = function(geojson) {
+        console.log(geojson.features);
+return geojson.features.map(function(feature) {
+return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.noise];
+});
+}
+
+
+    var provalayer = new L.layerGroup();
+map.on('click', function(ev){
     
-       
+
+
+    var geodati= {
+    "type": "FeatureCollection",
+    "features": [{
+            "type": "Feature",
+            "properties": {
+                "Name": "Yishun Community Hospital",
+                "Status": "Operational",
+                "noise": 0.2
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [11.3322379,
+                44.5021307
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "Name": "Orso Hospital",
+                "Status": "Operational",
+                "noise": 0.4
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [11.3332379,
+                44.5021307
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "VINC": "0",
+                "noise": 1
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [11.3342379,
+                44.5021307
+                ]
+            }
+        }
+    ]}
+    
+
+var geoData = geoJson2heat(geodati, 1);
+console.log(geoData);
+var heatMap = new L.heatLayer(geoData,{radius: 40, blur: 25, maxZoom: 17});
+
+map.addLayer(heatMap);
+
+ /*
+  var latlng = map.mouseEventToLatLng(ev.originalEvent);
+  let i = 0;
+map.eachLayer(function(){ i += 1; });
+console.log('Map has', i, 'layers.');
+var test = L.marker([51.5, -0.09]);
+provalayer.addLayer(test);
+console.log(provalayer);
+
+var heat = L.heatLayer([
+	[44.5011307,  11.3322379, 20],
+    [44.5021307,  11.3332379, 20],
+    [44.5031307,  11.3342379, 20], // lat, lng, intensity
+	[50.6, 30.4, 0.5]], {radius: 25}).addTo(map);
+  console.log(latlng.lat + ', ' + latlng.lng);
+
+
+  heatmapLayers[1]=  L.layerGroup();
+  heat = new L.heatLayer([
+                        [latlng.lat, latlng.lng, 30]], 
+                        {blur:17.2}).addTo(map);
+         
+         
+                        var layerGroup = L.layerGroup().addTo(map);
+
+for (i = 0; i < coordinates.length; i++) {
+    marker = L.marker([coordinates[i][0], coordinates[i][1]]);
+    layerGroup.addLayer(marker);
+}
+
+var overlay = {'markers': layerGroup};
+L.control.layers(null, overlay).addTo(map);*/
+
+});
    
 </script>
 </body>
