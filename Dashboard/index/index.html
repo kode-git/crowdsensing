@@ -41,6 +41,7 @@
             <button class="btn btn-primary" type="submit" id="marker">Show Noise Markers</button>
             <button class="btn btn-primary" type="submit" id="heatmap">Show Noise Heatmap</button>
             <button class="btn btn-primary" type="submit" id="clustering">Show Noise Clustering</button>
+            <button class="btn btn-primary" type="submit" id="request">POST REQUEST</button>
             <div class="slidecontainer" min="0" max="10" value="2" step="10">
                 <input type="range" min="1" max="50" value="20" step="0.1" class="slider" id="blur">
                 <input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius">
@@ -159,7 +160,7 @@
     });
    
 
-    
+// TEST FOR POLYGON 
     $("#clustering").on("click", e=>{
         e.preventDefault();
         $.ajax({
@@ -168,10 +169,91 @@
             dataType: "json",
             
             success: function(data){
+                var states = [{
+                    "type": "Feature",
+                    "properties": {"party": "Bologna"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [11.338301255783536,44.4958609349294],
+                            [11.34220655210922,44.50081979701788  ],
+                            [11.353836610397794,44.49809553609738  ],
+                            [11.350231721481778,44.490319979079864   ],
+                            [11.343021943649747, 44.492095591313145   ]
+                        ]]
+                    }
+                }];
+
+                L.geoJson(states, {
+                    style: function(feature) {
+                        switch (feature.properties.party) {
+                            case 'Bologna': return {color: "#0000ff"};
+                        }
+                    }
+                });
+
+
+                var layer = new L.geoJson(states, {
+                onEachFeature: function (feature, layer) {
+                    layer.on('mouseover', function () {
+                    this.setStyle({
+                        'fillColor': '#0000ff'
+                    });
+                    });
+                    layer.on('mouseout', function () {
+                    this.setStyle({
+                        'fillColor': '#ff0000'
+                    });
+                    });
+                    layer.on('click', function () {
+                    // Let's say you've got a property called url in your geojsonfeature:
+                    alert("Hello! I am an alert box!!");
+                    });
+                }
+                }).addTo(map);
             }
         })
     });
 
+
+
+    
+  
+
+//TODO: CLUSTERING WHILE ZOOMING
+
+//Zoom level goes from 0 to 19
+
+const zoomarker = new L.layerGroup();
+map.on('zoomend', function() {
+  var currentZoom = map.getZoom();
+  $.ajax({
+            url: "/getLocations",
+            type: "POST",
+            dataType: "json",
+            
+            success: function(data){
+                console.log(map.getZoom());
+               
+                if(map.getZoom()<13){
+                    zoomarker.clearLayers();
+                    var marker = L.marker([44.50081979701788,11.34220655210922], { title: "My marker" }).addTo(map);
+                zoomarker.addLayer(marker);
+                
+                map.addLayer(zoomarker);
+                }else{
+                    zoomarker.clearLayers();
+                    var marker = L.marker([44.51081979701788,11.35220655210922], { title: "My marker" }).addTo(map);
+                zoomarker.addLayer(marker);
+                
+                map.addLayer(zoomarker);
+                }
+            }
+                
+        });
+});
+
+//SET GEOJSON FOR HEATMAP FUNCTION
 geoJson2heat = function(geojson) {
     return geojson.features.map(function(feature) {
     return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),(feature.properties.db)];
@@ -181,6 +263,8 @@ geoJson2heat = function(geojson) {
 var heatMap=0;
 const heatmaplayer = new L.layerGroup();
 const markerlayer = new L.layerGroup();
+
+/*
 map.on('click', function(ev){
 
     var geodati= {
@@ -235,32 +319,30 @@ var geoData = geoJson2heat(geodati, 1);
 
 
 
-});
+}); */
 
 
+//HEATMAP BLUR SLIDER
 var blurslider=document.getElementById("blur");
 blurslider.oninput=function(){
     heatMap.setOptions({
-        blur: parseInt(this.value),
-                minOpacity: 0.7
+        blur: parseInt(this.value)
     });
     // render the new options
     heatMap.redraw();
-    document.getElementById("radius").disabled;
 }
 
-
+//HEATMAP RADIUS SLIDER
 var radiusslider=document.getElementById("radius");
 radiusslider.oninput=function(){
    heatMap.setOptions({
-        radius: parseInt(this.value),
-                minOpacity: 0.7
+        radius: parseInt(this.value)
     });
-    // render the new options
+     // render the new options
     heatMap.redraw();
-    console.log(this.value);
 }
-   
+
+//MAP STYLE RADIO BUTTON
 $('input[type="radio"]').on('click',function(){
      var value = $(this).val();
      
@@ -276,6 +358,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);}
 });
+
+
+
 </script>
 </body>
 </html>
