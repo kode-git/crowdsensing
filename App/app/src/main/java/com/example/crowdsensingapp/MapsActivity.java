@@ -76,7 +76,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if(entry.getKey().equals("nNeighbour")) {
                 actualSettings.setnNeighbour((int) entry.getValue());
-                System.out.println(entry.getValue() + " restoring");
             }else if (entry.getKey().equals("range")){
                 actualSettings.setRange((int) entry.getValue());
             }
@@ -132,7 +131,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                                     mMap.addMarker(new MarkerOptions().position(latLngLoc).title("Your position"));
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLoc));
-                                    System.out.println("YOLO "+ location);
                                 }
 
                             }
@@ -152,7 +150,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
                     for (Location location : locationResult.getLocations()) {
-                            System.out.println(location + "$$$$");
                             actuaLocation=location;
                     }
                 } };
@@ -213,7 +210,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void openSettings(){
         SettingsView settingsView = new SettingsView();
         Bundle bundle = new Bundle();
-        System.out.println(actualSettings.getRange() + "ZZZZ");
         bundle.putInt("range",actualSettings.getRange());
         bundle.putInt("neigh",actualSettings.getnNeighbour());
         settingsView.setArguments(bundle);
@@ -248,7 +244,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
-            String URL = "localhost:3000/createLocation";
+            String URL = "http://10.0.2.2:3000/createLocation";
             JSONObject jsonBody = new JSONObject();
             jsonBody.put("Neighbour", actualSettings.getnNeighbour());
             jsonBody.put("Range", actualSettings.getRange());
