@@ -43,7 +43,7 @@
             <button class="btn btn-primary" type="submit" id="clustering">Show Noise Clustering</button>
             <button class="btn btn-primary" type="submit" id="request">POST REQUEST</button>
             <div class="slidecontainer" min="0" max="10" value="2" step="10">
-                <input type="range" min="1" max="50" value="20" step="0.1" class="slider" id="blur">
+                <input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
                 <input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius">
               </div>
               <p>Select a map type:</p>
@@ -79,13 +79,13 @@
 
     var map = L.map('map');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	maxZoom: 19,
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
     map.locate({setView: true, maxZoom: 16});
-   var latitudine;
-   var longitudine;
+    var latitudine;
+    var longitudine;
     function onLocationFound(e) {
         latitudine=e.latitude;
         longitudine=e.longitude;
@@ -96,8 +96,12 @@
 
     let marker;
     let heat;
+    const heatmaplayer = new L.layerGroup();
+    const markerlayer = new L.layerGroup();
     markerLayers = [];
     heatmapLayers=[];
+    var heatMap=0;
+
 
     $("#marker").on("click", e=>{
         e.preventDefault();
@@ -116,26 +120,25 @@
                     opacity: 1,
                     fillOpacity: 0.8
                 };
+
                 marker=L.geoJson(data, {
-                pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, geojsonMarkerOptions);
+                    pointToLayer: function (feature, latlng) {
+                        return L.circleMarker(latlng, geojsonMarkerOptions);
                     },onEachFeature: function (feature, layer) {
-    layer.bindPopup('<p>Latitude: '+feature.geometry.coordinates[1]+'</p> <p>Longitude: '+feature.geometry.coordinates[0]+'\n </p>');
-  }
+                        layer.bindPopup('<p>Latitude: '+feature.geometry.coordinates[1]+'</p> <p>Longitude: '+feature.geometry.coordinates[0]+'\n </p>');
+                    }
 
                 });
 
                 markerlayer.clearLayers();
                 heatmaplayer.clearLayers();
                 markerlayer.addLayer(marker);
-                console.log(data);
-                map.addLayer(markerlayer);
-                
-                
+                map.addLayer(markerlayer);    
             }
         });
     });
 
+    
 
 
     $("#heatmap").on("click", e=>{
@@ -146,8 +149,9 @@
             dataType: "json",
             
             success: function(data){
-                var geoData = geoJson2heat(data, 1);
-                heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17});
+               var geoData = geoJson2heat(data, 1);
+                console.log(geoData[1]);
+                heatMap = new L.heatLayer(geoData,{max: 20.0});
                 markerlayer.clearLayers();
                 heatmaplayer.clearLayers();
                 
@@ -160,11 +164,33 @@
     });
    
 
-// TEST FOR POLYGON 
+    // CLUSTERING
+    var zoom=map.getZoom();
     $("#clustering").on("click", e=>{
         e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/showClustering',
+                dataType: 'json',
+                data: {
+                    k: parseInt(map.getZoom())
+                },
+
+                success: function(data){
+                    for(let i=0;i<parseInt(map.getZoom());i++){
+                        var polygon = L.polygon(data.clusters[i].geometry.coordinates).addTo(map);
+                    }
+                }
+            })
+        });
+
+    
+    /*
+// TEST FOR POLYGON 
+    $("#clustering2").on("click", e=>{
+        e.preventDefault();
         $.ajax({
-            url: "/getLocations",
+            url: "/showClustering",
             type: "POST",
             dataType: "json",
             
@@ -215,7 +241,7 @@
         })
     });
 
-
+*/
 
     
   
@@ -223,7 +249,7 @@
 //TODO: CLUSTERING WHILE ZOOMING
 
 //Zoom level goes from 0 to 19
-
+/*
 const zoomarker = new L.layerGroup();
 map.on('zoomend', function() {
   var currentZoom = map.getZoom();
@@ -251,76 +277,14 @@ map.on('zoomend', function() {
             }
                 
         });
-});
+});*/
 
 //SET GEOJSON FOR HEATMAP FUNCTION
 geoJson2heat = function(geojson) {
     return geojson.features.map(function(feature) {
-    return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),(feature.properties.db)];
+    return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.db];
     });
 }
-
-var heatMap=0;
-const heatmaplayer = new L.layerGroup();
-const markerlayer = new L.layerGroup();
-
-/*
-map.on('click', function(ev){
-
-    var geodati= {
-    "type": "blabla",
-    "prova": 12,
-    "features": [{
-            "type": "prova",
-            "properties": {
-                "Name": "Yishun Community Hospital",
-                "Status": "Operational",
-                "noise": 3.0
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [44.5021307,11.3322379            
-                ]
-            }
-        },
-        {
-            "type": "aaa",
-            "properties": {
-                "Name": "Orso Hospital",
-                "Status": "Operational",
-                "noise": 3.4
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [44.5021307,11.3332379
-                
-                ]
-            }
-        },
-        {
-            "type": "Featurrre",
-            "properties": {
-                "VINC": "0",
-                "noise": 4.7
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [
-                44.5021307,11.3342379
-                ]
-            }
-        }
-    ]}
-    
-
-var geoData = geoJson2heat(geodati, 1);
-
- heatMap = new L.heatLayer(geoData,{radius: 25, blur: 25, maxZoom: 17}).addTo(map);
-
-
-
-}); */
-
 
 //HEATMAP BLUR SLIDER
 var blurslider=document.getElementById("blur");
@@ -347,17 +311,27 @@ $('input[type="radio"]').on('click',function(){
      var value = $(this).val();
      
      var name = $(this).attr('value');
-     if(value=='stadia'){
+     if(value=='mapnik'){
      L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
 	maxZoom: 18,
 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
-}else{
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	maxZoom: 19,
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);}
+}else if(value=='thunder'){
+    var Thunderforest_Transport = L.tileLayer('https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey={apikey}', {
+	attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	apikey: '4d975f2a48924ef0beda223fc08d16ef',
+	maxZoom: 22
+}).addTo(map);
+}else if(value=='stadia'){
+    var Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+	maxZoom: 20,
+    r:'f7bbae07-5f38-4731-92c2-3f977975be0a',
+	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+}).addTo(map);
+}
 });
+
+//
 
 
 
