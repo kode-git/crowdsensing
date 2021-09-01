@@ -34,7 +34,7 @@ const getMeanDb = (request, response) => {
 
 const showClustering = (request, response) => {
     const k = parseInt(request.body.k)
-    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    pool.query('select id, neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if(error){
             // not happen
             throw error
@@ -47,8 +47,10 @@ const showClustering = (request, response) => {
             "centroids" : [],
         }
         dataset = kmeans.apply(dataset,k)
+        if(k > dataset.locations.length){
+            throw error
+        }
         json = utility.convertClusters(results, dataset)
-        console.log(json)
         response.status(200).json(json)
     })
 }

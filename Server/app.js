@@ -30,7 +30,7 @@ app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
 
 // Clustering API
-app.get('/showClustering', api.showClustering)
+app.post('/showClustering', api.showClustering)
 app.post('/getMeanDb', api.getMeanDb)
 
 

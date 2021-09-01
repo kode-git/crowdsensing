@@ -61,8 +61,8 @@ const convertClusters = (results, dataset) => {
                 }
             }
         }
-        feature = {
-            "type" : "Feature",
+        locFeature = {
+            "type" : "Location",
             "properties" : {
                 "id" : row.id,
                 "db" : row.db,
@@ -76,20 +76,32 @@ const convertClusters = (results, dataset) => {
             }
         }
 
-        geoJSON.locations.push(feature)
+        geoJSON.locations.push(locFeature)
     }
 
     // adding centroids features as geometry colored points
-
     for(let i = 0; i < dataset.centroids.length; i++){
-        geoJSON.centroids.push(dataset.centroids[i])
-        geoJSON.centroids[i].cluster_id = i
+        centroid = dataset.centroids[i]
+        centroidFeature = {
+            "type" : "Centroid",
+            "properties" : {
+                "id" : centroid.id,
+                "db" : centroid.db,
+                "neighbour" : centroid.neighbour,
+                "range" : centroid.range,
+                "cluster_id" : centroid.cluster_id
+            },
+            "geometry" : {
+                "type" : "Point",
+                "coordinates" : [centroid.st_x, centroid.st_y] // inverted respect postGIS data
+            }
+        }
+        geoJSON.centroids.push(centroidFeature)
     }
 
     // adding clusters as collection of polygon
 
     dbMean = calculateMeanDB(dataset)
-
     for(let i = 0; i < geoJSON.centroids.length; i++){
         // adding a number of clusters as well as centroids numbers
         cluster = {
@@ -105,20 +117,16 @@ const convertClusters = (results, dataset) => {
         }
 
         // adding locations coordinates in the coordinates attribute of the Polygon in geoJSON
-        locations = dataset.locations
-        for(let i = 0; i < locations.length; i++){
-            if(locations[i].cluster_id == i){
+        locations = geoJSON.locations
+
+        for(let q = 0; q < locations.length; q++){
+            if(locations[q].properties.cluster_id == i){
                 // location inside the cluster i, need to be considered
-                coord = [ locations[i].st_y, locations[i].st_x]
-                console.log(coord)
+                coord = [ locations[q].geometry.coordinates[0], locations[q].geometry.coordinates[1]]
                 cluster.geometry.coordinates.push(coord) // pushing coordinates in the polygon attribute
-                console.log("Single cluster adding length:")
-                console.log(cluster.geometry.coordinates.length)
             }
         }
         geoJSON.clusters.push(cluster)
-        console.log("geoJSON clusters length:")
-        console.log(geoJSON.clusters)
     }
 
     return geoJSON
@@ -135,13 +143,15 @@ const calculateMeanDB = (dataset) => {
         countLoc.push(0)
     }
 
+    clusters = dataset.clusters
     // adding in the meanDb[j] the sum of locations with cluster_id = j
-    for(let i = 0; i < locations.length; i++){
-        for(let j = 0; j < locations.length; j++){
-            if(locations[i].cluster_id == j){
-                meanDb[j] = meanDb[j] + locations[i].db
-                countLoc[j] = countLoc[j] + 1 // counting of locations of cluster j
-            }
+    for(let i = 0; i < clusters.length; i++){
+        // for each cluster
+        for(let j = 0; j < clusters[i].locations.length; j++){
+            // for each location into a cluster
+                meanDb[i] = meanDb[i] + locations[j].db
+                countLoc[i] = countLoc[i] + 1 // counting of locations of cluster j
+
         }
     }
 
