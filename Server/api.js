@@ -42,8 +42,9 @@ const showClustering = (request, response) => {
             "length" : results.rows.length,
             "locations" : results.rows,
         }
-        dataset = kmeans.apply(dataset,3)
-        json = utility.convertClusters(results)
+        dataset = kmeans.apply(dataset,2)
+        json = utility.convertClusters(results) //TODO: Debug undefined json
+        console.log(json)
         // response.status(200).json(json)
         response.status(200).json(dataset)
     })

@@ -11,6 +11,45 @@ function random(min, max) {
     );
 }
 
+function compareCentroids(newCentroid, oldCentroid) {
+    if(newCentroid !== oldCentroid){
+        return false
+    } else {
+        return true
+    }
+}
+
+function iterate(oldCentroids, centroids, iterations){
+    if (iterations > MAX_ITERATIONS) {
+        return true;
+    }
+    if (!oldCentroids || !oldCentroids.length) {
+        return false;
+    }
+    let sameCount = true;
+    for (let i = 0; i < centroids.length; i++) {
+        if (!compareCentroids(centroids[i], oldCentroids[i])) {
+            sameCount = false;
+        }
+    }
+    return sameCount;
+}
+
+// Setting of the db means for each cluster into the json dataset
+function calculateDbMeans(clusters){
+    length = clusters.length
+    for(let i = 0; i < length; i++){
+        tot = clusters[i].locations.length
+        dbs = 0.0
+        for(let j = 0; j < tot; j++){
+            dbs = dbs + clusters[i].locations[j].db
+        }
+        clusters[i].cluster_db = dbs / tot
+    }
+
+    return clusters
+}
+
 // Calculate Squared Euclidean Distance
 // sqrt((p1 - q1)^2 + (p2 - q2)^2)
 function getSquaredED(x1, y1,x2,y2) {
@@ -39,11 +78,12 @@ const getRandomCentroids = (dataset, k) => {
 
 const getClusters = (dataset) => {
     // prepare clusters
-    const clusters = []
+    clusters = []
     for(let c = 0; c < dataset.centroids.length; c++){
         // for each cluster
         clusters.push({
             "cluster_id" : c,
+            "cluster_db" : 0,
             "locations" : [],
             "centroid" : dataset.centroids[c],
         });
@@ -76,6 +116,9 @@ const getClusters = (dataset) => {
         // console.log('Put in ' + closestIndex + ' the value ' + JSON.stringify(clusters[closestIndex]) + "\n\n\n")
         clusters[closestIndex].locations.push(point)
     }
+
+    // calculate db means for each cluster
+    clusters = calculateDbMeans(clusters)
 
     return clusters
 }
@@ -129,11 +172,23 @@ const getPointsMean = (cluster) => {
 }
 
 const apply = (dataset, k) => {
-    dataset.centroids = getRandomCentroids(dataset, k) // insert the initial set of centroids
-    dataset.clusters = getClusters(dataset) // insert the initial clusters
-    dataset.centroids = recalculateCentroids(dataset) // update clusters and centroids based on k-mean algorithm
+    if(dataset.length && dataset.length > k){
+        let iterations = 0
+        let oldCentroids, clusters, centroids;
+        centroids = getRandomCentroids(dataset, k) // insert the initial set of centroids
+        dataset.centroids = centroids
+        while(!iterate(oldCentroids, centroids, iterations)){
+            // saving of the old centroids for coverenge testing
+            oldCentroids = [...centroids]
+            iterations++
+            clusters = getClusters(dataset) // insert the initial clusters
+            dataset.clusters = clusters
+            dataset.centroids = recalculateCentroids(dataset) // update clusters and centroids based on k-mean algorithm
+        }
+    }
     return dataset
 }
+
 
 module.exports = {
     getRandomCentroids,
