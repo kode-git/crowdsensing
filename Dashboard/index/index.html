@@ -99,6 +99,10 @@
     const heatmaplayer = new L.layerGroup();
     const markerlayer = new L.layerGroup();
     markerLayers = [];
+    const clusterlayer = new L.layerGroup();
+    clusterLayers = [];
+    const vertexlayer = new L.layerGroup();
+    vertexLayers = [];
     heatmapLayers=[];
     var heatMap=0;
 
@@ -132,6 +136,8 @@
 
                 markerlayer.clearLayers();
                 heatmaplayer.clearLayers();
+                clusterlayer.clearLayers();
+                vertexlayer.clearLayers();
                 markerlayer.addLayer(marker);
                 map.addLayer(markerlayer);    
             }
@@ -150,8 +156,9 @@
             
             success: function(data){
                var geoData = geoJson2heat(data, 1);
-                console.log(geoData[1]);
-                heatMap = new L.heatLayer(geoData,{max: 20.0});
+                heatMap = new L.heatLayer(geoData,{max: 1});
+                clusterlayer.clearLayers();
+                vertexlayer.clearLayers();
                 markerlayer.clearLayers();
                 heatmaplayer.clearLayers();
                 
@@ -163,12 +170,13 @@
         });
     });
    
-
-    // CLUSTERING
-    var zoom=map.getZoom();
+ // CLUSTERING
+   
     $("#clustering").on("click", e=>{
         e.preventDefault();
-            $.ajax({
+    //map.on('zoomend', function() {
+    //    console.log(map.getZoom());
+        $.ajax({
                 type: 'POST',
                 url: '/showClustering',
                 dataType: 'json',
@@ -177,107 +185,96 @@
                 },
 
                 success: function(data){
+                    clusterlayer.clearLayers();
+                    vertexlayer.clearLayers();
+                    markerlayer.clearLayers();
+                    heatmaplayer.clearLayers();
+
+                    console.log(data);
                     for(let i=0;i<parseInt(map.getZoom());i++){
-                        var polygon = L.polygon(data.clusters[i].geometry.coordinates).addTo(map);
-                    }
+                        
+                        //console.log(getColor(data.centroids[i].properties.db));
+                        var geojsonPolygonOptions = {
+                                fillColor: getColor(data.centroids[i].properties.db),
+                                weight: 2,
+                                opacity: 2,
+                                color: 'black',
+                                dashArray: '3',
+                                fillOpacity: 0.5
+                                
+                            };
+
+                        var geojsonMarkerOptions = {
+                               fillColor: getColor(data.centroids[i].properties.db),
+                               weight: 2,
+                               opacity: 1000,
+                               color: 'black',
+                               fillOpacity: 0.5      
+                            };
+
+                        //POLYGONS
+                        var polygon = L.polygon(data.clusters[i].geometry.coordinates,geojsonPolygonOptions);
+                        
+                        //CENTROIDS
+                        var lat=data.centroids[i].geometry.coordinates[0];
+                        var lng=data.centroids[i].geometry.coordinates[1];
+                        var latlng = new L.latLng(lat,lng);
+                            
+                        var centroid = L.circleMarker(latlng,geojsonMarkerOptions);
+                        
+                        //Centroids and polygons layers
+                        clusterlayer.addLayer(polygon);
+                        clusterlayer.addLayer(centroid);
+
+                        for(let j=0; j<data.clusters[i].geometry.coordinates.length;j++){
+                            
+                            
+                            var lat=data.clusters[i].geometry.coordinates[j][0];
+                            var lng=data.clusters[i].geometry.coordinates[j][1];
+                            var latlng = new L.latLng(lat,lng);
+                            
+                            var geojsonMarkerOptions = {
+                                radius: 4,
+                                fillColor: getColor(data.centroids[i].properties.db),
+                                color: "#000",
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8
+                            };
+
+
+                            var vertex = L.circleMarker(latlng,geojsonMarkerOptions);
+                            vertexlayer.addLayer(vertex);
+
+                        }
+                }                
+                map.addLayer(clusterlayer);    
+                map.addLayer(vertexlayer);
                 }
             })
         });
 
-    
-    /*
-// TEST FOR POLYGON 
-    $("#clustering2").on("click", e=>{
-        e.preventDefault();
-        $.ajax({
-            url: "/showClustering",
-            type: "POST",
-            dataType: "json",
-            
-            success: function(data){
-                var states = [{
-                    "type": "Feature",
-                    "properties": {"party": "Bologna"},
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[
-                            [11.338301255783536,44.4958609349294],
-                            [11.34220655210922,44.50081979701788  ],
-                            [11.353836610397794,44.49809553609738  ],
-                            [11.350231721481778,44.490319979079864   ],
-                            [11.343021943649747, 44.492095591313145   ]
-                        ]]
-                    }
-                }];
-
-                L.geoJson(states, {
-                    style: function(feature) {
-                        switch (feature.properties.party) {
-                            case 'Bologna': return {color: "#0000ff"};
-                        }
-                    }
-                });
 
 
-                var layer = new L.geoJson(states, {
-                onEachFeature: function (feature, layer) {
-                    layer.on('mouseover', function () {
-                    this.setStyle({
-                        'fillColor': '#0000ff'
-                    });
-                    });
-                    layer.on('mouseout', function () {
-                    this.setStyle({
-                        'fillColor': '#ff0000'
-                    });
-                    });
-                    layer.on('click', function () {
-                    // Let's say you've got a property called url in your geojsonfeature:
-                    alert("Hello! I am an alert box!!");
-                    });
-                }
-                }).addTo(map);
-            }
-        })
-    });
+// Convert DB in a color shade from green to red
+function getColor(value) {  
+    var hue=((value - 20) * 100) / (40 - 20)
+    h=hue;
+    s=100;
+    l=50/100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
 
-*/
 
     
+
   
-
-//TODO: CLUSTERING WHILE ZOOMING
-
-//Zoom level goes from 0 to 19
-/*
-const zoomarker = new L.layerGroup();
-map.on('zoomend', function() {
-  var currentZoom = map.getZoom();
-  $.ajax({
-            url: "/getLocations",
-            type: "POST",
-            dataType: "json",
-            
-            success: function(data){
-                console.log(map.getZoom());
-               
-                if(map.getZoom()<13){
-                    zoomarker.clearLayers();
-                    var marker = L.marker([44.50081979701788,11.34220655210922], { title: "My marker" }).addTo(map);
-                zoomarker.addLayer(marker);
-                
-                map.addLayer(zoomarker);
-                }else{
-                    zoomarker.clearLayers();
-                    var marker = L.marker([44.51081979701788,11.35220655210922], { title: "My marker" }).addTo(map);
-                zoomarker.addLayer(marker);
-                
-                map.addLayer(zoomarker);
-                }
-            }
-                
-        });
-});*/
 
 //SET GEOJSON FOR HEATMAP FUNCTION
 geoJson2heat = function(geojson) {
@@ -285,6 +282,8 @@ geoJson2heat = function(geojson) {
     return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]),feature.properties.db];
     });
 }
+
+
 
 //HEATMAP BLUR SLIDER
 var blurslider=document.getElementById("blur");
@@ -305,6 +304,7 @@ radiusslider.oninput=function(){
      // render the new options
     heatMap.redraw();
 }
+
 
 //MAP STYLE RADIO BUTTON
 $('input[type="radio"]').on('click',function(){
@@ -328,6 +328,7 @@ $('input[type="radio"]').on('click',function(){
     r:'f7bbae07-5f38-4731-92c2-3f977975be0a',
 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
 }).addTo(map);
+ 
 }
 });
 
