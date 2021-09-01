@@ -106,6 +106,7 @@ const deleteLocation = (request, response) => {
     })
 }
 
+// temporal API
 const populate = (request, response) => {
     utility.populateDB(pool, 100 )
     response.status(200).send('populate : success status')

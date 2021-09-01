@@ -1,6 +1,7 @@
-// this is a package of functions used for data manipulation
+// library of functions used for data manipulation and visualization
 
 const kmeans = require('./kmeans')
+const polygon = require('./polysort')
 // given result as a set of loc_ref_points rows, returns data in geoJSON format
 const convertLocations = (results) => {
     geoJSON = {
@@ -126,6 +127,7 @@ const convertClusters = (results, dataset) => {
                 cluster.geometry.coordinates.push(coord) // pushing coordinates in the polygon attribute
             }
         }
+        polygon.polySort(cluster.geometry.coordinates)
         geoJSON.clusters.push(cluster)
     }
 
