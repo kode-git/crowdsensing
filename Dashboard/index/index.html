@@ -45,6 +45,7 @@
             <div class="slidecontainer" min="0" max="10" value="2" step="10">
                 <input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
                 <input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius">
+                <input type="range" min="1" max="20" value="1" step="1" class="slider" id="cluster">
               </div>
               <p>Select a map type:</p>
 
@@ -66,24 +67,21 @@
             </div> 
         
     </div>
-  </div>
+    
 
 <script type="text/javascript">
 
-    //Get current position
-    var options = {
-    enableHighAccuracy: true,
-    timeout: 5000,
-    maximumAge: 0
-    };
+   
 
-    var map = L.map('map');
+    var map = L.map('map',{zoomSnap: 0.25,
+			zoomDelta: 0.5,}).setView([44.494960715733576, 11.344000549862148], 13);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    map.locate({setView: true, maxZoom: 16});
+    /*
+    map.locate({setView: true, minZoom: 5});
     var latitudine;
     var longitudine;
     function onLocationFound(e) {
@@ -92,7 +90,7 @@
         console.log(e.latitude+' .... ' +e.longitude);
     }
 
-    map.on('locationfound', onLocationFound);
+    map.on('locationfound', onLocationFound);*/
 
     let marker;
     let heat;
@@ -171,17 +169,23 @@
     });
    
  // CLUSTERING
-   
+ /*
+ 	map.on('zoomend', function() {
+			clustering(map.getZoom());
+		});
+*/
     $("#clustering").on("click", e=>{
         e.preventDefault();
-    //map.on('zoomend', function() {
-    //    console.log(map.getZoom());
+            clustering(map.getZoom());
+    });
+        
+        function clustering(mapzoom) {
         $.ajax({
                 type: 'POST',
                 url: '/showClustering',
                 dataType: 'json',
                 data: {
-                    k: parseInt(map.getZoom())
+                    k: parseInt(mapzoom)
                 },
 
                 success: function(data){
@@ -191,74 +195,89 @@
                     heatmaplayer.clearLayers();
 
                     console.log(data);
-                    for(let i=0;i<parseInt(map.getZoom());i++){
+                    
+                    for(let i=0;i<parseInt(mapzoom);i++){
                         
                         //console.log(getColor(data.centroids[i].properties.db));
                         var geojsonPolygonOptions = {
                                 fillColor: getColor(data.centroids[i].properties.db),
-                                weight: 2,
+                                weight: 1,
                                 opacity: 2,
                                 color: 'black',
                                 dashArray: '3',
-                                fillOpacity: 0.5
+                                fillOpacity: 0.5,
+                                smoothFactor:3
                                 
                             };
+                            
 
                         var geojsonMarkerOptions = {
                                fillColor: getColor(data.centroids[i].properties.db),
-                               weight: 2,
-                               opacity: 1000,
-                               color: 'black',
-                               fillOpacity: 0.5      
+                               color: "#000",
+                                weight: 1,
+                                opacity: 1,
+                                fillOpacity: 0.8     
                             };
-
                         //POLYGONS
-                        var polygon = L.polygon(data.clusters[i].geometry.coordinates,geojsonPolygonOptions);
-                        
+                        var polygon = L.polygon(data.clusters[i].geometry.coordinates,geojsonPolygonOptions).bindPopup('<h1>'+ data.centroids[i].properties.db + 'db </h1> <p> '+data.clusters[i].geometry.coordinates.length+' points belongs to this cluster </p>');
+                        polygon.on('mouseover', function () {
+                        this.setStyle({
+                            'fillColor': '#0000ff'
+                        })
+                        });
+                        polygon.on('mouseout', function () {
+                        this.setStyle({
+                            'fillColor': getColor(data.centroids[i].properties.db)
+                        });
+                        });
                         //CENTROIDS
                         var lat=data.centroids[i].geometry.coordinates[0];
                         var lng=data.centroids[i].geometry.coordinates[1];
                         var latlng = new L.latLng(lat,lng);
                             
-                        var centroid = L.circleMarker(latlng,geojsonMarkerOptions);
+                        var centroid = L.circleMarker(latlng,geojsonMarkerOptions).bindPopup('<h1>'+ data.centroids[i].properties.db + 'db </h1>');
                         
                         //Centroids and polygons layers
                         clusterlayer.addLayer(polygon);
                         clusterlayer.addLayer(centroid);
-
-                        for(let j=0; j<data.clusters[i].geometry.coordinates.length;j++){
+                    
+                        for(let j=0; j<data.locations.length;j++){
                             
-                            
-                            var lat=data.clusters[i].geometry.coordinates[j][0];
-                            var lng=data.clusters[i].geometry.coordinates[j][1];
-                            var latlng = new L.latLng(lat,lng);
-                            
-                            var geojsonMarkerOptions = {
-                                radius: 4,
-                                fillColor: getColor(data.centroids[i].properties.db),
-                                color: "#000",
-                                weight: 1,
-                                opacity: 1,
-                                fillOpacity: 0.8
-                            };
-
-
-                            var vertex = L.circleMarker(latlng,geojsonMarkerOptions);
-                            vertexlayer.addLayer(vertex);
-
+                            // console.log(getColor(data.locations[j].properties.db));
+                             
+                             var lat=data.locations[j].geometry.coordinates[0];
+                             var lng=data.locations[j].geometry.coordinates[1];
+                             var latlng = new L.latLng(lat,lng);
+                             var geojsonVertexOptions = {
+                                 radius: 4,
+                                 fillColor: getColor(data.locations[j].properties.db),
+                                 color: "#000",
+                                 weight: 1,
+                                 opacity: 1,
+                                 fillOpacity: 0.8
+                             };
+ 
+ 
+                             var vertex = L.circleMarker(latlng,geojsonVertexOptions).bindPopup('<h1>'+ data.locations[j].properties.db + 'db </h1>');;
+                             vertexlayer.addLayer(vertex);
+                             
+                         }
                         }
-                }                
-                map.addLayer(clusterlayer);    
+                map.addLayer(clusterlayer); 
                 map.addLayer(vertexlayer);
-                }
+                
+                
+                
+                  
+            }       
             })
-        });
+        }
 
 
-
+//TODO: SISTEMARE LA SFUMATURA 
 // Convert DB in a color shade from green to red
 function getColor(value) {  
-    var hue=((value - 20) * 100) / (40 - 20)
+    var hue=((value - 10) * 40) / (40 - 20)
     h=hue;
     s=100;
     l=50/100;
@@ -303,6 +322,12 @@ radiusslider.oninput=function(){
     });
      // render the new options
     heatMap.redraw();
+}
+
+//CLUSTER K-MEANS SLIDER
+var blurslider=document.getElementById("cluster");
+blurslider.oninput=function(){
+    clustering(this.value);
 }
 
 
