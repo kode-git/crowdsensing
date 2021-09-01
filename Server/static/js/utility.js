@@ -7,120 +7,29 @@ const convertLocations = (results) => {
         "features" : []
     }
     const rLength = results.rows.length
-    for(let i = 0; i < rLength; i++){
+    for(let i = 0; i < rLength; i++) {
         row = results.rows[i] //
         feature = {
-            "type" : "Feature",
-            "properties" : {
-                "id" : row.id,
-                "db" : row.db,
-                "neighbour" : row.neighbour,
-                "range" : row.range
+            "type": "Feature",
+            "properties": {
+                "id": row.id,
+                "db": row.db,
+                "neighbour": row.neighbour,
+                "range": row.range
             },
-            "geometry" : {
-                "type" : "Point",
-<<<<<<< HEAD
-                "coordinates" : [row.st_x, row.st_y] // inverted respect postGIS data
-                }
-=======
-                "coordinates" : [ row.st_y,row.st_x] // inverted respect postGIS data
->>>>>>> ed51c35418582c584e10791ae63ea2e1a18b2a38
+            "geometry": {
+                "type": "Point",
+                "coordinates": [row.st_y, row.st_x] // inverted respect postGIS data
+
             }
+
+        }
 
         geoJSON.features.push(feature)
     }
-
     return geoJSON
 }
 
-/*
-{"length":10,"locations":
-    [{"neighbour":5,"range":3000,"db":35.6,"st_x":44.494606081093835,"st_y":11.342310933141105},
-    {"neighbour":5,"range":3000,"db":45.6,"st_x":44.49382696564242,"st_y":11.340955053334865},
-    {"neighbour":5,"range":3000,"db":40.6,"st_x":44.49831345337963,"st_y":11.345286336049236},
-    {"neighbour":5,"range":3000,"db":28.9,"st_x":44.48880276431684,"st_y":11.346227919248012},
-    {"neighbour":5,"range":3000,"db":37.1,"st_x":44.500489409942844,"st_y":11.341218696630524},
-    {"neighbour":5,"range":3000,"db":35.8,"st_x":44.49001183626599,"st_y":11.336586107292545},
-    {"neighbour":5,"range":3000,"db":22.8,"st_x":44.500946081874375,"st_y":11.339071886937313},
-    {"neighbour":5,"range":3000,"db":29,"st_x":44.48928639610413,"st_y":11.337339373851567},
-    {"neighbour":5,"range":3000,"db":49,"st_x":44.496143586417716,"st_y":11.350625283118877},
-    {"neighbour":5,"range":3000,"db":47.3,"st_x":44.49781995931815,"st_y":11.356171600693344}],
-    "centroids":
-        [{"neighbour":5,"range":3000,"db":22.8,"st_x":44.500946081874375,"st_y":11.339071886937313},
-        {"neighbour":5,"range":3000,"db":28.9,"st_x":44.48880276431684,"st_y":11.346227919248012},
-        {"neighbour":5,"range":3000,"db":35.6,"st_x":44.494606081093835,"st_y":11.342310933141105}],
-    "clusters":
-        [{"cluster_id":0,
-          "mean_db": ...
-          "locations":
-                [{"neighbour":5,"range":3000,"db":35.8,"st_x":44.49001183626599,"st_y":11.336586107292545},
-                {"neighbour":5,"range":3000,"db":22.8,"st_x":44.500946081874375,"st_y":11.339071886937313},
-                {"neighbour":5,"range":3000,"db":29,"st_x":44.48928639610413,"st_y":11.337339373851567}],
-          "centroid":{"neighbour":5,"range":3000,"db":22.8,"st_x":44.500946081874375,"st_y":11.339071886937313}},
-         {"cluster_id":1,
-          "mean_db": ...
-          "locations":
-                 [{"neighbour":5,"range":3000,"db":28.9,"st_x":44.48880276431684,"st_y":11.346227919248012},
-                  {"neighbour":5,"range":3000,"db":49,"st_x":44.496143586417716,"st_y":11.350625283118877},
-                  {"neighbour":5,"range":3000,"db":47.3,"st_x":44.49781995931815,"st_y":11.356171600693344}],
-           "centroid":{"neighbour":5,"range":3000,"db":28.9,"st_x":44.48880276431684,"st_y":11.346227919248012}},
-         {"cluster_id":2,
-          "locations":
-            [{"neighbour":5,"range":3000,"db":35.6,"st_x":44.494606081093835,"st_y":11.342310933141105},
-             {"neighbour":5,"range":3000,"db":45.6,"st_x":44.49382696564242,"st_y":11.340955053334865},
-             {"neighbour":5,"range":3000,"db":40.6,"st_x":44.49831345337963,"st_y":11.345286336049236},
-             {"neighbour":5,"range":3000,"db":37.1,"st_x":44.500489409942844,"st_y":11.341218696630524}],
-         "centroid":{"neighbour":5,"range":3000,"db":35.6,"st_x":44.494606081093835,"st_y":11.342310933141105}}]}
-
-geoJSON = {
-       "type" : "ClusterCollection",
-       "locations" : [
-        {
-            "type" : "Feature",
-            "properties" : {
-                "id" : row.id,
-                "db" : row.db,
-                "neighbour" : row.neighbour,
-                "range" : row.range
-                "cluster_id" : cluster_id
-            },
-            "geometry" : {
-                "type" : "Point",
-                "coordinates" : [row.st_x, row.st_y] // inverted respect postGIS data
-                }
-          }
-       ],
-       "centroids" : [
-                {
-            "type" : "Feature",
-            "properties" : {
-                "id" : row.id,
-                "db" : row.db,
-                "neighbour" : row.neighbour,
-                "range" : row.range
-                "cluster" : cluster.id
-            },
-            "geometry" : {
-                "type" : "Point",
-                "coordinates" : [row.st_x, row.st_y] // inverted respect postGIS data
-                }
-            }
-        ]
-        "clusters" : [
-            {
-            "type" : "Feature",
-            "properties" : {
-                "cluster_id" : row.id,
-                "db_mean" : row.db,
-            },
-            "geometry" : {
-                "type" : "Polygon",
-                "coordinates" : [[loc1.st_x, loc1.st_y], [loc2.st_x, loc2.st_y], [loc3.st_x, loc3.st_y]] // inverted respect postGIS data
-                }
-            }
-        ]
-
- */
 // convert clusters dataset into a geoJSON data format
 // it's similar to the locations but there are like centroids
 // and clusters as added attributes in circle geometry format
@@ -146,6 +55,7 @@ const convertClusters = (results, dataset) => {
             for(let l = 0; l < locLength; l++ ){
                 // loop of locations of cluster j
                 if(locations[l].st_x == row.st_x && locations[l].st_y == row.st_y){
+                    // location inside the cluster
                     cluster_id = dataset.cluster[j].cluster_id
                 }
             }
@@ -156,8 +66,8 @@ const convertClusters = (results, dataset) => {
                 "id" : row.id,
                 "db" : row.db,
                 "neighbour" : row.neighbour,
-                "range" : row.range
-                "cluster_id" :
+                "range" : row.range,
+                "cluster_id" : cluster_id
             },
             "geometry" : {
                 "type" : "Point",
@@ -165,11 +75,77 @@ const convertClusters = (results, dataset) => {
             }
         }
 
-        geoJSON.features.push(feature)
+        geoJSON.locations.push(feature)
     }
 
     // adding centroids features as geometry colored points
 
+    for(let i = 0; i < dataset.centroids.length; i++){
+        geoJSON.centroids.push(dataset.centroids[i])
+        geoJSON.centroids[i].cluster_id = i
+    }
+
+    // adding clusters as collection of polygon
+
+    dbMean = calculateMeanDB(dataset)
+
+    for(let i = 0; i < geoJSON.centroids.length; i++){
+        // adding a number of clusters as well as centroids numbers
+        cluster = {
+            "type" : "Cluster",
+            "properties" : {
+                "cluster_id" : i,
+                "db_mean" : dbMean[i],
+            },
+            "geometry" : {
+                "type" : "Polygon",
+                "coordinates" : [] // inverted respect postGIS data
+            }
+        }
+
+        // adding locations coordinates in the coordinates attribute of the Polygon in geoJSON
+        locations = dataset.locations
+        for(let i = 0; i < locations.length; i++){
+            if(locations[i].cluster_id == i){
+                // location inside the cluster i, need to be considered
+                coord = [ locations[i].st_y, locations[i].st_x]
+                cluster.geometry.coordinates.push(coord) // pushing coordinates in the polygon attribute
+            }
+        }
+        geoJSON.clusters.push(cluster)
+    }
+
+    return geoJSON
+
+}
+
+
+const calculateMeanDB = (dataset) => {
+    meanDb = []
+    countLoc = []
+    locations = dataset.locations
+    for(let x = 0; x < dataset.clusters.length; x++){
+        meanDb.push(0.0) // init meanDb array
+        countLoc.push(0)
+    }
+
+    // adding in the meanDb[j] the sum of locations with cluster_id = j
+    for(let i = 0; i < locations.length; i++){
+        for(let j = 0; j < locations.length; j++){
+            if(locations[i].cluster_id == j){
+                meanDb[j] = meanDb[j] + locations[i].db
+                countLoc[j] = countLoc[j] + 1 // counting of locations of cluster j
+            }
+        }
+    }
+
+    // set means
+    for(let i = 0; i < meanDb.length; i++){
+        meanDb[i] = meanDb[i] / countLoc[i]
+    }
+
+    // return array of meanDb where meanDb[i] is the mean db of the cluster i
+    return meanDb
 
 }
 
@@ -184,4 +160,5 @@ module.exports = {
     convertLocations,
     convertClusters,
     populateDB,
+    calculateMeanDB,
 }

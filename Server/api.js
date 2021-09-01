@@ -29,7 +29,12 @@ const getLocations = (request, response) => {
     })
 }
 
+const getMeanDb = (request, response) => {
+    response.status(200).send('MeanDb response in area from the location in request')
+}
+
 const showClustering = (request, response) => {
+    const k = parseInt(request.body.k)
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if(error){
             // not happen
@@ -42,7 +47,7 @@ const showClustering = (request, response) => {
             "length" : results.rows.length,
             "locations" : results.rows,
         }
-        dataset = kmeans.apply(dataset,2)
+        dataset = kmeans.apply(dataset,k)
         json = utility.convertClusters(results) //TODO: Debug undefined json
         console.log(json)
         // response.status(200).json(json)
@@ -65,7 +70,7 @@ const getLocationById = (request, response) => {
 const createLocation = (request, response) => {
     const { Neighbour, Range, Db, Long, Lat } = request.body
 
-    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
+    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
         if (error) {
             throw error
         }
@@ -102,6 +107,8 @@ const deleteLocation = (request, response) => {
 }
 
 
+
+
 module.exports = {
     getLocations,
     getLocationById,
@@ -109,4 +116,5 @@ module.exports = {
     updateLocation,
     deleteLocation,
     showClustering,
+    getMeanDb,
 }
