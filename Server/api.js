@@ -40,18 +40,16 @@ const showClustering = (request, response) => {
             // not happen
             throw error
         }
-        // TODO: Put here the clustering JSON making
-
 
         dataset = {
             "length" : results.rows.length,
             "locations" : results.rows,
+            "clusters" : [],
+            "centroids" : [],
         }
         dataset = kmeans.apply(dataset,k)
-        json = utility.convertClusters(results) //TODO: Debug undefined json
-        console.log(json)
-        // response.status(200).json(json)
-        response.status(200).json(dataset)
+        json = utility.convertClusters(results, dataset)
+        response.status(200).json(json)
     })
 }
 

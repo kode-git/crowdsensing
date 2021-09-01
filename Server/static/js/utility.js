@@ -43,20 +43,20 @@ const convertClusters = (results, dataset) => {
 
     // adding locations features as geometry points for geoJSON view
     const rLength = results.rows.length
-    const clustsLength = dataset.clusters.length
+    clustsLength = dataset.clusters.length
     for(let i = 0; i < rLength; i++){
         // loop of rows
         cluster_id = 0
         row = results.rows[i] //
-        for(let j = 0; j < clustLength; j++){
+        for(let j = 0; j < clustsLength; j++){
             // loop on clusters
-            let locations = dataset.cluster[j].locations
+            let locations = dataset.clusters[j].locations
             let locLength = locations.length
             for(let l = 0; l < locLength; l++ ){
                 // loop of locations of cluster j
                 if(locations[l].st_x == row.st_x && locations[l].st_y == row.st_y){
                     // location inside the cluster
-                    cluster_id = dataset.cluster[j].cluster_id
+                    cluster_id = dataset.clusters[j].cluster_id
                 }
             }
         }
