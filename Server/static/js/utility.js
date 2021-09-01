@@ -1,5 +1,6 @@
 // this is a package of functions used for data manipulation
 
+const kmeans = require('./kmeans')
 // given result as a set of loc_ref_points rows, returns data in geoJSON format
 const convertLocations = (results) => {
     geoJSON = {
@@ -38,7 +39,7 @@ const convertClusters = (results, dataset) => {
         "type" : "ClustersCollection",
         "locations" : [],
         "centroids" : [],
-        "clusters" : []
+        "clusters" : [],
     }
 
     // adding locations features as geometry points for geoJSON view
@@ -109,10 +110,15 @@ const convertClusters = (results, dataset) => {
             if(locations[i].cluster_id == i){
                 // location inside the cluster i, need to be considered
                 coord = [ locations[i].st_y, locations[i].st_x]
+                console.log(coord)
                 cluster.geometry.coordinates.push(coord) // pushing coordinates in the polygon attribute
+                console.log("Single cluster adding length:")
+                console.log(cluster.geometry.coordinates.length)
             }
         }
         geoJSON.clusters.push(cluster)
+        console.log("geoJSON clusters length:")
+        console.log(geoJSON.clusters)
     }
 
     return geoJSON
@@ -153,7 +159,20 @@ const calculateMeanDB = (dataset) => {
 // range are 0 and 3000 with step 1
 // DBs are between 20 to 50
 const populateDB = (pool, n) => {
+    for(let i = 0; i < n; i++){
+        range = Math.floor(Math.random() * (3000 - 0) + 0)
+        neighbour = Math.floor(Math.random() * (4000 - 0) + 0)
+        db = Math.floor(Math.random() * (55.0 - 20.0) + 20.0)
+        long = Math.random() * (44.5226164783769 - 44.428249953517265) + 44.428249953517265;
+        lat = Math.random() * (11.42506902374428 - 11.280186829752083) + 11.280186829752083
+        pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [neighbour, range, db, long, lat], (error, results) => {
+            if (error) {
+                throw error
+            }
+        })
 
+
+    }
 }
 
 module.exports = {

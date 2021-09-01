@@ -4,7 +4,6 @@ const Pool = require('pg').Pool
 const pg = require('pg')
 const kmeans = require('./static/js/kmeans')
 const utility = require('./static/js/utility')
-
 // connection at the init
 const pool = new Pool({
     user: 'postgres',
@@ -49,6 +48,7 @@ const showClustering = (request, response) => {
         }
         dataset = kmeans.apply(dataset,k)
         json = utility.convertClusters(results, dataset)
+        console.log(json)
         response.status(200).json(json)
     })
 }
@@ -104,6 +104,10 @@ const deleteLocation = (request, response) => {
     })
 }
 
+const populate = (request, response) => {
+    utility.populateDB(pool, 100 )
+    response.status(200).send('populate : success status')
+}
 
 
 
@@ -115,4 +119,5 @@ module.exports = {
     deleteLocation,
     showClustering,
     getMeanDb,
+    populate,
 }

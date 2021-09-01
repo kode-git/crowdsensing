@@ -195,4 +195,5 @@ module.exports = {
     getClusters,
     recalculateCentroids,
     apply,
+    random,
 }

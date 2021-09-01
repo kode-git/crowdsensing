@@ -22,6 +22,7 @@ app.get('/', (request, response) => {
 })
 
 // Locations API
+app.get('/populateDB', api.populate)
 app.post('/getLocations',api.getLocations )
 app.post('/getLocation',api.getLocationById )
 app.post('/createLocation', api.createLocation)
@@ -29,8 +30,9 @@ app.put('/updateLocation/:id', api.updateLocation)
 app.delete('/deleteLocation/:id', api.deleteLocation)
 
 // Clustering API
-app.post('/showClustering', api.showClustering)
+app.get('/showClustering', api.showClustering)
 app.post('/getMeanDb', api.getMeanDb)
+
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
