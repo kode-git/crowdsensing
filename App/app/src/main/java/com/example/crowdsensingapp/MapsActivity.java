@@ -163,7 +163,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             actuaLocation=location;
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
-                            getMeanDbUpd();
+                            //getMeanDbUpd();
                     }
                 } };
         //setting the location updates
@@ -226,9 +226,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:3000/getMeanDb";
             JSONObject jsonBody = new JSONObject();
-            jsonBody.put("Long", actuaLocation.getLongitude());
-            jsonBody.put("Lat", actuaLocation.getLatitude());
-            final String requestBody = jsonBody.toString();
+
+            Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
+            pointFeature.addNumberProperty("Range", actualSettings.getRange());
+            final String requestBody = pointFeature.toString();
+
 
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
@@ -236,7 +238,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.i("VOLLEY", response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
-                        /////////////TODO  set response
                         meanDb.setText("- DB mean");
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -276,7 +277,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             };
 
             requestQueue.add(stringRequest);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -319,13 +320,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:3000/createLocation";
-         //   JSONObject jsonBody = new JSONObject();
-            //jsonBody.put("Neighbour", actualSettings.getnNeighbour());
-            //jsonBody.put("Range", actualSettings.getRange());
-           // jsonBody.put("Db", myDB);
-            /*
-            jsonBody.put("Long", actuaLocation.getLongitude());
-            jsonBody.put("Lat", actuaLocation.getLatitude()); */
 
             Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
 
@@ -333,7 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pointFeature.addNumberProperty("Range", actualSettings.getRange());
             pointFeature.addNumberProperty("Db", myDB);
 
-            final String requestBody = pointFeature.toString();
+            final String requestBody = pointFeature.toJson();
 
 
 

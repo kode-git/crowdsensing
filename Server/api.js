@@ -68,8 +68,14 @@ const getLocationById = (request, response) => {
 }
 
 const createLocation = (request, response) => {
-    const { Neighbour, Range, Db, Long, Lat } = request.body
 
+    const data = request.body
+    console.log(data)
+    Neighbour = data.properties.Neighbour
+    Range = data.properties.Range
+    Db = data.properties.Db
+    Long = data.geometry.coordinates[0]
+    Lat = data.geometry.coordinates[1]
     pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
         if (error) {
             throw error
