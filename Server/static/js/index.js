@@ -31,6 +31,7 @@ markerLayers = [];
 const clusterlayer = new L.layerGroup();
 clusterLayers = [];
 const vertexlayer = new L.layerGroup();
+const centroidlayer = new L.layerGroup();
 vertexLayers = [];
 heatmapLayers = [];
 var heatMap = 0;
@@ -39,27 +40,45 @@ var heatMap = 0;
 
 $("#marker").on("click", e => {
     e.preventDefault();
+    showMarkers();
+});
+
+    function showMarkers() {
+
     $.ajax({
         url: "/getLocations",
         type: "POST",
         dataType: "json",
         
         success: function (data) {
-            
-            var geojsonMarkerOptions = {
-                radius: 10,
-                fillColor: "#0f8bff",
-                color: "#000",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            };
-            
+            $('#clusterDiv *').prop('disabled', true);
+            $('#heatmapDiv *').prop('disabled', true);
+            $('#markerDiv *').prop('disabled', false);          
+           
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
-                    return L.circleMarker(latlng, geojsonMarkerOptions);
+                    if(document.getElementById("colorizeMarker").checked==false){
+                        var geojsonColorizeOptions = {
+                            radius: 6,
+                            fillColor: "#0f8bff",
+                            color: "#000",
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+                        }else{
+                        var geojsonColorizeOptions={
+                            radius: 6,
+                            fillColor: getColor(feature.properties.db),
+                            color: "#000",
+                            weight: 1,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+                    }
+                    return L.circleMarker(latlng, geojsonColorizeOptions);
                 }, onEachFeature: function (feature, layer) {
-                    layer.bindPopup('<p>Latitude: ' + feature.geometry.coordinates[1] + '</p> <p>Longitude: ' + feature.geometry.coordinates[0] + '\n </p>');
+                    layer.bindPopup('<p>DB: ' + feature.properties.db + '\n </p>');
                 }
                 
             });
@@ -68,11 +87,12 @@ $("#marker").on("click", e => {
             heatmaplayer.clearLayers();
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
+            centroidlayer.clearLayers();
             markerlayer.addLayer(marker);
             map.addLayer(markerlayer);
         }
     });
-});
+};
 
 
 // Heatmap Button
@@ -85,11 +105,15 @@ $("#heatmap").on("click", e => {
         dataType: "json",
         
         success: function (data) {
+            $('#clusterDiv *').prop('disabled', true);
+            $('#heatmapDiv *').prop('disabled', false);
+            $('#markerDiv *').prop('disabled', true);
             var geoData = geoJson2heat(data, 1);
             heatMap = new L.heatLayer(geoData, {max: 1});
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             markerlayer.clearLayers();
+            centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
             
             heatmaplayer.addLayer(heatMap);
@@ -101,11 +125,11 @@ $("#heatmap").on("click", e => {
 });
 
 // Clusters Button
-
+/*
 map.on('zoomend', function() {
 showClusters(map.getZoom());
 });
-
+*/
 $("#clusters").on("click", e => {
     e.preventDefault();
     showClusters(map.getZoom());
@@ -121,9 +145,13 @@ function showClusters(mapZoom) {
         },
         
         success: function (data) {
+            $('#clusterDiv *').prop('disabled', false);
+            $('#heatmapDiv *').prop('disabled', true);
+            $('#markerDiv *').prop('disabled', true);
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             markerlayer.clearLayers();
+            centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
             
             console.log(data);
@@ -133,15 +161,13 @@ function showClusters(mapZoom) {
                 //console.log(getColor(data.centroids[i].properties.db));
                 var geojsonPolygonOptions = {
                     fillColor: getColor(data.clusters[i].properties.db),
-                    weight: 1,
-                    opacity: 2,
-                    color: 'black',
-                    dashArray : 3,
+                    weight: 4,
+                    opacity: 1,
+                    color: getColorDarker(data.clusters[i].properties.db),
                     fillOpacity: 0.5,
                     smoothFactor: 3
                     
                 };
-                
                 
                 var geojsonMarkerOptions = {
                     fillColor: getColor(data.clusters[i].properties.db),
@@ -154,7 +180,7 @@ function showClusters(mapZoom) {
                 var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<h1>' + data.centroids[i].properties.db + 'db </h1> <p> ' + data.clusters[i].geometry.coordinates.length + ' points belongs to this cluster </p>');
                 polygon.on('mouseover', function () {
                     this.setStyle({
-                        'fillColor': '#0000ff'
+                        'fillColor': getColorHover(data.clusters[i].properties.db),
                     })
                 });
                 polygon.on('mouseout', function () {
@@ -167,20 +193,18 @@ function showClusters(mapZoom) {
                 var lng = data.centroids[i].geometry.coordinates[1];
                 var latlng = new L.latLng(lat, lng);
                 
-                var centroid = L.circleMarker(latlng, geojsonMarkerOptions)
+                var centroid = L.circleMarker(latlng, geojsonMarkerOptions).bindPopup('<h1>' + data.clusters[i].properties.db + 'db </h1>');
                 
                 //Both layers from centroids and cluster geometries
                 clusterlayer.addLayer(polygon); //
-                clusterlayer.addLayer(centroid); //
+                centroidlayer.addLayer(centroid); //
                 
-                for (let j = 0; j < data.locations.length; j++) {
-                    
-                    
+                for (let j = 0; j < data.locations.length; j++) {    
                     var lat = data.locations[j].geometry.coordinates[0];
                     var lng = data.locations[j].geometry.coordinates[1];
                     var latlng = new L.latLng(lat, lng);
                     var geojsonVertexOptions = {
-                        radius: 4,
+                        radius: 3,
                         fillColor: getColor(data.locations[j].properties.db),
                         color: "#000",
                         weight: 1,
@@ -195,29 +219,77 @@ function showClusters(mapZoom) {
                     
                 }
             }
-            map.addLayer(clusterlayer);
-            map.addLayer(vertexlayer);
-            
+
+
+            document.getElementById("cluster").value=kmeans;
+            var cls=document.getElementById("plg").checked;
+            var vtx=document.getElementById("mrk").checked;
+            var cnt=document.getElementById("cnt").checked;
+        
+            switch (true) {
+                case (cls === true && vtx === true && cnt === true) ://TTT
+                    map.addLayer(clusterlayer);
+                    map.addLayer(centroidlayer);
+                    map.addLayer(vertexlayer);        
+                  break;
+                case (cls === true && vtx === true && cnt === false) ://TTF
+                    map.addLayer(clusterlayer);
+                    map.addLayer(vertexlayer);
+                  break;
+                case (cls === true && vtx === false && cnt === true) ://TFT
+                    map.addLayer(clusterlayer);
+                    map.addLayer(centroidlayer);
+                  break;
+                case (cls === false && vtx === true && cnt === true) ://FTT
+                    map.addLayer(centroidlayer);
+                    map.addLayer(vertexlayer);
+                  break;
+                case (cls === true && vtx === false && cnt === false) ://TFF
+                    map.addLayer(clusterlayer);
+                  break;
+                case (cls === false && vtx === true && cnt === false) ://FTF
+                  map.addLayer(vertexlayer);
+                  break;
+                case (cls === false && vtx === false && cnt === true) ://FFT
+                  map.addLayer(centroidlayer);
+                break;    
+                 default:
+               }
+
+
+
             
         }
     })
 }
 
 
-//TODO: SISTEMARE LA SFUMATURA
 // Convert DB in a color shade from green to red
-function getColor(value) {
-    var hue = ((value - 20) * 100) / (80 - 20)
-    h = hue;
-    s = 100;
-    l = 50 / 100;
-    const a = s * Math.min(l, 1 - l) / 100;
-    const f = n => {
-        const k = (n + h / 30) % 12;
-        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-        return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
-    };
-    return `#${f(0)}${f(8)}${f(4)}`;
+function getColor(value){
+    var min=20;
+    var max=43;
+    if (value > max) value = max;
+    var v = (value-min) / (max-min);
+    var hue=((1 - v)*120).toString(10);
+    return ["hsl(",hue,",100%,50%)"].join("");
+}
+
+function getColorDarker(value){
+    var min=20;
+    var max=43;
+    if (value > max) value = max;
+    var v = (value-min) / (max-min);
+    var hue=((1 - v)*120).toString(10);
+    return ["hsl(",hue,",100%,40%)"].join("");
+}
+
+function getColorHover(value){
+    var min=20;
+    var max=43;
+    if (value > max) value = max;
+    var v = (value-min) / (max-min);
+    var hue=((1 - v)*120).toString(10);
+    return ["hsl(",hue,",100%,30%)"].join("");
 }
 
 
@@ -231,7 +303,9 @@ geoJson2heat = function (geojson) {
 
 //Slider for blur heatmap
 var blurSlider = document.getElementById("blur");
+
 blurSlider.oninput = function () {
+    console.log(blurSlider);
     heatMap.setOptions({
         blur: parseInt(this.value)
     });
@@ -255,6 +329,19 @@ clusterSlider.oninput = function () {
     showClusters(this.value);
 }
 
+
+// Checkbox trigger for cluster settings (markers,polygons,centroids)
+function checkboxCluster(checkboxElem) {
+    if (checkboxElem.checked ) {
+        map.addLayer(eval(checkboxElem.name));
+    } else{
+        map.removeLayer(eval(checkboxElem.name));
+    }
+}    
+       
+function colorizeMarker(checkboxElem) {
+        showMarkers();
+}
 
 // Temporal Radio Buttons
 $('input[type="radio"]').on('click', function () {
