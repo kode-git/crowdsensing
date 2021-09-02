@@ -4,6 +4,7 @@ const Pool = require('pg').Pool
 const pg = require('pg')
 const kmeans = require('./static/js/kmeans')
 const utility = require('./static/js/utility')
+const turf = require('@turf/turf')
 // connection at the init
 const pool = new Pool({
     user: 'postgres',
@@ -19,7 +20,7 @@ const pool = new Pool({
 // --- Locations API ---
 const getLocations = (request, response) => {
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
-        if(error){
+        if (error) {
             // not happen
             throw error
         }
@@ -32,26 +33,31 @@ const getMeanDb = (request, response) => {
     response.status(200).send('MeanDb response in area from the location in request')
 }
 
-const showClustering = (request, response) => {
+const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
     pool.query('select id, neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
-        if(error){
+        if (error) {
             // not happen
             throw error
         }
-
+        
         dataset = {
-            "length" : results.rows.length,
-            "locations" : results.rows,
-            "clusters" : [],
-            "centroids" : [],
+            "length": results.rows.length,
+            "locations": results.rows,
+            "clusters": [],
+            "centroids": [],
         }
-        dataset = kmeans.apply(dataset,k)
-        if(k > dataset.locations.length){
-            throw error
+        
+        var options = {numberOfClusters: k};
+        arr = []
+        for (let i = 0; i < results.rows.length; i++) {
+            arr.push(turf.point([results.rows[i].st_x, results.rows[i].st_y], {db: results.rows[i].db}))
         }
-        json = utility.convertClusters(results, dataset)
-        response.status(200).json(json)
+        collection = turf.featureCollection(arr)
+        var clustered = turf.clustersKmeans(collection, options);
+        res = utility.convertClusters(clustered, options.numberOfClusters)
+        console.log(res)
+        response.status(200).json(res)
     })
 }
 
@@ -59,7 +65,7 @@ const showClustering = (request, response) => {
 const getLocationById = (request, response) => {
     const id = parseInt(request.body.id)
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points where id=$1', [id], (error, results) => {
-        if(error) {
+        if (error) {
             // location not found => 404 page redirect
             throw error
         }
@@ -68,14 +74,14 @@ const getLocationById = (request, response) => {
 }
 
 const createLocation = (request, response) => {
-
+    
     const data = request.body
-    console.log(data)
+    console.log(JSON.stringify(data))
     Neighbour = data.properties.Neighbour
     Range = data.properties.Range
     Db = data.properties.Db
-    Long = data.geometry.coordinates[0]
-    Lat = data.geometry.coordinates[1]
+    Lat = data.geometry.coordinates[0]
+    Long = data.geometry.coordinates[1]
     pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
         if (error) {
             throw error
@@ -86,7 +92,7 @@ const createLocation = (request, response) => {
 }
 
 const updateLocation = (request, response) => {
-    const { id, Neighbour, Range, Db, Long, Lat } = request.body
+    const {id, Neighbour, Range, Db, Long, Lat} = request.body
     // TODO: Define data referent for update operation
     pool.query(
         'UPDATE loc_ref_points SET neighbour = $1, range = $2, db = $3, coordinates = st_point($4, $5), WHERE id = $6 ',
@@ -103,7 +109,7 @@ const updateLocation = (request, response) => {
 
 const deleteLocation = (request, response) => {
     const id = parseInt(request.params.id)
-
+    
     pool.query('DELETE FROM loc_ref_points WHERE id = $1', [id], (error, results) => {
         if (error) {
             throw error
@@ -114,10 +120,9 @@ const deleteLocation = (request, response) => {
 
 // temporal API
 const populate = (request, response) => {
-    utility.populateDB(pool, 100 )
+    utility.populateDB(pool, 100)
     response.status(200).send('populate : success status')
 }
-
 
 
 module.exports = {
@@ -126,7 +131,7 @@ module.exports = {
     createLocation,
     updateLocation,
     deleteLocation,
-    showClustering,
+    showClusters,
     getMeanDb,
     populate,
 }

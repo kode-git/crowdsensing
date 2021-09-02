@@ -327,6 +327,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pointFeature.addNumberProperty("Range", actualSettings.getRange());
             pointFeature.addNumberProperty("Db", myDB);
 
+
+            
             final String requestBody = pointFeature.toJson();
 
 
