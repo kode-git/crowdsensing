@@ -8,7 +8,7 @@ function squaredPolar(point, centre) {
 }
 
 // Main algorithm:
-function polygon(locations) {
+function polySort(locations) {
     // Get "centre of mass"
     let centre = [locations.reduce((sum, p) => sum + p[0], 0) / locations.length,
         locations.reduce((sum, p) => sum + p[1], 0) / locations.length];
@@ -24,6 +24,6 @@ function polygon(locations) {
 
 
 module.exports = {
-    polySort: polygon,
+    polySort,
     squaredPolar,
 }
