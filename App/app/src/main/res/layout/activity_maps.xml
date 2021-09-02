@@ -20,6 +20,16 @@
 
 
  />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mean"
+        android:text="- DB mean"
+        android:textSize="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        />
+
     <Button
         android:id="@+id/settings"
         android:layout_width="100dp"

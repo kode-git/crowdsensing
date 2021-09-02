@@ -1,5 +1,6 @@
 package com.example.crowdsensingapp;
 
+import static android.provider.CallLog.Locations.LATITUDE;
 import static java.lang.Math.log10;
 
 import androidx.core.app.ActivityCompat;
@@ -12,6 +13,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -21,6 +23,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -32,6 +35,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -42,9 +46,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.crowdsensingapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Point;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,6 +71,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button settingsButton;
     private MyScript actualSettings = new MyScript(1,1000);
     private SharedPreferences pref;
+    private TextView meanDb;
+    private Marker myPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(binding.getRoot());
         recordButton = (Button) findViewById(R.id.record_btn);
         settingsButton = (Button) findViewById(R.id.settings);
+        meanDb = (TextView) findViewById(R.id.mean);
 
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 actuaLocation = location;
                                 if (mMap!=null){
                                     LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
-                                    mMap.addMarker(new MarkerOptions().position(latLngLoc).title("Your position"));
+                                    myPosition = mMap.addMarker(new MarkerOptions().position(latLngLoc).title("Your position"));
                                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLoc));
                                 }
 
@@ -151,6 +161,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onLocationResult(LocationResult locationResult) {
                     for (Location location : locationResult.getLocations()) {
                             actuaLocation=location;
+                        LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
+                        myPosition.setPosition(latLngLoc);
+                            getMeanDbUpd();
                     }
                 } };
         //setting the location updates
@@ -207,6 +220,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return 0;
     }
 
+    public void getMeanDbUpd(){
+
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            String URL = "http://10.0.2.2:3000/getMeanDb";
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("Long", actuaLocation.getLongitude());
+            jsonBody.put("Lat", actuaLocation.getLatitude());
+            final String requestBody = jsonBody.toString();
+
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    Log.i("VOLLEY", response);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        /////////////TODO  set response
+                        meanDb.setText("- DB mean");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("VOLLEY", error.toString());
+                }
+            }) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    try {
+                        return requestBody == null ? null : requestBody.getBytes("utf-8");
+                    } catch (UnsupportedEncodingException uee) {
+                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                        return null;
+                    }
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    String responseString = "";
+                    if (response != null) {
+                        responseString = String.valueOf(response.statusCode);
+                        // can get more details such as response.headers
+                    }
+                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                }
+            };
+
+            requestQueue.add(stringRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void openSettings(){
         SettingsView settingsView = new SettingsView();
         Bundle bundle = new Bundle();
@@ -236,7 +310,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        this.mMap = googleMap;
 
     }
 
@@ -245,13 +319,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:3000/createLocation";
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("Neighbour", actualSettings.getnNeighbour());
-            jsonBody.put("Range", actualSettings.getRange());
-            jsonBody.put("Db", myDB);
+         //   JSONObject jsonBody = new JSONObject();
+            //jsonBody.put("Neighbour", actualSettings.getnNeighbour());
+            //jsonBody.put("Range", actualSettings.getRange());
+           // jsonBody.put("Db", myDB);
+            /*
             jsonBody.put("Long", actuaLocation.getLongitude());
-            jsonBody.put("Lat", actuaLocation.getLatitude());
-            final String requestBody = jsonBody.toString();
+            jsonBody.put("Lat", actuaLocation.getLatitude()); */
+
+            Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
+
+            pointFeature.addNumberProperty("Neighbour", actualSettings.getnNeighbour());
+            pointFeature.addNumberProperty("Range", actualSettings.getRange());
+            pointFeature.addNumberProperty("Db", myDB);
+
+            final String requestBody = pointFeature.toString();
+
+
+
+
 
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
@@ -291,7 +377,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             };
 
             requestQueue.add(stringRequest);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
