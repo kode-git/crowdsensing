@@ -24,8 +24,10 @@ public class SettingsView extends AppCompatDialogFragment {
     private SettingsAdderViewListener listener;
     private TextView neighText;
     private TextView rangeText;
+    private TextView timeText;
     private SeekBar seekNeigh;
     private SeekBar seekRange;
+    private SeekBar seekTime;
     private MyScript script;
 
 
@@ -40,20 +42,24 @@ public class SettingsView extends AppCompatDialogFragment {
         final View view = inflater.inflate(R.layout.settings_view_l, null);
         Bundle bundle = getArguments();
         int actualRange = bundle.getInt("range",1000);
-        System.out.println(actualRange + " AAAAA");
         int actualNeigh = bundle.getInt("neigh",1);
-        script = new MyScript(actualNeigh,actualRange);
+        int actualTime = bundle.getInt("time",60);
+        script = new MyScript(actualNeigh,actualRange,actualTime);
 
 
 
         neighText = (TextView) view.findViewById(R.id.titleNeigh);
         rangeText = (TextView) view.findViewById(R.id.titleRange);
+        timeText = (TextView) view.findViewById(R.id.titleTime);
         seekNeigh = (SeekBar) view.findViewById(R.id.seek);
         seekRange = (SeekBar) view.findViewById(R.id.seekRange);
+        seekTime = (SeekBar) view.findViewById(R.id.seekTime);
         neighText.setText("Min. neigh: "+ actualNeigh+"+");
         seekNeigh.setProgress(script.getnNeighbour());
         rangeText.setText("Range in meters: "+ actualRange);
         seekRange.setProgress(script.getRange());
+        timeText.setText("Maximum minutes time: "+ actualTime);
+        seekTime.setProgress(script.getMinutesTime());
 
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -78,6 +84,26 @@ public class SettingsView extends AppCompatDialogFragment {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 script.setRange(i);
                 rangeText.setText("Range in meters: "+ i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+        seekTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                script.setMinutesTime(i);
+                timeText.setText("Maximum minutes time: "+ i);
+                if (i==1440) timeText.setText("Maximum minutes time: 1 day");
             }
 
             @Override

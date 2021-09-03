@@ -23,6 +23,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -69,10 +70,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MediaRecorder  mRecorder;
     private Button recordButton;
     private Button settingsButton;
-    private MyScript actualSettings = new MyScript(1,1000);
+    private MyScript actualSettings = new MyScript(1,1000,60);
     private SharedPreferences pref;
     private TextView meanDb;
     private Marker myPosition;
+    private ImageButton playButton;
+    private Boolean startRec = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +90,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 actualSettings.setnNeighbour((int) entry.getValue());
             }else if (entry.getKey().equals("range")){
                 actualSettings.setRange((int) entry.getValue());
+            }else if(entry.getKey().equals("time")){
+                actualSettings.setMinutesTime((int) entry.getValue());
             }
         }
 
@@ -98,6 +103,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         recordButton = (Button) findViewById(R.id.record_btn);
         settingsButton = (Button) findViewById(R.id.settings);
         meanDb = (TextView) findViewById(R.id.mean);
+        playButton = (ImageButton) findViewById(R.id.rec);
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (startRec){
+                    startRec=false;
+                    playButton.setImageDrawable(getResources().getDrawable(R.drawable.rec));
+                }else{
+                    startRec=true;
+                    playButton.setImageDrawable(getResources().getDrawable(R.drawable.stop));
+                }
+
+            }
+        });
 
 
         settingsButton.setOnClickListener(new View.OnClickListener() {
@@ -164,6 +184,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
                             //getMeanDbUpd();
+                        if (startRec){
+                            double powerDb = 10 * log10(getAmplitude());
+                            System.out.println(powerDb + " My actual DB recorded");
+                            sendRecordToServer(powerDb);
+                        }
                     }
                 } };
         //setting the location updates
@@ -287,6 +312,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Bundle bundle = new Bundle();
         bundle.putInt("range",actualSettings.getRange());
         bundle.putInt("neigh",actualSettings.getnNeighbour());
+        bundle.putInt("time",actualSettings.getMinutesTime());
         settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
@@ -295,8 +321,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SharedPreferences.Editor editor = pref.edit();
         actualSettings.setnNeighbour(s.getnNeighbour());
         actualSettings.setRange(s.getRange());
+        actualSettings.setMinutesTime(s.getMinutesTime());
         editor.putInt("nNeighbour", s.getnNeighbour());
         editor.putInt("range", s.getRange());
+        editor.putInt("time", s.getMinutesTime());
         editor.commit();
     }
 
@@ -325,6 +353,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             pointFeature.addNumberProperty("Neighbour", actualSettings.getnNeighbour());
             pointFeature.addNumberProperty("Range", actualSettings.getRange());
+            pointFeature.addNumberProperty("time", actualSettings.getMinutesTime());
             pointFeature.addNumberProperty("Db", myDB);
 
 

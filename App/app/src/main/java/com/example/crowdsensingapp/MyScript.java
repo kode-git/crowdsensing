@@ -4,10 +4,14 @@ public class MyScript {
 
     private int nNeighbour = 1;
     private int range;
+    private int minutesTime;
 
-    public MyScript(int neigh, int range){
+
+
+    public MyScript(int neigh, int range, int minutesTime){
         this.nNeighbour=neigh;
         this.range=range;
+        this.minutesTime=minutesTime;
 
     }
 
@@ -28,7 +32,13 @@ public class MyScript {
         this.range = range;
     }
 
+    public int getMinutesTime() {
+        return minutesTime;
+    }
 
+    public void setMinutesTime(int minutesTime) {
+        this.minutesTime = minutesTime;
+    }
 
 
 

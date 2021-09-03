@@ -65,8 +65,43 @@
             android:layout_width="200dp"
             android:layout_height="match_parent"
             android:max="3000"
-            android:progress="0"
+            android:min="1"
+            android:progress="1"
 
+
+            />
+
+    </TableRow>
+
+    <TableRow android:layout_width="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_height="40dp"
+        android:id="@+id/fifthRow">
+
+        <TextView android:layout_width="35dp"
+            android:id="@+id/titleTime"
+            android:gravity="center"
+            android:text="@string/TitleTime"
+            ></TextView>
+
+    </TableRow>
+
+
+    <TableRow android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:gravity="center"
+        android:id="@+id/sixthRow">
+
+        <SeekBar
+            android:id="@+id/seekTime"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:max="1440"
+            android:min="1"
+            android:progress="60"
 
             />
 

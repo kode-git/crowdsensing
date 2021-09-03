@@ -16,7 +16,9 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:text="@string/button_record"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+
 
 
  />
@@ -30,16 +32,27 @@
         android:layout_centerHorizontal="true"
         />
 
+    <ImageButton
+        android:id="@+id/rec"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/buttonforadder"
+        android:src="@drawable/rec"
+
+        />
+
     <Button
         android:id="@+id/settings"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:text="@string/settings"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+
 
 
         />
-
 
 
 </RelativeLayout>
