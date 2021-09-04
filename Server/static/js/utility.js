@@ -1,6 +1,5 @@
 // library of functions used for data manipulation and visualization
 
-//const kmeans = require('./kmeans')
 const polygon = require('./polygon')
 // given result as a set of loc_ref_points rows, returns data in geoJSON format
 const convertLocations = (results) => {

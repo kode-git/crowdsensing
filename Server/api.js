@@ -2,7 +2,6 @@
 
 const Pool = require('pg').Pool
 const pg = require('pg')
-const kmeans = require('./static/js/kmeans')
 const utility = require('./static/js/utility')
 const turf = require('@turf/turf')
 // connection at the init
@@ -30,7 +29,19 @@ const getLocations = (request, response) => {
 }
 
 const getMeanDb = (request, response) => {
-    response.status(200).send('MeanDb response in area from the location in request')
+    // getting location
+    const data = request.body
+    Lat = data.geometry.coordinates[0]
+    Long = data.geometry.coordinates[1]
+    // TODO Dummy query
+    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+        if (error) {
+            // not happen
+            throw error
+        }
+        dataset = utility.convertLocations(results)
+        response.status(200).json({"db_mean" : dataset.features[0].properties.db}) // dummy response, return the first db not the near dbs mean
+    })
 }
 
 const showClusters = (request, response) => {
@@ -63,7 +74,7 @@ const showClusters = (request, response) => {
 
 
 const getLocationById = (request, response) => {
-    const id = parseInt(request.body.id)
+    const id = parseInt(request.body.properties.id)
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points where id=$1', [id], (error, results) => {
         if (error) {
             // location not found => 404 page redirect
