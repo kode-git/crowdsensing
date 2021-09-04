@@ -13,24 +13,25 @@
 
     <Button
         android:id="@+id/record_btn"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:text="@string/button_record"
-        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="62dp"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="16dp"
 
 
+        android:layout_marginBottom="17dp"
+        android:text="@string/button_record" />
 
- />
     <TextView
+        android:id="@+id/mean"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/mean"
-        android:text="- DB mean"
-        android:textSize="20dp"
-        android:layout_marginTop="20dp"
         android:layout_centerHorizontal="true"
-        />
+        android:layout_marginTop="20dp"
+        android:text=" - Db Mean"
+        android:textStyle="bold"
+        android:textSize="20dp" />
 
     <ImageButton
         android:id="@+id/rec"
@@ -45,14 +46,14 @@
 
     <Button
         android:id="@+id/settings"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:text="@string/settings"
+        android:layout_width="121dp"
+        android:layout_height="62dp"
         android:layout_alignParentBottom="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="17dp"
 
 
-
-        />
+        android:text="@string/settings" />
 
 
 </RelativeLayout>
