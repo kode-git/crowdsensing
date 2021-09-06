@@ -32,23 +32,25 @@ const getLocations = (request, response) => {
 // points near the given coordinates and inside the specified range
 const getMeanDb = (request, response) => {
     // getting location
-    const data = request.body
-    Lat = data.geometry.coordinates[0]
-    Long = data.geometry.coordinates[1]
-    range = 200 // prefixed range
-    
-    pool.query('select avg(p1.db)\n' +
-        'from loc_ref_points as p1\n' +
-        'where ST_DWithin(p1.coordinates, ST_Point( ?, ?), ?, false)',[long, lat, range] , (error, results) => {
-        if (error) {
-            // not happen
-            throw error
-        }
-        if(results.rows[0] == null || results.row[0] < 0){
-            response.status(200).json({"dbMean": 0}) // error value to manage in client side
+    data = request.body
+    data = JSON.parse(JSON.stringify(data))
+    lat = data.geometry.coordinates[0]
+    long = data.geometry.coordinates[1]
+    range = 3000 // prefixed range
+    console.log("Server LOG: Send info: (" + long + ", " + lat + ")")
+    pool.query('select avg(p1.db)s from loc_ref_points as p1 where ST_DWithin(p1.coordinates, ST_Point( $1, $2), $3, false)',[long, lat, range] , (error, results) => {
+        console.log(results.rows[0].s)
+        json = {"dbMean" : 0}
+        if(results == null ){
+            response.status(500).json(json)
         } else {
-            response.status(200).json({"dbMean": results.rows[0]}) // dummy response, return the first db not the near dbs mean
+            json.dbMean = results.rows[0].s
+            console.log("Sending...")
+            console.log(json)
+            response.status(200).json(json)
+            
         }
+        
     })
 }
 
@@ -94,8 +96,8 @@ const getLocationById = (request, response) => {
 
 const createLocation = (request, response) => {
     
-    const data = request.body
-    console.log(JSON.stringify(data))
+    data = request.body
+    data = JSON.parse(JSON.stringify(data))
     Neighbour = data.properties.Neighbour
     Range = data.properties.Range
     Db = data.properties.Db

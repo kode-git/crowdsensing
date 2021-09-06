@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.crowdsensingapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.gson.JsonParser;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 
@@ -183,7 +184,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             actuaLocation=location;
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
-                            //getMeanDbUpd();
+                            getMeanDbUpd();
                         if (startRec){
                             double powerDb = 10 * log10(getAmplitude());
                             System.out.println(powerDb + " My actual DB recorded");
@@ -220,17 +221,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-
-
-
-
-
-
-
-
-
-
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -257,19 +247,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             final String requestBody = pointFeature.toJson();
+            System.out.println("Sending:" + requestBody);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     Log.i("VOLLEY", response);
+                    JSONObject json = null;
                     try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        double myMean = jsonObject.getDouble("dbMean");
+                    json = new JSONObject(response); // TODO: This is 200 and dont take json from the server
+                    double myMean = Double.parseDouble(json.getString("dbMean"));
+                        System.out.println("DB Mean " + myMean);
                         if (myMean!=0) {
                             meanDb.setText(myMean + " DB mean");
                         }else {
                             meanDb.setText( "- DB mean");
                         }
-                    } catch (JSONException e) {
+
+
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -365,7 +360,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             
             final String requestBody = pointFeature.toJson();
-
+            System.out.println("DEBUG:" + requestBody);
 
 
 
