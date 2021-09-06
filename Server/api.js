@@ -28,19 +28,27 @@ const getLocations = (request, response) => {
     })
 }
 
+// Given coordinates and a range, return a list of geometry
+// points near the given coordinates and inside the specified range
 const getMeanDb = (request, response) => {
     // getting location
     const data = request.body
     Lat = data.geometry.coordinates[0]
     Long = data.geometry.coordinates[1]
-    // TODO Dummy query
-    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    range = 200 // prefixed range
+    
+    pool.query('select avg(p1.db)\n' +
+        'from loc_ref_points as p1\n' +
+        'where ST_DWithin(p1.coordinates, ST_Point( ?, ?), ?, false)',[long, lat, range] , (error, results) => {
         if (error) {
             // not happen
             throw error
         }
-        dataset = utility.convertLocations(results)
-        response.status(200).json({"db_mean" : dataset.features[0].properties.db}) // dummy response, return the first db not the near dbs mean
+        if(results.rows[0] == null || results.row[0] < 0){
+            response.status(200).json({"dbMean": 0}) // error value to manage in client side
+        } else {
+            response.status(200).json({"dbMean": results.rows[0]}) // dummy response, return the first db not the near dbs mean
+        }
     })
 }
 
