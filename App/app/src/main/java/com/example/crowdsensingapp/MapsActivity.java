@@ -263,7 +263,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.i("VOLLEY", response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
-                        meanDb.setText("- DB mean");
+                        double myMean = jsonObject.getDouble("dbMean");
+                        if (myMean!=0) {
+                            meanDb.setText(myMean + " DB mean");
+                        }else {
+                            meanDb.setText( "- DB mean");
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -273,6 +278,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("VOLLEY", error.toString());
+                    meanDb.setText( "- DB mean");
                 }
             }) {
                 @Override
