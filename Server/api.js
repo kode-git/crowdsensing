@@ -4,7 +4,9 @@ const Pool = require('pg').Pool
 const pg = require('pg')
 const utility = require('./static/js/utility')
 const turf = require('@turf/turf')
+const sc = require('./static/js/spatial-cloaking')
 // connection at the init
+
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
@@ -13,10 +15,12 @@ const pool = new Pool({
     port: 5432,
 })
 
-// TODO: Setting geoJSON
-
+// This is the stack for spatial cloaking
+const stack = []
 
 // --- Locations API ---
+// Get Locations from the database
+// using for data visualization inside the dashboard
 const getLocations = (request, response) => {
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if (error) {
@@ -32,22 +36,18 @@ const getLocations = (request, response) => {
 // points near the given coordinates and inside the specified range
 const getMeanDb = (request, response) => {
     // getting location
-    /*
+
     data = request.body
     data = JSON.parse(JSON.stringify(data))
     lat = data.geometry.coordinates[0]
     long = data.geometry.coordinates[1]
     range = 3000 // prefixed range
-    console.log("Server LOG: Send info: (" + long + ", " + lat + ")")
     pool.query('select avg(p1.db)s from loc_ref_points as p1 where ST_DWithin(p1.coordinates, ST_Point( $1, $2), $3, false)',[long, lat, range] , (error, results) => {
-        console.log(results.rows[0].s)
-        json = {"dbMean" : 0}
+        json = {"dbMean" : undefined}
         if(results == null ){
             response.status(500).json(json)
         } else {
             json.dbMean = results.rows[0].s
-            console.log("Sending...")
-            console.log(json)
             response.json(json)
             
             
@@ -55,14 +55,10 @@ const getMeanDb = (request, response) => {
         
     })
     
-     */
-    // TODO: Remove dummy response
-    json = {"dbMean" : 30.0}
-    console.log("Sending...")
-    console.log(json)
-    response.status(200).json(json)
 }
 
+// Build a geoJSON and send to the dashboard to visualize polygons
+// centroids and points inside a Leaftlet map on the front-end (dashboard side)
 const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
     pool.query('select id, neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
@@ -91,7 +87,7 @@ const showClusters = (request, response) => {
     })
 }
 
-
+// get a location based on the id of location, this is a CRUD operation
 const getLocationById = (request, response) => {
     const id = parseInt(request.body.properties.id)
     pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points where id=$1', [id], (error, results) => {
@@ -103,16 +99,23 @@ const getLocationById = (request, response) => {
     })
 }
 
+// create a new location with not trusted way
 const createLocation = (request, response) => {
     
     data = request.body
     data = JSON.parse(JSON.stringify(data))
-    Neighbour = data.properties.Neighbour
-    Range = data.properties.Range
-    Db = data.properties.Db
-    Lat = data.geometry.coordinates[0]
-    Long = data.geometry.coordinates[1]
-    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [Neighbour, Range, Db, Long, Lat], (error, results) => {
+    stack.push(data)
+    // TODO: Manage userId and timestamp from the app inside data from request.body
+    // spatial cloaking
+    {k, range, db, lat, long} = sc.makePoint(data, stack)
+    if(stack.size > k){
+        // flush stack
+        for(let i = 0; i < k; i++) {
+            stack.pop()
+        }
+    }
+    
+    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [k, range, db, long, lat], (error, results) => {
         if (error) {
             throw error
         }
@@ -121,6 +124,8 @@ const createLocation = (request, response) => {
     })
 }
 
+// update a location based on data given by the front-end
+// this is a CRUD operation
 const updateLocation = (request, response) => {
     const {id, Neighbour, Range, Db, Long, Lat} = request.body
     // TODO: Define data referent for update operation
@@ -137,6 +142,8 @@ const updateLocation = (request, response) => {
 }
 
 
+// delete a location by an id given by the front-end
+// this is a CRUD operation
 const deleteLocation = (request, response) => {
     const id = parseInt(request.params.id)
     
@@ -148,12 +155,7 @@ const deleteLocation = (request, response) => {
     })
 }
 
-// temporal API
-const populate = (request, response) => {
-    utility.populateDB(pool, 100)
-    response.status(200).send('populate : success status')
-}
-
+// Exports module for app.js
 
 module.exports = {
     getLocations,
@@ -163,5 +165,4 @@ module.exports = {
     deleteLocation,
     showClusters,
     getMeanDb,
-    populate,
 }

@@ -22,7 +22,6 @@ app.get('/', (request, response) => {
 })
 
 // Locations API
-app.get('/populateDB', api.populate)
 app.post('/getLocations',api.getLocations )
 app.post('/getLocation',api.getLocationById )
 app.post('/createLocation', api.createLocation)
