@@ -295,8 +295,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 protected Response<String> parseNetworkResponse(NetworkResponse response) {
                     String responseString = "";
                     if (response != null) {
-                        responseString = String.valueOf(response.statusCode);
-                        // can get more details such as response.headers
+
+                        try {
+                            responseString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
                     }
                     return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
                 }
