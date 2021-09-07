@@ -32,6 +32,7 @@ const getLocations = (request, response) => {
 // points near the given coordinates and inside the specified range
 const getMeanDb = (request, response) => {
     // getting location
+    /*
     data = request.body
     data = JSON.parse(JSON.stringify(data))
     lat = data.geometry.coordinates[0]
@@ -47,11 +48,19 @@ const getMeanDb = (request, response) => {
             json.dbMean = results.rows[0].s
             console.log("Sending...")
             console.log(json)
-            response.status(200).json(json)
+            response.json(json)
+            
             
         }
         
     })
+    
+     */
+    // TODO: Remove dummy response
+    json = {"dbMean" : 30.0}
+    console.log("Sending...")
+    console.log(json)
+    response.status(200).json(json)
 }
 
 const showClusters = (request, response) => {
