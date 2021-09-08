@@ -36,18 +36,17 @@ const getLocations = (request, response) => {
 // points near the given coordinates and inside the specified range
 const getMeanDb = (request, response) => {
     // getting location
-
     data = request.body
     data = JSON.parse(JSON.stringify(data))
     lat = data.geometry.coordinates[0]
     long = data.geometry.coordinates[1]
     range = 3000 // prefixed range
     pool.query('select avg(p1.db)s from loc_ref_points as p1 where ST_DWithin(p1.coordinates, ST_Point( $1, $2), $3, false)',[long, lat, range] , (error, results) => {
-        json = {"dbMean" : undefined}
+        json = {"mean" : undefined}
         if(results == null ){
             response.status(500).json(json)
         } else {
-            json.dbMean = results.rows[0].s
+            json.mean = results.rows[0].s
             response.json(json)
             
             
@@ -103,40 +102,32 @@ const getLocationById = (request, response) => {
 const createLocation = (request, response) => {
     
     data = request.body
-    data = JSON.parse(JSON.stringify(data))
+    // pushing data in the stack
     stack.push(data)
-    // TODO: Manage userId and timestamp from the app inside data from request.body
     // spatial cloaking
-    {k, range, db, lat, long} = sc.makePoint(data, stack)
-    if(stack.size > k){
-        // flush stack
-        for(let i = 0; i < k; i++) {
-            stack.pop()
-        }
-    }
+    const [k, range, db, lat, long] = sc.makePoint(data, stack)
     
-    pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [k, range, db, long, lat], (error, results) => {
+    pool.query('insert into public.loc_ref_points(neighbour, range, db, coordinates)values ($1, $2, $3, ST_Point($4, $5));', [k, range, db, long, lat], (error, results) => {
         if (error) {
             throw error
         }
         // temporal response, we don't know yet what we need on it
-        response.status(201).send(`Point on coordinates (${Long}, ${Lat}) added with ID: ${results.insertId}`)
+        response.status(201).send(`Point on coordinates (${long}, ${lat}) added with ID: ${results.insertId}`)
     })
 }
 
 // update a location based on data given by the front-end
 // this is a CRUD operation
 const updateLocation = (request, response) => {
-    const {id, Neighbour, Range, Db, Long, Lat} = request.body
-    // TODO: Define data referent for update operation
+    const {neighbour, range, db, long, lat} = request.body
     pool.query(
-        'UPDATE loc_ref_points SET neighbour = $1, range = $2, db = $3, coordinates = st_point($4, $5), WHERE id = $6 ',
-        [Neighbour, Range, Db, Long, Lat, id],
+        'update loc_ref_points set neighbour = $1, range = $2, db = $3, coordinates = st_point($4, $5), where coordinates = st_point($6, $7)',
+        [neighbour, range, db, long, lat, long, lat],
         (error, results) => {
             if (error) {
                 throw error
             }
-            response.status(200).send(`Point modified with ID: ${id}`)
+            response.status(200).send('200 Status - Point modified with success')
         }
     )
 }
@@ -147,7 +138,7 @@ const updateLocation = (request, response) => {
 const deleteLocation = (request, response) => {
     const id = parseInt(request.params.id)
     
-    pool.query('DELETE FROM loc_ref_points WHERE id = $1', [id], (error, results) => {
+    pool.query('delete from loc_ref_points WHERE id = $1', [id], (error, results) => {
         if (error) {
             throw error
         }
