@@ -59,6 +59,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,6 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageButton playButton;
     private Boolean startRec = false;
     private UUID id;
+    private Timestamp timestamp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -353,11 +356,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:3000/createLocation";
 
+            // Update timestamp
+            timestamp = new Timestamp(System.currentTimeMillis());
             Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
 
             pointFeature.addNumberProperty("neighbour", actualSettings.getnNeighbour());
             pointFeature.addNumberProperty("range", actualSettings.getRange());
-            pointFeature.addNumberProperty("timestamp", actualSettings.getMinutesTime());
+            pointFeature.addNumberProperty("minutesTime", actualSettings.getMinutesTime());
+            pointFeature.addStringProperty("timestamp", timestamp.toString());
             pointFeature.addStringProperty("userId", id.toString());
             pointFeature.addNumberProperty("db", myDB);
 
