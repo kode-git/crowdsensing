@@ -28,14 +28,11 @@ public class SettingsView extends AppCompatDialogFragment {
     private SeekBar seekNeigh;
     private SeekBar seekRange;
     private SeekBar seekTime;
-    private MyScript script;
+    private SettingData setting;
 
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -44,9 +41,7 @@ public class SettingsView extends AppCompatDialogFragment {
         int actualRange = bundle.getInt("range",1000);
         int actualNeigh = bundle.getInt("neigh",1);
         int actualTime = bundle.getInt("time",60);
-        script = new MyScript(actualNeigh,actualRange,actualTime);
-
-
+        setting = new SettingData(actualNeigh,actualRange,actualTime);
 
         neighText = (TextView) view.findViewById(R.id.titleNeigh);
         rangeText = (TextView) view.findViewById(R.id.titleRange);
@@ -55,16 +50,16 @@ public class SettingsView extends AppCompatDialogFragment {
         seekRange = (SeekBar) view.findViewById(R.id.seekRange);
         seekTime = (SeekBar) view.findViewById(R.id.seekTime);
         neighText.setText("Min. neigh: "+ actualNeigh+"+");
-        seekNeigh.setProgress(script.getnNeighbour());
+        seekNeigh.setProgress(setting.getnNeighbour());
         rangeText.setText("Range in meters: "+ actualRange);
-        seekRange.setProgress(script.getRange());
+        seekRange.setProgress(setting.getRange());
         timeText.setText("Maximum minutes time: "+ actualTime);
-        seekTime.setProgress(script.getMinutesTime());
+        seekTime.setProgress(setting.getMinutesTime());
 
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                script.setnNeighbour(i);
+                setting.setnNeighbour(i);
                 neighText.setText("Min. neigh: "+ i+"+");
             }
 
@@ -82,7 +77,7 @@ public class SettingsView extends AppCompatDialogFragment {
         seekRange.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                script.setRange(i);
+                setting.setRange(i);
                 rangeText.setText("Range in meters: "+ i);
             }
 
@@ -101,7 +96,7 @@ public class SettingsView extends AppCompatDialogFragment {
         seekTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                script.setMinutesTime(i);
+                setting.setMinutesTime(i);
                 timeText.setText("Maximum minutes time: "+ i);
                 if (i==1440) timeText.setText("Maximum minutes time: 1 day");
             }
@@ -130,7 +125,7 @@ public class SettingsView extends AppCompatDialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //MyScript script = new MyScript(1,1000);
-                        listener.applyAdder(script);
+                        listener.applyAdder(setting);
                     }
                 });
         return builder.create();
@@ -143,7 +138,7 @@ public class SettingsView extends AppCompatDialogFragment {
     }
 
     public interface SettingsAdderViewListener {
-        void applyAdder(MyScript script);
+        void applyAdder(SettingData script);
     }
 
 

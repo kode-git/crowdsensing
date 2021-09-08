@@ -61,6 +61,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,SettingsView.SettingsAdderViewListener {
@@ -71,16 +72,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MediaRecorder  mRecorder;
     private Button recordButton;
     private Button settingsButton;
-    private MyScript actualSettings = new MyScript(1,1000,60);
+    private SettingData actualSettings;
     private SharedPreferences pref;
     private TextView meanDb;
     private Marker myPosition;
     private ImageButton playButton;
     private Boolean startRec = false;
-
+    private UUID id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        id = UUID.randomUUID();
+        actualSettings = new SettingData(1,1000,60);
 
     //restoring privacy preferences
         pref = getPreferences(Context.MODE_PRIVATE);
@@ -120,7 +123,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -129,17 +131,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 double powerDb = 10 * log10(getAmplitude());
-                System.out.println(powerDb + " My actual DB recorded");
-                sendRecordToServer(powerDb);
+                Log.i("Actual value", String.valueOf(powerDb));
+                sendRecord(powerDb);
 
             }
         });
-
 
 
 //permission request if the permissions are denied
@@ -184,11 +184,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             actuaLocation=location;
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
-                            getMeanDbUpd();
+                            getMeanDb();
                         if (startRec){
                             double powerDb = 10 * log10(getAmplitude());
-                            System.out.println(powerDb + " My actual DB recorded");
-                            sendRecordToServer(powerDb);
+                            Log.i("Actual value", String.valueOf(powerDb));
+                            sendRecord(powerDb);
                         }
                     }
                 } };
@@ -227,7 +227,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
-//get the db amplitude when mrecorder is on
+//get the db amplitude when mRecorder is on
     public double getAmplitude(){
         if (mRecorder != null)
             return  (mRecorder.getMaxAmplitude());
@@ -235,8 +235,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return 0;
     }
 
-    public void getMeanDbUpd(){
-
+    public void getMeanDb(){
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:3000/getMeanDb";
@@ -247,20 +246,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             final String requestBody = pointFeature.toJson();
-            System.out.println("Sending:" + requestBody);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.i("VOLLEY", response);
                     JSONObject json = null;
                     try {
-                    json = new JSONObject(response); // TODO: This is 200 and dont take json from the server
-                    double myMean = Double.parseDouble(json.getString("dbMean"));
-                        System.out.println("DB Mean " + myMean);
+                    json = new JSONObject(response);
+                    double myMean = Double.parseDouble(json.getString("mean"));
+                        Log.i("Mean", myMean + " dB");
                         if (myMean!=0) {
-                            meanDb.setText(myMean + " DB mean");
+                            // round the double value on 2 decimal digits
+                            myMean = Utils.round(myMean, 2);
+                            meanDb.setText("Mean: " + myMean + " dB");
                         }else {
-                            meanDb.setText( "- DB mean");
+                            meanDb.setText( "Mean: NaN dB");
                         }
 
 
@@ -272,8 +271,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("VOLLEY", error.toString());
-                    meanDb.setText( "- DB mean");
+                    Log.e("Error Log", error.toString());
+                    meanDb.setText( "Mean: NaN dB");
                 }
             }) {
                 @Override
@@ -322,7 +321,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         settingsView.show(getSupportFragmentManager(), "settings");
     }
 //interface between the dialog fragment and the main activity
-    public void applyAdder(MyScript s){
+    public void applyAdder(SettingData s){
         SharedPreferences.Editor editor = pref.edit();
         actualSettings.setnNeighbour(s.getnNeighbour());
         actualSettings.setRange(s.getRange());
@@ -348,7 +347,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public void sendRecordToServer(double myDB){
+    public void sendRecord(double myDB){
 
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -356,28 +355,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
 
-            pointFeature.addNumberProperty("Neighbour", actualSettings.getnNeighbour());
-            pointFeature.addNumberProperty("Range", actualSettings.getRange());
-            pointFeature.addNumberProperty("time", actualSettings.getMinutesTime());
-            pointFeature.addNumberProperty("Db", myDB);
+            pointFeature.addNumberProperty("neighbour", actualSettings.getnNeighbour());
+            pointFeature.addNumberProperty("range", actualSettings.getRange());
+            pointFeature.addNumberProperty("timestamp", actualSettings.getMinutesTime());
+            pointFeature.addStringProperty("userId", id.toString());
+            pointFeature.addNumberProperty("db", myDB);
 
-
-            
             final String requestBody = pointFeature.toJson();
-            System.out.println("DEBUG:" + requestBody);
-
-
-
 
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    Log.i("VOLLEY", response);
+                    Log.i("Response", response);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("VOLLEY", error.toString());
+                    Log.e("Error Log", error.toString());
                 }
             }) {
                 @Override
