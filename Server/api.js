@@ -102,7 +102,9 @@ const getLocationById = (request, response) => {
 const createLocation = (request, response) => {
     
     data = request.body
+    data = JSON.parse(JSON.stringify(data))
     // pushing data in the stack
+    console.log(data)
     stack.push(data)
     // spatial cloaking
     const [k, range, db, lat, long] = sc.makePoint(data, stack)
