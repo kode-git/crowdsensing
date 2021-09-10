@@ -137,9 +137,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         recordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double powerDb = 10 * log10(getAmplitude());
-                Log.i("Actual value", String.valueOf(powerDb));
-                sendRecord(powerDb);
+                try {
+                    double powerDb = 10 * log10(getAmplitude());
+                    System.out.println(((Double)powerDb).getClass());
+                    Log.i("Actual value", String.valueOf(powerDb));
+                    if(powerDb != Double.NEGATIVE_INFINITY) {
+                        sendRecord(powerDb);
+                    }
+                }catch ( Exception e){
+                    System.out.println(e + " A");
+                }
+
+
+
 
             }
         });
