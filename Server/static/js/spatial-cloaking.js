@@ -33,7 +33,7 @@ const makePoint = (data, stack) => {
         // we can make the point
         point = spatialCloaking(tmp)
         stack = flush(index, stack)
-        return [k, range, db, lat, long]
+        return [point, stack]
     }
 
 
@@ -86,6 +86,8 @@ const filter = (data, stack) => {
         if(n != 0) {
            // we need to wait other locations
            return [null, null]
+        } else {
+            return [index, tmp]
         }
      }
 }
@@ -132,7 +134,7 @@ const distance = (x1, y1, x2, y2) => {
 }
 
 
-const spatialCloaking = (array) => {
+const spatialCloaking = (points) => {
     // define point structure
     point = {
               type: 'Feature',
@@ -144,8 +146,54 @@ const spatialCloaking = (array) => {
                 db: 0
                 }
              }
-    // TODO: Make points properties and coordinates based on array points
+
+    // coordinates of the spatial point is referred to the centroids of points coordinates
+    if (points.length > 0) {
+      var x_acc = 0;
+      var y_acc = 0;
+
+      for (var i = 0; i < points.length; i++) {
+        x_acc += points[i].geometry.coordinates[0];
+        y_acc += points[i].geometry.coordinates[1];
+      }
+
+      const centroid_x = x_acc / points.length;
+      const centroid_y = y_acc / points.length;
+      const centroid = [centroid_x, centroid_y]
+      point.geometry.coordinates = centroid
+
+    }
+
+    // define the dB value with the pondering weight parameter
+    // define spatial weight
+    point.properties.db = defineDbMean(points, centroid)
+
+
 }
+
+// Define the Db of spatial cloaking generated point
+const defineDbMean = (points, centroid) => {
+    dbHit = []
+    for(var i = 0; i < points.length; i++){
+        dbHit.push(inverseSquareLaw(point[i], centroid))
+    }
+    var dbPoints = 0
+    for(var i = 0; i < points.length; i++){
+        dbPoint = dbPoint + dbHit[i]
+    }
+
+    dbPoint = dbPoints / points.length;
+
+    return dbPoint
+}
+
+// Inverse Square Law to define the noise power received to the centroid from the point
+const inverseSquareLaw(point, centroid) => {
+    range = distance(point.geometry.coordinates[0], point.geometry.coordinates[1], centroid[0], centroid[1])
+    sourceDb = point.properties.db;
+    return sourceDb / 4 * Math.PI * (range * range)
+}
+
 module.exports = {
     makePoint,
     filter,
@@ -153,4 +201,5 @@ module.exports = {
     time,
     spatialCloaking,
     distance,
+    defineWeight,
 }

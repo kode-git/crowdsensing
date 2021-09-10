@@ -107,14 +107,18 @@ const createLocation = (request, response) => {
     console.log(data)
     stack.push(data)
     // spatial cloaking
-    const [k, range, db, lat, long] = sc.makePoint(data, stack)
-    
-    pool.query('insert into public.loc_ref_points(neighbour, range, db, coordinates)values ($1, $2, $3, ST_Point($4, $5));', [k, range, db, long, lat], (error, results) => {
+    const [point, stack] = sc.makePoint(data, stack)
+    // Redefine database table without neighbour and range
+    db = point.properties.db
+    st_X = point.geometry.coordinates[0]
+    st_Y = point.geometry.coordinates[1]
+    // TODO Remove from the database neighbour and range columns
+    pool.query('insert into public.loc_ref_points(neighbour, range, db, coordinates)values ($1, $2, $3, ST_Point($4, $5));', [0, 0, db, st_X, st_Y], (error, results) => {
         if (error) {
             throw error
         }
         // temporal response, we don't know yet what we need on it
-        response.status(201).send(`Point on coordinates (${long}, ${lat}) added with ID: ${results.insertId}`)
+        response.status(201).send('Sent Point')
     })
 }
 
