@@ -128,8 +128,8 @@ const time = (stack, timestamp) => {
 }
 
 const distance = (x1, y1, x2, y2) => {
-    var xDiff:Number = x1 - x2;
-    var yDiff:Number = y1 - y2;
+    var xDiff = x1 - x2;
+    var yDiff = y1 - y2;
     return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 }
 
@@ -188,7 +188,7 @@ const defineDbMean = (points, centroid) => {
 }
 
 // Inverse Square Law to define the noise power received to the centroid from the point
-const inverseSquareLaw(point, centroid) => {
+const inverseSquareLaw = (point, centroid) => {
     range = distance(point.geometry.coordinates[0], point.geometry.coordinates[1], centroid[0], centroid[1])
     sourceDb = point.properties.db;
     return sourceDb / 4 * Math.PI * (range * range)
@@ -201,5 +201,6 @@ module.exports = {
     time,
     spatialCloaking,
     distance,
-    defineWeight,
+    defineDbMean,
+
 }
