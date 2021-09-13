@@ -15,8 +15,6 @@ const convertLocations = (results) => {
             "properties": {
                 "id": row.id,
                 "db": row.db,
-                "neighbour": row.neighbour,
-                "range": row.range
             },
             "geometry": {
                 "type": "Point",
@@ -110,26 +108,55 @@ const convertClusters = (featureCollection, k) => {
 // DBs are between 20 to 50
 const populateDB = (pool, n) => {
     for(let i = 0; i < n; i++){
-        range = Math.floor(Math.random() * (3000 - 0) + 0)
-        neighbour = Math.floor(Math.random() * (4000 - 0) + 0)
-        maxDb = 60.0
-        minDb = 20.0
+        maxDb = 90.0
+        minDb = 40.0
         db = Math.floor(Math.random() * (maxDb - minDb) + minDb)
         long = Math.random() * (44.5226164783769 - 44.428249953517265) + 44.428249953517265;
         lat = Math.random() * (11.42506902374428 - 11.280186829752083) + 11.280186829752083
-        pool.query('INSERT INTO public.loc_ref_points(neighbour, range, db, coordinates)VALUES ($1, $2, $3, ST_Point($4, $5));', [neighbour, range, db, long, lat], (error, results) => {
+        pool.query('INSERT INTO public.loc_ref_points(db, coordinates)VALUES ($1, ST_Point($2, $3));', [db, long, lat], (error, results) => {
             if (error) {
                 throw error
             }
         })
 
-
     }
+}
+
+// Aggregate data in the server trusted
+const aggregate = (data, stack) => {
+    stX = data.geometry.coordinates[0]
+    stY = data.geometry.coordinates[1]
+    stId = data.properties.userId
+
+    var updated = false
+    for(let i = 0; i < stack.size(); i++) {
+        stackX = stack[i].geometry.coordinates[0]
+        stackY = stack[i].geometry.coordinates[1]
+        stackId = stack[i].properties.userId
+        if(stX == stackX && stY == stackY && stackId == stId){
+            // data is included in the stack at position i
+            // update stack to not overlap the same point
+            stack[i].properties.db = data.properties.db
+            stack[i].properties.neighbour = data.properties.neighbour
+            stack[i].properties.range = data.properties.range
+            stack[i].properties.minutesTime = data.properties.minutesTime
+            stack[i].properties.timestamp = data.properties.timestamp
+            updated = true
+            break;
+        }
+    }
+
+    if(!updated){
+        stack.push(data) // adding new point
+    }
+
+    return stack
 }
 
 module.exports = {
     convertLocations,
     convertClusters,
     populateDB,
+    aggregate,
     //calculateMeanDB,
 }

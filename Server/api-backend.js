@@ -1,10 +1,10 @@
-// module of the app.js with every kinds of exportable REST Apis
+// API for backend server (not trusted calls)
 
 const Pool = require('pg').Pool
 const pg = require('pg')
 const utility = require('./static/js/utility')
 const turf = require('@turf/turf')
-const sc = require('./static/js/spatial-cloaking')
+
 // connection at the init
 
 const pool = new Pool({
@@ -15,14 +15,12 @@ const pool = new Pool({
     port: 5432,
 })
 
-// This is the stack for spatial cloaking
-const stack = []
 
 // --- Locations API ---
 // Get Locations from the database
 // using for data visualization inside the dashboard
 const getLocations = (request, response) => {
-    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    pool.query('select db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if (error) {
             // not happen
             throw error
@@ -48,8 +46,6 @@ const getMeanDb = (request, response) => {
         } else {
             json.mean = results.rows[0].s
             response.json(json)
-            
-            
         }
         
     })
@@ -60,9 +56,8 @@ const getMeanDb = (request, response) => {
 // centroids and points inside a Leaftlet map on the front-end (dashboard side)
 const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
-    pool.query('select id, neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
         if (error) {
-            // not happen
             throw error
         }
         
@@ -86,34 +81,28 @@ const showClusters = (request, response) => {
     })
 }
 
-// get a location based on the id of location, this is a CRUD operation
-const getLocationById = (request, response) => {
-    const id = parseInt(request.body.properties.id)
-    pool.query('select neighbour, range, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points where id=$1', [id], (error, results) => {
-        if (error) {
-            // location not found => 404 page redirect
-            throw error
-        }
-        response.status(200).json(results)
-    })
-}
 
-// create a new location with not trusted way
+// TODO Make it passed from the trusted server
 const createLocation = (request, response) => {
-    
+
     data = request.body
     data = JSON.parse(JSON.stringify(data))
     // pushing data in the stack
-    console.log(data)
-    stack.push(data)
+    // Aggregate/Update data with the same userId and same location
+    stack = utility.aggregate(data, stack)
     // spatial cloaking
     const [point, stack] = sc.makePoint(data, stack)
-    // Redefine database table without neighbour and range
+    if(point == null){
+        // send the status to the back-end
+        // back-end need to wait and avoid the insert
+        response.status(201).send('Point in pending...')
+    }
+    // TODO: Send point to the back-end server (not trusted) and not do directly the query
+    // send(point, back-end)
     db = point.properties.db
     st_X = point.geometry.coordinates[0]
     st_Y = point.geometry.coordinates[1]
-    // TODO Remove from the database neighbour and range columns
-    pool.query('insert into public.loc_ref_points(neighbour, range, db, coordinates)values ($1, $2, $3, ST_Point($4, $5));', [0, 0, db, st_X, st_Y], (error, results) => {
+    pool.query('insert into public.loc_ref_points(db, coordinates)values ($1, ST_Point($2, $3));', [db, st_X, st_Y], (error, results) => {
         if (error) {
             throw error
         }
@@ -122,44 +111,11 @@ const createLocation = (request, response) => {
     })
 }
 
-// update a location based on data given by the front-end
-// this is a CRUD operation
-const updateLocation = (request, response) => {
-    const {neighbour, range, db, long, lat} = request.body
-    pool.query(
-        'update loc_ref_points set neighbour = $1, range = $2, db = $3, coordinates = st_point($4, $5), where coordinates = st_point($6, $7)',
-        [neighbour, range, db, long, lat, long, lat],
-        (error, results) => {
-            if (error) {
-                throw error
-            }
-            response.status(200).send('200 Status - Point modified with success')
-        }
-    )
-}
-
-
-// delete a location by an id given by the front-end
-// this is a CRUD operation
-const deleteLocation = (request, response) => {
-    const id = parseInt(request.params.id)
-    
-    pool.query('delete from loc_ref_points WHERE id = $1', [id], (error, results) => {
-        if (error) {
-            throw error
-        }
-        response.status(200).send(`Location deleted with ID: ${id}`)
-    })
-}
-
 // Exports module for app.js
 
 module.exports = {
     getLocations,
-    getLocationById,
-    createLocation,
-    updateLocation,
-    deleteLocation,
     showClusters,
     getMeanDb,
+    populateDb,
 }

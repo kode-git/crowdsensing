@@ -25,17 +25,16 @@ const makePoint = (data, stack) => {
 
     // remove from stack elements with out-time
     stack = time(stack, timestamp)
-    // consider only points in range, with different user_id and same k value
+    // consider only points in range, with different user_id and same or < k value
     const [index, tmp] = filter(data, stack)
     if(index == null && tmp == null){
-        return null;
+        return [null, stack];
     } else {
         // we can make the point
         point = spatialCloaking(tmp)
         stack = flush(index, stack)
         return [point, stack]
     }
-
 
 }
 
@@ -57,23 +56,23 @@ const filter = (data, stack) => {
         // n > 0
         for(let i = 0; i < stack.size; i++){
             if(n == 0) break; // k reached
-                if(stack[i].properties.neighbour == k){
-                    var included = false
+                if(stack[i].properties.neighbour <= k){
+                    var notIncluded = false
                     for(let z = 0; z < id.size; z++){
                         // we need to have k different users
                         if(stack[i].properties.userId == id[z]){
-                           included = true
+                           notIncluded = true
                            break;
                         }
                     }
-                    if(!included){
+                    if(!notIncluded){
                         maxDistance2 = stack[i].properties.range
                         x1 = data.geometry.coordinates[0]
                         y1 = data.geometry.coordinates[1]
                         x2 = stack[i].geometry.coordinates[0]
                         y2 = stack[i].geometry.coordinates[1]
                         dist = distance(x1,y1,x2,y2)
-                        if(dist > maxDistance && dist > maxDistance2){
+                        if(dist <= maxDistance && dist <= maxDistance2){
                             n = n - 1 // counting stack pop
                             index.push(i) // adding pop index from the stack
                             id.push(stack[i].properties.userId)
@@ -102,7 +101,6 @@ const flush = (index, stack) => {
 
 // remove from the stack out-timing locations
 const time = (stack, timestamp) => {
-    console.log("Stack size: "  + stack.size)
     let length = stack.size
     for(let i = 0; i < length; i++){
         // Stack timestamp
@@ -140,9 +138,6 @@ const spatialCloaking = (points) => {
               type: 'Feature',
               geometry: { type: 'Point', coordinates: [] },
               properties: {
-              // TODO: Remove neighbour and range from the point data
-                neighbour: 0,
-                range: 0,
                 db: 0
                 }
              }
@@ -157,8 +152,8 @@ const spatialCloaking = (points) => {
         y_acc += points[i].geometry.coordinates[1];
       }
 
-      const centroid_x = x_acc / points.length;
-      const centroid_y = y_acc / points.length;
+      const centroid_x = Math.round(x_acc * 100.0/ points.length) / 100;
+      const centroid_y = Math.round(y_acc * 100.0 / points.length) / 100;
       const centroid = [centroid_x, centroid_y]
       point.geometry.coordinates = centroid
 
@@ -167,8 +162,7 @@ const spatialCloaking = (points) => {
     // define the dB value with the pondering weight parameter
     // define spatial weight
     point.properties.db = defineDbMean(points, centroid)
-
-
+    return point;
 }
 
 // Define the Db of spatial cloaking generated point
@@ -181,8 +175,13 @@ const defineDbMean = (points, centroid) => {
     for(var i = 0; i < points.length; i++){
         dbPoint = dbPoint + dbHit[i]
     }
+   // Sum of different noise sources using logarithmically method
+    sum = 0;
+    for(var i = 0; i < dbPoints.length; i++){
+        sum = sum + Math.pow(10, Math.round(dbPoints[i]))
+    }
 
-    dbPoint = dbPoints / points.length;
+    dbPoint = 10 * Math.log(sum)
 
     return dbPoint
 }
@@ -204,3 +203,4 @@ module.exports = {
     defineDbMean,
 
 }
+
