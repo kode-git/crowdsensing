@@ -106,7 +106,7 @@ const convertClusters = (featureCollection, k) => {
 // populate DB with dummy points in Bologna area
 // range are 0 and 3000 with step 1
 // DBs are between 20 to 50
-const populateDB = (pool, n) => {
+const populate = (pool, n) => {
     for(let i = 0; i < n; i++){
         maxDb = 90.0
         minDb = 40.0
@@ -156,7 +156,7 @@ const aggregate = (data, stack) => {
 module.exports = {
     convertLocations,
     convertClusters,
-    populateDB,
+    populate,
     aggregate,
     //calculateMeanDB,
 }

@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
-const api = require('./api-backend')
+const route = require('./route-backend')
 const path = require('path');
 const port = 4000
 
@@ -22,13 +22,13 @@ app.get('/', (request, response) => {
 })
 
 // Locations API
-app.post('/getLocations',api.getLocations )
-app.post('/getMeanDb', api.getMeanDb)
+app.post('/getLocations',route.getLocations )
+app.post('/getMeanDb', route.getMeanDb)
 
 
 // Clustering API
-app.post('/showClusters', api.showClusters)
-app.get('/populate', api.populateDB)
+app.post('/showClusters', route.showClusters)
+app.get('/populate', route.populate)
 
 
 app.listen(port, () => {

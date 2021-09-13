@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
-const api = require('./api-trusted')
+const route = require('./route-trusted')
 const path = require('path');
 const port = 3000
 
@@ -17,7 +17,7 @@ app.use(
 app.use("/static", express.static('./static/'));
 
 // Trusted API
-app.post('/createLocation', api.createLocation)
+app.post('/createLocation', route.createLocation)
 
 
 app.listen(port, () => {

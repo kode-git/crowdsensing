@@ -111,11 +111,16 @@ const createLocation = (request, response) => {
     })
 }
 
+const populate = (request, response) => {
+    utility.populate(pool, 30)
+    response.sendStatus(200).send('Populate execustion: done')
+}
+
 // Exports module for app.js
 
 module.exports = {
     getLocations,
     showClusters,
     getMeanDb,
-    populateDb,
+    populate,
 }

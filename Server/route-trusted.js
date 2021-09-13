@@ -5,7 +5,8 @@ const sc = require('./static/js/spatial-cloaking')
 
 
 // This is the stack for spatial cloaking
-const stack = []
+global.stack = []
+exports.stack = stack
 
 // TODO Pass the point to the backend server
 // create a new location with trusted way

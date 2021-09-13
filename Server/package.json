@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "trust": "nodemon trusted.js",
-    "backend" : "nodemon backend.js"
+    "trust": "nodemon server-trusted.js",
+    "backend" : "nodemon server-backend.js"
   },
   "author": "",
   "license": "ISC",
