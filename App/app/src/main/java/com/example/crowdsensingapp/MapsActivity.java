@@ -86,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         id = UUID.randomUUID();
-        actualSettings = new SettingData(1,1000,60);
+        actualSettings = new SettingData(1,1000,60,true);
 
     //restoring privacy preferences
         pref = getPreferences(Context.MODE_PRIVATE);
@@ -99,6 +99,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 actualSettings.setRange((int) entry.getValue());
             }else if(entry.getKey().equals("time")){
                 actualSettings.setMinutesTime((int) entry.getValue());
+            }else if(entry.getKey().equals("prv")){
+                actualSettings.setPrivacyOnOff((boolean) entry.getValue());
             }
         }
 
@@ -330,6 +332,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bundle.putInt("range",actualSettings.getRange());
         bundle.putInt("neigh",actualSettings.getnNeighbour());
         bundle.putInt("time",actualSettings.getMinutesTime());
+        bundle.putBoolean("prv", actualSettings.isPrivacyOnOff());
         settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
@@ -339,9 +342,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         actualSettings.setnNeighbour(s.getnNeighbour());
         actualSettings.setRange(s.getRange());
         actualSettings.setMinutesTime(s.getMinutesTime());
+        actualSettings.setPrivacyOnOff(s.isPrivacyOnOff());
         editor.putInt("nNeighbour", s.getnNeighbour());
         editor.putInt("range", s.getRange());
         editor.putInt("time", s.getMinutesTime());
+        editor.putBoolean("prv", s.isPrivacyOnOff());
         editor.commit();
     }
 
@@ -373,6 +378,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pointFeature.addNumberProperty("neighbour", actualSettings.getnNeighbour());
             pointFeature.addNumberProperty("range", actualSettings.getRange());
             pointFeature.addNumberProperty("minutesTime", actualSettings.getMinutesTime());
+            pointFeature.addBooleanProperty("privacyOnOff", actualSettings.isPrivacyOnOff());
             pointFeature.addStringProperty("timestamp", timestamp.toString());
             pointFeature.addStringProperty("userId", id.toString());
             pointFeature.addNumberProperty("db", myDB);

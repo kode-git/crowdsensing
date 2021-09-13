@@ -1,6 +1,8 @@
 package com.example.crowdsensingapp;
 
 
+import static java.lang.Math.log10;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -11,8 +13,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ public class SettingsView extends AppCompatDialogFragment {
     private SeekBar seekNeigh;
     private SeekBar seekRange;
     private SeekBar seekTime;
+    private Switch privacyOnOff;
     private SettingData setting;
 
 
@@ -41,8 +46,9 @@ public class SettingsView extends AppCompatDialogFragment {
         int actualRange = bundle.getInt("range",1000);
         int actualNeigh = bundle.getInt("neigh",1);
         int actualTime = bundle.getInt("time",60);
-        setting = new SettingData(actualNeigh,actualRange,actualTime);
-
+        boolean actualPrivacy = bundle.getBoolean("prv",true);
+        setting = new SettingData(actualNeigh,actualRange,actualTime,actualPrivacy);
+        privacyOnOff = (Switch) view.findViewById(R.id.privacyOnOff);
         neighText = (TextView) view.findViewById(R.id.titleNeigh);
         rangeText = (TextView) view.findViewById(R.id.titleRange);
         timeText = (TextView) view.findViewById(R.id.titleTime);
@@ -55,6 +61,7 @@ public class SettingsView extends AppCompatDialogFragment {
         seekRange.setProgress(setting.getRange());
         timeText.setText("Maximum minutes time: "+ actualTime);
         seekTime.setProgress(setting.getMinutesTime());
+        privacyOnOff.setChecked(setting.isPrivacyOnOff());
 
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -89,6 +96,16 @@ public class SettingsView extends AppCompatDialogFragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+
+        privacyOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    setting.setPrivacyOnOff(true);
+                } else {
+                    setting.setPrivacyOnOff(false);
+                }
             }
         });
 

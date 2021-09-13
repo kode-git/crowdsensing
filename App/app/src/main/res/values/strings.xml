@@ -8,4 +8,5 @@
     <string name="TitleNeigh">Min. neigh:</string>
     <string name="TitleRange">Range in meters: </string>
     <string name="TitleTime">Maximum minutes time: </string>
+    <string name="PrivacyOnOff">Privacy settings: </string>
 </resources>

@@ -106,6 +106,25 @@
             />
 
     </TableRow>
+    <TableRow android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="3dp"
+        android:gravity="center"
+        android:id="@+id/seventhRow">
+        <TextView android:layout_width="35dp"
+            android:id="@+id/privacyLabel"
+            android:layout_gravity="right"
+            android:text="@string/PrivacyOnOff"
+           />
+        <Switch
+            android:id="@+id/privacyOnOff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
 
+
+            />
+
+    </TableRow>
 
 </TableLayout>

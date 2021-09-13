@@ -8,14 +8,27 @@ public class SettingData {
     private int range;
     private int minutesTime;
 
-    public SettingData(int neigh, int range, int minutesTime){
+
+
+    private boolean privacyOnOff;
+
+    public SettingData(int neigh, int range, int minutesTime, boolean prvc){
         this.nNeighbour=neigh;
         this.range=range;
         this.minutesTime=minutesTime;
+        this.privacyOnOff = prvc;
 
     }
 
     // Getting and setting methods
+
+    public boolean isPrivacyOnOff() {
+        return privacyOnOff;
+    }
+
+    public void setPrivacyOnOff(boolean privacyOnOff) {
+        this.privacyOnOff = privacyOnOff;
+    }
 
     public int getnNeighbour() {
         return nNeighbour;
