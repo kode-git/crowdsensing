@@ -5,6 +5,8 @@ const route = require('./route-trusted')
 const path = require('path');
 const port = 3000
 
+const stack = route.stack
+
 
 
 app.use(bodyParser.json())

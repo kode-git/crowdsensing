@@ -5,8 +5,8 @@ const sc = require('./static/js/spatial-cloaking')
 
 
 // This is the stack for spatial cloaking
-global.stack = []
-exports.stack = stack
+var stack = new Array()
+exports.stack= stack;
 
 // TODO Pass the point to the backend server
 // create a new location with trusted way
@@ -16,6 +16,9 @@ const createLocation = (request, response) => {
     data = JSON.parse(JSON.stringify(data))
     // pushing data in the stack
     // Aggregate/Update data with the same userId and same location
+    if(stack == null){
+        stack = []
+    }
     stack = utility.aggregate(data, stack)
     // spatial cloaking
     const [point, stack] = sc.makePoint(data, stack)
