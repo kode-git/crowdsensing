@@ -32,7 +32,8 @@ app.get('/populate', route.populate)
 
 
 app.listen(port, () => {
-    console.log(`App running on port ${port}.`)
+    console.log(`Log: Backend Server running on port ${port}.`)
+    console.log(`Log: Waiting a request...`)
 })
 
 

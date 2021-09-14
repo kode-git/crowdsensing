@@ -122,14 +122,15 @@ const populate = (pool, n) => {
     }
 }
 
-// Aggregate data in the server trusted
+// Aggregate data in the server trusted and return true or false depending on
+// update existing data or pushing a new one
 const aggregate = (data, stack) => {
     stX = data.geometry.coordinates[0]
     stY = data.geometry.coordinates[1]
     stId = data.properties.userId
 
     var updated = false
-    for(let i = 0; i < stack.size(); i++) {
+    for(let i = 0; i < stack.length; i++) {
         stackX = stack[i].geometry.coordinates[0]
         stackY = stack[i].geometry.coordinates[1]
         stackId = stack[i].properties.userId
@@ -150,7 +151,7 @@ const aggregate = (data, stack) => {
         stack.push(data) // adding new point
     }
 
-    return stack
+    return updated
 }
 
 module.exports = {

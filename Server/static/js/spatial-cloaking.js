@@ -24,16 +24,23 @@ const makePoint = (data, stack) => {
 
 
     // remove from stack elements with out-time
+    console.log('Log: Invoke time...')
     stack = time(stack, timestamp)
     // consider only points in range, with different user_id and same or < k value
+    console.log('Log: Invoke filter....')
     const [index, tmp] = filter(data, stack)
     if(index == null && tmp == null){
-        return [null, stack];
+        return null
     } else {
         // we can make the point
+        console.log('Log: spatialCloaking invoke...')
         point = spatialCloaking(tmp)
-        stack = flush(index, stack)
-        return [point, stack]
+        console.log('Log: flush invoke...')
+        console.log('Log: Index to remove: ' + index)
+        flush(index, stack)
+        console.log('Log: Stack status:\n' + JSON.stringify(stack))
+        console.log('Log: Point : \n ' + JSON.stringify(point))
+        return point
     }
 
 }
@@ -44,9 +51,13 @@ const filter = (data, stack) => {
      var k = data.properties.neighbour
      var n = k - 1;
      maxDistance = data.properties.range
-     var index = [].push(stack.size - 1)
-     var id = [].push(data.properties.userId)
-     tmp = [].push(data)
+     var index = []
+     index.push(stack.length - 1)
+     console.log(index)
+     var id = []
+     id.push(data.properties.userId)
+     tmp = []
+     tmp.push(data)
 
      if(n <= 0){
         // no privacy location found
@@ -54,11 +65,11 @@ const filter = (data, stack) => {
      }
      else {
         // n > 0
-        for(let i = 0; i < stack.size; i++){
+        for(let i = 0; i < stack.length; i++){
             if(n == 0) break; // k reached
                 if(stack[i].properties.neighbour <= k){
                     var notIncluded = false
-                    for(let z = 0; z < id.size; z++){
+                    for(let z = 0; z < id.length; z++){
                         // we need to have k different users
                         if(stack[i].properties.userId == id[z]){
                            notIncluded = true
@@ -92,16 +103,20 @@ const filter = (data, stack) => {
 }
 
 // flush stack from used points
+
 const flush = (index, stack) => {
-    for(let i = 0; i < index.size; i++){
-    stack.slice(index[i], 1)
+    console.log('Log: stack length:' + stack.length)
+    console.log('Index : ' + index[0] )
+    for(let i = 0; i < index.length; i++){
+        stack.slice(index[i], 1)
+        console.log('Enter')
     }
-    return stack
+    console.log('Log: stack length:' + stack.length)
 }
 
 // remove from the stack out-timing locations
 const time = (stack, timestamp) => {
-    let length = stack.size
+    let length = stack.length
     for(let i = 0; i < length; i++){
         // Stack timestamp
         let stackTime = Date.parse(stack[i].properties.timestamp)
@@ -133,6 +148,7 @@ const distance = (x1, y1, x2, y2) => {
 
 
 const spatialCloaking = (points) => {
+    console.log('Spatial cloaking init...')
     // define point structure
     point = {
               type: 'Feature',
@@ -141,7 +157,7 @@ const spatialCloaking = (points) => {
                 db: 0
                 }
              }
-
+    var centroid = [0,0]
     // coordinates of the spatial point is referred to the centroids of points coordinates
     if (points.length > 0) {
       var x_acc = 0;
@@ -154,7 +170,7 @@ const spatialCloaking = (points) => {
 
       const centroid_x = Math.round(x_acc * 100.0/ points.length) / 100;
       const centroid_y = Math.round(y_acc * 100.0 / points.length) / 100;
-      const centroid = [centroid_x, centroid_y]
+      centroid = [centroid_x, centroid_y]
       point.geometry.coordinates = centroid
 
     }
@@ -168,6 +184,7 @@ const spatialCloaking = (points) => {
 // Define the Db of spatial cloaking generated point
 const defineDbMean = (points, centroid) => {
     dbHit = []
+    console.log("Points: \n" + JSON.stringify(points))
     for(var i = 0; i < points.length; i++){
         dbHit.push(inverseSquareLaw(point[i], centroid))
     }

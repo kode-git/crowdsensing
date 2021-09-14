@@ -199,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             actuaLocation=location;
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
-                            getMeanDb();
+                            //getMeanDb();
                         if (startRec){
                             double powerDb = 10 * log10(getAmplitude());
                             Log.i("Actual value", String.valueOf(powerDb));
@@ -253,7 +253,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void getMeanDb(){
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
-            String URL = "http://10.0.2.2:3000/getMeanDb";
+            String URL = "http://10.0.2.2:4000/getMeanDb";
 
 
             Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));

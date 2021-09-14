@@ -23,7 +23,8 @@ app.post('/createLocation', route.createLocation)
 
 
 app.listen(port, () => {
-    console.log(`App running on port ${port}.`)
+    console.log(`Log: Trusted Server running on port ${port}.`)
+    console.log(`Log: Waiting a request...`)
 })
 
 

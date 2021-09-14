@@ -29,9 +29,9 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:text=" - Db Mean"
-        android:textStyle="bold"
-        android:textSize="20dp" />
+        android:text="Mean: NaN dB"
+        android:textSize="20dp"
+        android:textStyle="bold" />
 
     <ImageButton
         android:id="@+id/rec"
