@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "logrocket": "^2.0.0"
+    "arrayify-merge.s": "^0.1.2",
+    "inspect-stream": "^0.1.0",
+    "logrocket": "^2.0.0",
+    "scikit-learn": "^0.1.0",
+    "slice-flow.s": "^0.1.0"
   }
 }

@@ -3,6 +3,7 @@
 const Pool = require('pg').Pool
 const pg = require('pg')
 const utility = require('./static/js/utility')
+const dbPred = require('./static/js/dbPrediction')
 const turf = require('@turf/turf')
 
 // connection at the init
@@ -116,6 +117,21 @@ const populate = (request, response) => {
     response.sendStatus(200).send('Populate execustion: done')
 }
 
+const prdCall = (request, response) => {
+    pool.query('select db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+        if (error) {
+            // not happen
+            throw error
+        }
+        dataset = utility.convertLocations(results)
+        dbPred.predictionDb(dataset)
+        response.status(200).json(dataset)
+    })
+}
+
+
+
+
 // Exports module for app.js
 
 module.exports = {
@@ -123,4 +139,5 @@ module.exports = {
     showClusters,
     getMeanDb,
     populate,
+    prdCall,
 }

@@ -30,6 +30,9 @@ app.post('/getMeanDb', route.getMeanDb)
 app.post('/showClusters', route.showClusters)
 app.get('/populate', route.populate)
 
+// Prediction API
+app.get('/prd', route.prdCall)
+
 
 app.listen(port, () => {
     console.log(`Log: Backend Server running on port ${port}.`)
