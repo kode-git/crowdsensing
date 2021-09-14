@@ -186,24 +186,26 @@ const defineDbMean = (points, centroid) => {
     dbHit = []
     console.log("Points: \n" + JSON.stringify(points))
     for(var i = 0; i < points.length; i++){
-        dbHit.push(inverseSquareLaw(point[i], centroid))
+        dbHit.push(points[i].properties.db - inverseSquareLaw(points[i], centroid))
+        console.log('DbHit ' + i + ": " + dbHit[i])
     }
-    var dbPoints = 0
+    var dbPoint = 0
     for(var i = 0; i < points.length; i++){
         dbPoint = dbPoint + dbHit[i]
     }
    // Sum of different noise sources using logarithmically method
     sum = 0;
-    for(var i = 0; i < dbPoints.length; i++){
-        sum = sum + Math.pow(10, Math.round(dbPoints[i]))
+    for(var i = 0; i < dbHit.length; i++){
+        sum = sum + Math.pow(10, dbHit[i]/10)
+        console.log("Sum at " + i + ": " + sum)
     }
-
-    dbPoint = 10 * Math.log(sum)
+    dbPoint = 10 * (Math.log(sum) / Math.LN10)
+    console.log('dbPoint ' + dbPoint)
 
     return dbPoint
 }
 
-// Inverse Square Law to define the noise power received to the centroid from the point
+// Inverse Square Law to define the noise power reduce to the centroid from the point
 const inverseSquareLaw = (point, centroid) => {
     range = distance(point.geometry.coordinates[0], point.geometry.coordinates[1], centroid[0], centroid[1])
     sourceDb = point.properties.db;

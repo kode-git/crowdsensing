@@ -20,8 +20,8 @@ const createLocation = (request, response) => {
     // Aggregate/Update data with the same userId and same location
     utility.aggregate(data, stack)
     // spatial cloaking
-    var point= sc.makePoint(data, stack)
-    if(point.geometry.coordinates == []){
+    var point = sc.makePoint(data, stack)
+    if(point == null){
         // send the status to the back-end
         // back-end need to wait and avoid the insert
         console.log('Pending...')
@@ -29,10 +29,11 @@ const createLocation = (request, response) => {
     }
     // TODO: Send point to the back-end server (not trusted) and not do directly the query
     // send(point, back-end)
+    /*
     db = point.properties.db
     st_X = point.geometry.coordinates[0]
     st_Y = point.geometry.coordinates[1]
-
+    */
     /*
     pool.query('insert into public.loc_ref_points(db, coordinates)values ($1, ST_Point($2, $3));', [db, st_X, st_Y], (error, results) => {
         if (error) {
