@@ -203,7 +203,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (startRec){
                             double powerDb = 10 * log10(getAmplitude());
                             Log.i("Actual value", String.valueOf(powerDb));
-                            sendRecord(powerDb);
+                            if(powerDb != Double.NEGATIVE_INFINITY) {
+                                sendRecord(powerDb);
+                            }
                         }
                     }
                 } };

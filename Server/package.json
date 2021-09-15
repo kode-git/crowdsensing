@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "trust": "nodemon server-trusted.js",
-    "backend" : "nodemon server-backend.js"
+    "trust": "nodemon serverTrusted.js",
+    "backend": "nodemon serverBackend.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,7 +16,8 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-handlebars": "^5.3.3",
-    "pg": "^8.7.1"
+    "pg": "^8.7.1",
+    "socket.io": "^4.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"
