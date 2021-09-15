@@ -115,15 +115,11 @@ const populate = (request, response) => {
 }
 
 const prdCall = (request, response) => {
-    pool.query('select db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
-        if (error) {
-            // not happen
-            throw error
-        }
+        point = request.body
         dataset = utility.convertLocations(results)
-        dbPred.predictionDb(dataset)
-        response.status(200).json(dataset)
-    })
+        predictedDb = dbPred.predictionDb(point)
+        response.status(200).json(predictedDb)
+    
 }
 
 

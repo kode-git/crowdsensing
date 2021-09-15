@@ -38,7 +38,7 @@ app.post('/createLocation', function(request, response){
 });
 
 // Prediction API
-app.get('/prd', route.prdCall)
+app.post('/prd', route.prdCall)
 
 
 app.listen(port, () => {
