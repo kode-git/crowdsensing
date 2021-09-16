@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "arrayify-merge.s": "^0.1.2",
+    "execa": "^5.1.1",
     "inspect-stream": "^0.1.0",
     "logrocket": "^2.0.0",
     "pynode": "^0.2.0",

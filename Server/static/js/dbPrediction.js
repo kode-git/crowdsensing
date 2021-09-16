@@ -1,27 +1,39 @@
 
-const pynode = require('pynode');
 
 
-function predictionDb(point){
+function predictionDb(dataPoint){
 
-    data = point 
-  
     
-    pynode.exec('predictor.py', 1)
-    .then(function(data){
-        data = JSON.parse(data);
-        console.log(data);
-    })
-    .catch(function(err){
-        console.log(err)
-    })
+     pointLng = dataPoint[0]
+     pointLat = dataPoint[1]
+     const spawn = require("child_process").spawn;
+    const pythonProcess = spawn('python',["static/js/predictor.py", pointLng,pointLat]);
+ 
+
+    pythonProcess.stdout.on('data', (data) => {
+        console.log("AAA")
+        console.log(data.toString())
+        return data.toString()
+    });
+
+
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+      });
+      
+      pythonProcess.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+      });
+
+
 
 
 
 
 }
-//just for testing
-predictionDb(1)
+
+
+
 module.exports={
     predictionDb,
 }

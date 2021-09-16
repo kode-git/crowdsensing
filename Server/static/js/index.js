@@ -1,4 +1,5 @@
 
+
 var map = L.map('map',{zoomSnap: 0.25,
     zoomDelta: 0.5,}).setView([44.494960715733576, 11.344000549862148], 13);
 
@@ -369,6 +370,40 @@ $('input[type="radio"]').on('click', function () {
     }
 });
 
-//
+//prediction test
+function onMapClick(e) {
+    alert("You clicked the map at " + e.latlng.lat + " " + e.lat );
 
+    feature = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [e.latlng.lng, e.latlng.lat] // inverted respect postGIS data
+
+        }
+
+    }
+    
+
+    $.ajax({
+        url: "/prd",
+        type: "POST",
+        dataType: "json",
+        data: {
+            myPoint: feature
+        },
+        
+        success: function (data) {
+           console.log(data);
+            
+        
+        }
+        
+    });
+
+
+
+}
+
+map.on('dblclick', onMapClick);
 
