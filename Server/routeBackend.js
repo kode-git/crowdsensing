@@ -116,15 +116,15 @@ const populate = (request, response) => {
 
 const prdCall = (request, response) => {
         point = request.body.myPoint.geometry.coordinates
-         dbPred.predictionDb(point).then(successCallback)
-        predictedDb = dbPred.predictionDb(point)
-        console.log(predictedDb)
-        response.status(200).json(predictedDb)
+         dbPred.predictionDb(point).then(function successCallback(result) {
+           console.log(result)
+           response.status(200).json(result)
+          })
+       
+        
     
 }
-function successCallback(result) {
-    console.log("MADONNAAAA");
-  }
+
 
 
 

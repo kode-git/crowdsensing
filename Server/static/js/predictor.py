@@ -28,10 +28,12 @@ regB.fit(X_train, y_train)
 #Predict
 result = regB.predict(X_test)
 
-print('Mean squared error: %.2f' % mean_squared_error(result, y_test))
+#print('Mean squared error: %.2f' % mean_squared_error(result, y_test))
 
-print(sys.argv[1])
+#print(sys.argv[1])
+predictedPointDf = gpd.GeoDataFrame()
 
 
+print(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]))
 
 sys.stdout.flush()
