@@ -372,7 +372,7 @@ $('input[type="radio"]').on('click', function () {
 
 //prediction test
 function onMapClick(e) {
-    alert("You clicked the map at " + e.latlng.lat + " " + e.lat );
+    
 
     feature = {
         "type": "Feature",
