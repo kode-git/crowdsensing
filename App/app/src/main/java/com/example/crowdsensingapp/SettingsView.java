@@ -33,6 +33,7 @@ public class SettingsView extends AppCompatDialogFragment {
     private SeekBar seekRange;
     private SeekBar seekTime;
     private Switch privacyOnOff;
+    private Switch defaultOnOff;
     private SettingData setting;
 
 
@@ -47,8 +48,10 @@ public class SettingsView extends AppCompatDialogFragment {
         int actualNeigh = bundle.getInt("neigh",1);
         int actualTime = bundle.getInt("time",60);
         boolean actualPrivacy = bundle.getBoolean("prv",true);
-        setting = new SettingData(actualNeigh,actualRange,actualTime,actualPrivacy);
+        boolean actualDefPrivacy = bundle.getBoolean("def",false);
+        setting = new SettingData(actualNeigh,actualRange,actualTime,actualPrivacy,actualDefPrivacy);
         privacyOnOff = (Switch) view.findViewById(R.id.privacyOnOff);
+        defaultOnOff = (Switch) view.findViewById(R.id.autoOnOff);
         neighText = (TextView) view.findViewById(R.id.titleNeigh);
         rangeText = (TextView) view.findViewById(R.id.titleRange);
         timeText = (TextView) view.findViewById(R.id.titleTime);
@@ -62,12 +65,14 @@ public class SettingsView extends AppCompatDialogFragment {
         timeText.setText("Maximum minutes time: "+ actualTime);
         seekTime.setProgress(setting.getMinutesTime());
         privacyOnOff.setChecked(setting.isPrivacyOnOff());
+        defaultOnOff.setChecked(setting.isDefaultOnOff());
 
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 setting.setnNeighbour(i);
                 neighText.setText("Min. neigh: "+ i+"+");
+                defaultOnOff.setChecked(false);
             }
 
             @Override
@@ -86,6 +91,7 @@ public class SettingsView extends AppCompatDialogFragment {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 setting.setRange(i);
                 rangeText.setText("Range in meters: "+ i);
+                defaultOnOff.setChecked(false);
             }
 
             @Override
@@ -105,9 +111,21 @@ public class SettingsView extends AppCompatDialogFragment {
                     setting.setPrivacyOnOff(true);
                 } else {
                     setting.setPrivacyOnOff(false);
+                    defaultOnOff.setChecked(false);
                 }
             }
         });
+        defaultOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    setting.setDefaultOnOff(true);
+                    privacyOnOff.setChecked(true);
+                } else {
+                    setting.setDefaultOnOff(false);
+                }
+            }
+        });
+
 
 
         seekTime.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -116,6 +134,7 @@ public class SettingsView extends AppCompatDialogFragment {
                 setting.setMinutesTime(i);
                 timeText.setText("Maximum minutes time: "+ i);
                 if (i==1440) timeText.setText("Maximum minutes time: 1 day");
+                defaultOnOff.setChecked(false);
             }
 
             @Override

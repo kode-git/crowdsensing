@@ -12,15 +12,28 @@ public class SettingData {
 
     private boolean privacyOnOff;
 
-    public SettingData(int neigh, int range, int minutesTime, boolean prvc){
+
+
+    private boolean defaultOnOff;
+
+    public SettingData(int neigh, int range, int minutesTime, boolean prvc, boolean def){
         this.nNeighbour=neigh;
         this.range=range;
         this.minutesTime=minutesTime;
         this.privacyOnOff = prvc;
+        this.defaultOnOff = def;
 
     }
 
-    // Getting and setting methods
+    // Getter and setter methods
+
+    public boolean isDefaultOnOff() {
+        return defaultOnOff;
+    }
+
+    public void setDefaultOnOff(boolean defaultOnOff) {
+        this.defaultOnOff = defaultOnOff;
+    }
 
     public boolean isPrivacyOnOff() {
         return privacyOnOff;

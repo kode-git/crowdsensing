@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
@@ -81,12 +82,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean startRec = false;
     private UUID id;
     private Timestamp timestamp;
+    private int toastcounter=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         id = UUID.randomUUID();
-        actualSettings = new SettingData(1,1000,60,true);
+        actualSettings = new SettingData(1,1000,60,true,false);
 
     //restoring privacy preferences
         pref = getPreferences(Context.MODE_PRIVATE);
@@ -101,6 +104,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 actualSettings.setMinutesTime((int) entry.getValue());
             }else if(entry.getKey().equals("prv")){
                 actualSettings.setPrivacyOnOff((boolean) entry.getValue());
+            }else if(entry.getKey().equals("def")){
+                actualSettings.setDefaultOnOff((boolean) entry.getValue());
+                if(actualSettings.isDefaultOnOff()){
+                    updateSettings();
+                }
             }
         }
 
@@ -141,10 +149,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 try {
                     double powerDb = 10 * log10(getAmplitude());
-                    System.out.println(((Double)powerDb).getClass());
                     Log.i("Actual value", String.valueOf(powerDb));
                     if(powerDb != Double.NEGATIVE_INFINITY) {
                         sendRecord(powerDb);
+                    }else {
+                        Context context = getApplicationContext();
+                        CharSequence text = "We are getting troubles with your mic";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
                     }
                 }catch ( Exception e){
                     System.out.println(e + " A");
@@ -205,6 +219,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.i("Actual value", String.valueOf(powerDb));
                             if(powerDb != Double.NEGATIVE_INFINITY) {
                                 sendRecord(powerDb);
+                            }else {
+                                //toast notification
+                                Context context = getApplicationContext();
+                                CharSequence text = "We are getting troubles with your mic";
+                                int duration = Toast.LENGTH_SHORT;
+
+                                Toast toast = Toast.makeText(context, text, duration);
+                                if(toastcounter<1){
+                                    toast.show();
+                                    toastcounter++;
+                                }
                             }
                         }
                     }
@@ -329,12 +354,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void openSettings(){
+        toastcounter=0;
         SettingsView settingsView = new SettingsView();
         Bundle bundle = new Bundle();
         bundle.putInt("range",actualSettings.getRange());
         bundle.putInt("neigh",actualSettings.getnNeighbour());
         bundle.putInt("time",actualSettings.getMinutesTime());
         bundle.putBoolean("prv", actualSettings.isPrivacyOnOff());
+        bundle.putBoolean("def", actualSettings.isDefaultOnOff());
         settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
@@ -345,10 +372,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         actualSettings.setRange(s.getRange());
         actualSettings.setMinutesTime(s.getMinutesTime());
         actualSettings.setPrivacyOnOff(s.isPrivacyOnOff());
+        actualSettings.setDefaultOnOff(s.isDefaultOnOff());
         editor.putInt("nNeighbour", s.getnNeighbour());
         editor.putInt("range", s.getRange());
         editor.putInt("time", s.getMinutesTime());
         editor.putBoolean("prv", s.isPrivacyOnOff());
+        editor.putBoolean("def", s.isDefaultOnOff());
         editor.commit();
     }
 
@@ -431,7 +460,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
+    }
 
+
+    public void updateSettings(){
+        try {
+            RequestQueue requestQueue = Volley.newRequestQueue(this);
+            String URL = "http://10.0.2.2:3000/getSettingsUpd";
+
+
+            Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
+            // pointFeature.addNumberProperty("Range", actualSettings.getRange());
+
+
+            final String requestBody = pointFeature.toJson();
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    JSONObject json = null;
+                    try {
+                        json = new JSONObject(response);
+                        int myNeigh = Integer.parseInt(json.getString("neigh"));
+                        int myRange = Integer.parseInt(json.getString("range"));
+                        int myTime = Integer.parseInt(json.getString("time"));
+                        actualSettings.setnNeighbour(myNeigh);
+                        actualSettings.setRange(myRange);
+                        actualSettings.setMinutesTime(myTime);
+
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("Error Log", error.toString());
+                    meanDb.setText( "Mean: NaN dB");
+                }
+            }) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    try {
+                        return requestBody == null ? null : requestBody.getBytes("utf-8");
+                    } catch (UnsupportedEncodingException uee) {
+                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
+                        return null;
+                    }
+                }
+
+                @Override
+                protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                    String responseString = "";
+                    if (response != null) {
+
+                        try {
+                            responseString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                }
+            };
+
+            requestQueue.add(stringRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }
