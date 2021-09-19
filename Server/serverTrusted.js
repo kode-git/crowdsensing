@@ -20,7 +20,7 @@ app.use("/static", express.static('./static/'));
 
 // Trusted API
 app.post('/createLocation', route.createLocation)
-
+app.post('/getSettingsUpd', route.getSettingsUpd)
 
 app.listen(port, () => {
     console.log(`Log: Trusted Server running on port ${port}.`)

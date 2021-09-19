@@ -152,9 +152,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.i("Actual value", String.valueOf(powerDb));
                     if(powerDb != Double.NEGATIVE_INFINITY) {
                         sendRecord(powerDb);
+                        Context context = getApplicationContext();
+                        CharSequence text = "Location sent with success!";
+                        int duration = Toast.LENGTH_SHORT;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
                     }else {
                         Context context = getApplicationContext();
-                        CharSequence text = "We are getting troubles with your mic";
+                        CharSequence text = "Troubles with microphone, retry";
                         int duration = Toast.LENGTH_SHORT;
 
                         Toast toast = Toast.makeText(context, text, duration);
@@ -471,7 +477,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
             Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
-            // pointFeature.addNumberProperty("Range", actualSettings.getRange());
 
 
             final String requestBody = pointFeature.toJson();

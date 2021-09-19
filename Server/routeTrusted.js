@@ -75,8 +75,26 @@ const createLocation = (request, response) => {
 }
 
 
+
+// Define the default settings for the location sending
+const getSettingsUpd = (request, response) => {
+    // getting location
+    data = request.body
+    range = 1000
+    k = 1 // no privacy for default
+    time = 1 // 1 minute is the stack timeout because k = 1
+    json = {
+        neigh : k,
+        time : time,
+        range : range,
+    }
+    response.status(200).json(json)
+
+
+}
 // Exports module for app.js
 
 module.exports = {
     createLocation,
+    getSettingsUpd
 }
