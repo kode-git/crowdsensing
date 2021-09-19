@@ -379,6 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editor.putBoolean("prv", s.isPrivacyOnOff());
         editor.putBoolean("def", s.isDefaultOnOff());
         editor.commit();
+        if(s.isDefaultOnOff())updateSettings();
     }
 
     /**
