@@ -49,7 +49,8 @@ const makePoint = (data, stack) => {
     // consider only points in range, with different user_id and same or < k value
     console.log('Log: Invoke filter....')
     const [index, tmp] = filter(data, stack)
-    if(index == null && tmp == null){
+    let point;
+    if (index == null && tmp == null) {
         return null
     } else {
         // we can make the point
@@ -241,7 +242,9 @@ const spatialCloaking = (points) => {
               type: 'Feature',
               geometry: { type: 'Point', coordinates: [] },
               properties: {
-                db: 0
+                db: 0,
+                QoS : 0,
+                privacy : 0,
                 }
              }
     var centroid = [0,0]
@@ -265,9 +268,60 @@ const spatialCloaking = (points) => {
     // define the dB value with the pondering weight parameter
     // define spatial weight
     point.properties.db = defineDbMean(points, centroid)
+    // define QoS and Privacy
+    point.properties.QoS = makeQoS(points, point)
+    point.properties.privacy = makePrivacy(points, point)
     return point;
 }
 
+/**
+ * makePrivacy(points, centroids) return the mean distance between the real position and predicted one
+ * @param points is the list of points in input to the spatial cloaking
+ * @param centroid is the predicted point
+ * @returns number of the mean distance between points and centroid
+ */
+const makePrivacy = (points, centroid) => {
+    // TODO: Miss GPS Perturbation drift
+    let total = points.length
+    let dist = 0
+    /*
+    let initialDrift = []
+    for(let i = 0; i < total; i++ ){
+        initialDrift.push(points.properties.drift)
+    }
+     */
+    const cx = centroid.geometry.coordinates[0]
+    const cy = centroid.geometry.coordinates[1]
+    for (let i = 0; i < total; i++) {
+        const px = points[i].geometry.coordinates[0]
+        const py = points[i].geometry.coordinates[1]
+        dist += distance(cx, cy, px, py)
+    }
+
+    let meanDistance = Math.round(dist  * 100.0 / total) / 100
+    return meanDistance
+}
+
+
+/**
+ * makeQoS(points, centroids) return the Mean Squared Error of points on centroid represented the error in the db calculation
+ * @param points is the list of points in input to the spatial cloaking
+ * @param centroid is the predicted point
+ * @returns number of the squared mean error for decibels variation
+ */
+const makeQoS = (points, centroid) =>{
+    let error = 0;
+    let totalError = 0
+    let total = points.length
+
+    for(let i = 0; i < total; i++){
+        error = Math.pow((points[i].properties.db - centroid.properties.db),2)
+        totalError += error
+    }
+    let mseError = Math.round(totalError * 100.0 / total) / 100
+    return mseError
+
+}
 /*
 Declaration:
 defineDbMean  : function(points, centroid) =>
@@ -344,11 +398,14 @@ So, this function is called in these cases.
 const makeDirectPoint = (data) => {
     console.log('Spatial cloaking init...')
     // define point structure
-    point = {
+    let point = {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: data.geometry.coordinates },
         properties: {
-            db: data.properties.db
+            db: data.properties.db,
+            QoS : 0,
+            privacy : 0,
+
         }
     }
     // we don't need to manage stack, because the point avoid it
@@ -365,6 +422,5 @@ module.exports = {
     spatialCloaking,
     distance,
     defineDbMean,
-
 }
 

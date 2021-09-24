@@ -88,15 +88,19 @@ const showClusters = (request, response) => {
 const createLocation = (request, response) => {
 
 
-    point = request.body
+    let point = request.body
     if(duplicated != request.body){
         console.log('Request received from the trusted server')
         console.log('Processing...')
         console.log('Enter in the route procedure...')
-        db = point.db
-        st_X = point.st_X
-        st_Y = point.st_Y
-        pool.query('insert into public.loc_ref_points(db, coordinates)values ($1, ST_Point($2, $3));', [db, st_X, st_Y], (error, results) => {
+
+        let db = point.db
+        let st_X = point.st_X
+        let st_Y = point.st_Y
+        let QoS = point.QoS
+        let privacy = point.privacy
+        console.log(point)
+        pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy)values ($1, ST_Point($2, $3), $4, $5);', [db, st_X, st_Y, QoS, privacy], (error, results) => {
             if (error) {
                 throw error
             }

@@ -89,7 +89,7 @@ const convertClusters = (featureCollection, k) => {
                 db = db + feature.properties.db
             }
         }
-        polygonFeature.properties.db = db / count // TODO: Verify the db mean
+        polygonFeature.properties.db = db / count
         polygon.polySort(polygonFeature.geometry.coordinates)
         clusters[w] = polygonFeature
     
@@ -129,7 +129,7 @@ const aggregate = (data, stack) => {
     stY = data.geometry.coordinates[1]
     stId = data.properties.userId
 
-    var updated = false
+    let updated = false
     for(let i = 0; i < stack.length; i++) {
         stackX = stack[i].geometry.coordinates[0]
         stackY = stack[i].geometry.coordinates[1]
@@ -138,11 +138,16 @@ const aggregate = (data, stack) => {
             // data is included in the stack at position i
             // update stack to not overlap the same point
             stack[i].properties.db = data.properties.db
-            stack[i].properties.neighbour = data.properties.neighbour
-            stack[i].properties.range = data.properties.range
             stack[i].properties.minutesTime = data.properties.minutesTime
             stack[i].properties.timestamp = data.properties.timestamp
-            stack[i].properties.privacyOnOff = data.properties.privacyOnOff
+            stack[i].properties.automatic = data.properties.automatic
+            stack[i].properties.drift = data.properties.drift
+            if(data.properties.automatic == true) {
+                stack[i].properties.tradeOff = data.properties.tradeOff;
+            } else{
+                stack[i].properties.neighbour = data.properties.neighbour
+                stack[i].properties.range = data.properties.range
+            }
             updated = true
             break;
         }
@@ -155,10 +160,21 @@ const aggregate = (data, stack) => {
     return updated
 }
 
+const getIndex = (stack, data) =>{
+    for(let i = 0; i < stack.length; i++){
+        if(stack[i].geometry.coordinates == data.geometry.coordinates){
+            return i
+        }
+    }
+
+    return -1
+}
+
 module.exports = {
     convertLocations,
     convertClusters,
     populate,
     aggregate,
+    getIndex
     //calculateMeanDB,
 }
