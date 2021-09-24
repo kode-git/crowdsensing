@@ -142,6 +142,7 @@ const aggregate = (data, stack) => {
             stack[i].properties.range = data.properties.range
             stack[i].properties.minutesTime = data.properties.minutesTime
             stack[i].properties.timestamp = data.properties.timestamp
+            stack[i].properties.privacyOnOff = data.properties.privacyOnOff
             updated = true
             break;
         }

@@ -330,8 +330,35 @@ const inverseSquareLaw = (point, centroid) => {
 module exports
 */
 
+
+/*
+Declaration:
+makeDirectPoint : function(data) =>
+- data : the point to forward
+
+Aim:
+Convert the location geoJSON in a point geoJSON to forward in the backend.
+When privacy is off or k = 1, we need to  make directly a point and forward to the backend.
+So, this function is called in these cases.
+ */
+const makeDirectPoint = (data) => {
+    console.log('Spatial cloaking init...')
+    // define point structure
+    point = {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: data.geometry.coordinates },
+        properties: {
+            db: data.properties.db
+        }
+    }
+    // we don't need to manage stack, because the point avoid it
+    return point
+
+}
+
 module.exports = {
     makePoint,
+    makeDirectPoint,
     filter,
     flush,
     time,

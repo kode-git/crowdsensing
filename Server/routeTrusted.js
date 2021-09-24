@@ -5,26 +5,35 @@ const sc = require('./static/js/spatialCloaking')
 
 
 // This is the stack for spatial cloaking
+const backend = 4000
 const stack = new Array()
 exports.stack= stack;
 console.log('Log: Stack initialization...')
 console.log('Log: Starting server...')
 
-// TODO Pass the point to the backend server
+
 // create a new location with trusted way
 const createLocation = (request, response) => {
 
     data = request.body
     // pushing data in the stack
     // Aggregate/Update data with the same userId and same location
-    utility.aggregate(data, stack)
-    // spatial cloaking
-    var point = sc.makePoint(data, stack)
+    var point = null;
+    if(data.properties.privacyOnOff == false || data.properties.neighbour == 1) {
+        // k = 1 or privacy is off
+        console.log("Log: Privacy off, forwarding the current location to the backend server")
+        point = sc.makeDirectPoint(data)
+    } else {
+        // k > 1 or privacy is on
+        utility.aggregate(data, stack)
+        // spatial cloaking
+        point = sc.makePoint(data, stack)
+    }
     if(point == null){
         // send the status to the back-end
         // back-end need to wait and avoid the insert
         console.log('Log: Point pending, waiting other locations for k-anonymity...')
-        response.json('')
+        response.status(200).json('') //void response
     } else {
         // listening on the server backend
         const http = require('http')
@@ -41,7 +50,7 @@ const createLocation = (request, response) => {
         // making options of the requests
         const options = {
         hostname: 'localhost',
-        port: 4000,
+        port: backend,
         path: '/createLocation',
         method: 'POST',
         headers: {
