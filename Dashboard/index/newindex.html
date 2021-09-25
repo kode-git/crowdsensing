@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+
+	<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
+	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
+	<script src="js/modernizr.js"></script> <!-- Modernizr -->
+	<meta charset="utf-8">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
+    <style type="text/css">
+    #map {
+		height: 600px;
+    }
+    </style>
+	<title>Content Filters | CodyHouse</title>
+</head>
+<body>
+
+	<main class="cd-main-content">
+		<div class="cd-tab-filter-wrapper">
+			<div class="cd-tab-filter">
+				<ul class="cd-filters">
+					<li class="placeholder"> 
+						<a data-type="all" href="#0">All</a> <!-- selected option on mobile -->
+					</li> 
+					<li class="filter"><a class="selected" href="#0" data-type="all">All</a></li>
+					<li class="filter" data-filter=".color-1"><a href="#0" data-type="color-1">Color 1</a></li>
+					<li class="filter" data-filter=".color-2"><a href="#0" data-type="color-2">Color 2</a></li>
+				</ul> <!-- cd-filters -->
+			</div> <!-- cd-tab-filter -->
+		</div> <!-- cd-tab-filter-wrapper -->
+
+		<section class="cd-gallery">
+			<ul>
+				<div id="map" ></div>
+				
+				<script type="text/javascript">
+					var mapboxTiles = L.tileLayer('https://{s}.tiles.mapbox.com/v3/spatial.b625e395/{z}/{x}/{y}.png', {
+						attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>'
+					});
+				
+					var map = L.map('map')
+						.addLayer(mapboxTiles)
+						.setView([40.72332345541449, -73.99], 10);
+					</script>
+			</ul>
+		</section> <!-- cd-gallery -->
+
+		<div class="cd-filter">
+			<form>
+				<div class="cd-filter-block">
+					<h4>Show Markers</h4>
+					
+					<ul class="cd-filter-content cd-filters list">
+					<li>
+						<input class="filter" data-filter=".check3" type="checkbox" id="checkbox3">
+						<label class="checkbox-label" for="checkbox3">Colorize</label>
+					</li>
+					</ul>
+
+				</div> <!-- cd-filter-block -->
+
+				<div class="cd-filter-block">
+					<h4>Show Cluestering</h4>
+
+					<ul class="cd-filter-content cd-filters list">
+						<li>
+							<p><h3>SET K-MEANS:</h3></p>	
+							</li>	
+					<div class="cd-filter-content">
+						<input type="search" placeholder="Insert any k...">
+					</div> <!-- cd-filter-content -->
+						</li>
+						<li>
+						<li>
+						<p><h3>CLUSERING METHOD:</h3></p>
+						</li>
+						<li>
+						<select class="filter" name="selectThis" id="selectThis">
+							<option value="">Spatial Clustering</option>
+							<option value=".option1">Noise Clustering</option>
+							<option value=".option2">Spatial-Noise Clustering</option>
+						</select>
+					</li>
+
+						<li>
+						<p><h3>SETTINGS:</h3></p>
+						</li>
+
+						<li>
+							<input class="filter" data-filter=".check3" type="checkbox" id="checkbox3">
+							<label class="checkbox-label" for="checkbox3">Marker</label>
+		
+						</li>
+						<li>
+							<input class="filter" data-filter=".check3" type="checkbox" id="checkbox3">
+							<label class="checkbox-label" for="checkbox3">Polygons</label>
+		
+						</li>
+						<li>
+							<input class="filter" data-filter=".check3" type="checkbox" id="checkbox3">
+							<label class="checkbox-label" for="checkbox3">Centroids</label>
+		
+						</li>
+					</ul> <!-- cd-filter-content -->
+				</div> <!-- cd-filter-block -->
+
+				<div class="cd-filter-block">
+					<h4>Show Heatmap</h4>
+					
+					<div class="cd-filter-content">
+						<div class="cd-select cd-filters">
+							<li>
+								Blur:
+								<input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
+								</li
+								>
+								<li>
+								<label ><p>Radius:</p></label>
+									<input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius" >
+								</li>
+						</div> <!-- cd-select -->
+					</div> <!-- cd-filter-content -->
+				</div> <!-- cd-filter-block -->
+
+				<div class="cd-filter-block">
+					<h4>Radio buttons</h4>
+
+					<ul class="cd-filter-content cd-filters list">
+						<li>
+							<input class="filter" data-filter="" type="radio" name="radioButton" id="radio1" checked>
+							<label class="radio-label" for="radio1">All</label>
+						</li>
+
+						<li>
+							<input class="filter" data-filter=".radio2" type="radio" name="radioButton" id="radio2">
+							<label class="radio-label" for="radio2">Choice 2</label>
+						</li>
+
+						<li>
+							<input class="filter" data-filter=".radio3" type="radio" name="radioButton" id="radio3">
+							<label class="radio-label" for="radio3">Choice 3</label>
+						</li>
+					</ul> <!-- cd-filter-content -->
+				</div> <!-- cd-filter-block -->
+			</form>
+
+			<a href="#0" class="cd-close">Close</a>
+		</div> <!-- cd-filter -->
+
+		<a href="#0" class="cd-filter-trigger">Filters</a>
+	</main> <!-- cd-main-content -->
+<script src="js/jquery-2.1.1.js"></script>
+<script src="js/jquery.mixitup.min.js"></script>
+<script src="js/main.js"></script> <!-- Resource jQuery -->
+</body>
+</html>
