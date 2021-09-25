@@ -29,12 +29,12 @@ app.post('/getMeanDb', route.getMeanDb)
 // Clustering API
 app.post('/showClusters', route.showClusters)
 app.get('/populate', route.populate)
-app.post('/createLocation', function(request, response){
+app.post('/createBackendLocation', function(request, response){
         // forwarding the request and the response
-        route.createLocation(request, response)
+        route.createBackendLocation(request, response)
         // no manage the response because the user doesn't know when the
         // point is processing on the database
-        // response is detected in the trusted console
+        // response is detected in the trusteds console
 });
 
 // Prediction API

@@ -9,8 +9,9 @@ const http = require("http");
 const backend = 4000
 
 // stack initialization
-const stack = new Array()
+let stack = new Array()
 exports.stack= stack;
+
 
 // Server initial logs
 console.log('Log: Stack initialization...')
@@ -19,22 +20,11 @@ console.log('Log: Starting server...')
 
 // create a new location with trusted way
 const createLocation = (request, response) => {
+    console.log("\n\nLog: Have a new request from the App!\n\n\n")
     let data = request.body
     // pushing data in the stack
     // Aggregate/Update data with the same userId and same location
-
-    // Automatic management
-    //TODO: Automatic control
-
-    /*
-    if(data.properties.automatic != null && data.properties.automatic == true){
-            console.log("Log: Optimization of automatic point...")
-            data = automatic.opt(stack, data)
-            console.log("Log: Automatic point range and k optimized!")
-    }
-     */
-
-    let point = makePoint(data)
+    let point = makeSpatialPoint(data)
 
     // Point pending or forwarding management
     if(point == null){
@@ -42,6 +32,7 @@ const createLocation = (request, response) => {
         response.status(200).json('')
     } else {
         forwardBackend(point)
+        response.status(200).json('')
     }
     console.log('Log: the current stack status include ' + stack.length + ' elements ')
 
@@ -64,7 +55,7 @@ const makeRequest = (point) => {
     const options = {
         hostname: 'localhost',
         port: backend,
-        path: '/createLocation',
+        path: '/createBackendLocation',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -81,8 +72,6 @@ const forwardBackend = (point) => {
 
     // create request
     const req = http.request(options, res => {
-        console.log(`Data sent with response: ${res.statusCode}`)
-
         // managing of sending data
         res.on('dataRequest', d => {
             process.stdout.write(d)
@@ -102,18 +91,20 @@ const forwardBackend = (point) => {
 
 
 
-const makePoint = (data) => {
+const makeSpatialPoint = (data) => {
     // Privacy Management
     let point = null
-    if(data.properties.neighbour === 1) {
+    if(data.properties.neighbour === 1 || !data.properties.privacyOnOff) {
         // k = 1 or privacy is off
-        console.log("Log: Privacy off, forwarding the current location to the backend server")
         point = sc.makeDirectPoint(data, stack)
     } else {
         // k > 1 or privacy is on
         utility.aggregate(data, stack)
         // spatial cloaking
-        point = sc.makePoint(data, stack)
+        let stackAndPoint = sc.makePoint(data, stack)
+        // data splitting
+        stack = stackAndPoint[0]
+        point = stackAndPoint[1]
     }
 
     return point
@@ -121,26 +112,8 @@ const makePoint = (data) => {
 
 
 
-// TODO: Remove, it's useless
-// Define the default settings for the location sending
-const getSettingsUpd = (request, response) => {
-    // getting location
-    data = request.body
-    range = 1000
-    k = 1 // no privacy for default
-    time = 1 // 1 minute is the stack timeout because k = 1
-    json = {
-        neigh : k,
-        time : time,
-        range : range,
-    }
-    response.status(200).json(json)
-}
-
-
-
 // Exports module for app.js
 module.exports = {
     createLocation,
-    getSettingsUpd
 }
+

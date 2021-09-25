@@ -85,15 +85,10 @@ const showClusters = (request, response) => {
 }
 
 
-const createLocation = (request, response) => {
-
+const createBackendLocation = (request, response) => {
 
     let point = request.body
     if(duplicated != request.body){
-        console.log('Request received from the trusted server')
-        console.log('Processing...')
-        console.log('Enter in the route procedure...')
-
         let db = point.db
         let st_X = point.st_X
         let st_Y = point.st_Y
@@ -140,6 +135,6 @@ module.exports = {
     showClusters,
     getMeanDb,
     populate,
-    createLocation,
+    createBackendLocation,
     prdCall,
 }

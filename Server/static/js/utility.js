@@ -125,6 +125,10 @@ const populate = (pool, n) => {
 // Aggregate data in the server trusted and return true or false depending on
 // update existing data or pushing a new one
 const aggregate = (data, stack) => {
+    stack.push(data)
+    return true
+    /*
+    console.log("Log: Aggregate init.....")
     stX = data.geometry.coordinates[0]
     stY = data.geometry.coordinates[1]
     stId = data.properties.userId
@@ -157,7 +161,11 @@ const aggregate = (data, stack) => {
         stack.push(data) // adding new point
     }
 
+
+
     return updated
+
+     */
 }
 
 const getIndex = (stack, data) =>{
@@ -178,3 +186,4 @@ module.exports = {
     getIndex
     //calculateMeanDB,
 }
+

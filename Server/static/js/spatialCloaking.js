@@ -22,6 +22,7 @@ Return:
 - null in case of pending locations
 - point in case of spatial cloaking point making
 */
+
 const makePoint = (data, stack) => {
     // load initial parameters
 
@@ -44,24 +45,17 @@ const makePoint = (data, stack) => {
 
 
     // remove from stack elements with out-time
-    console.log('Log: Invoke time...')
     stack = time(stack, timestamp)
     // consider only points in range, with different user_id and same or < k value
-    console.log('Log: Invoke filter....')
     const [index, tmp] = filter(data, stack)
     let point;
     if (index == null && tmp == null) {
-        return null
+        return [stack, null]
     } else {
         // we can make the point
-        console.log('Log: spatialCloaking invoke...')
         point = spatialCloaking(tmp)
-        console.log('Log: flush invoke...')
-        console.log('Log: Index to remove: ' + index)
-        flush(index, stack)
-        console.log('Log: Stack status:\n' + JSON.stringify(stack))
-        console.log('Log: Point : \n ' + JSON.stringify(point))
-        return point
+        stack = flush(index, stack)
+        return [stack, point]
     }
 
 }
@@ -89,7 +83,6 @@ const filter = (data, stack) => {
      maxDistance = data.properties.range
      var index = []
      index.push(stack.length - 1)
-     console.log(index)
      var id = []
      id.push(data.properties.userId)
      tmp = []
@@ -153,13 +146,10 @@ Return:
 */
 
 const flush = (index, stack) => {
-    console.log('Log: stack length:' + stack.length)
-    console.log('Index : ' + index[0] )
     for(let i = 0; i < index.length; i++){
-        stack.slice(index[i], 1)
-        console.log('Enter')
+        stack = stack.slice(index[i], 1)
     }
-    console.log('Log: stack length:' + stack.length)
+    return stack
 }
 
 /*
@@ -188,7 +178,6 @@ const time = (stack, timestamp) => {
         // Rouding in minutes
         let diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000); // minutes
         if(diffMins > stackMinutes){
-            console.log("Removing element..")
             var index = stack.indexOf(stack[i]);
             if (index > -1) {
               stack.splice(index, 1); // removing and shift the elements of the array
@@ -236,7 +225,6 @@ Return:
 - point : geojSON of the point to insert into the database
 */
 const spatialCloaking = (points) => {
-    console.log('Spatial cloaking init...')
     // define point structure
     point = {
               type: 'Feature',
@@ -281,15 +269,9 @@ const spatialCloaking = (points) => {
  * @returns number of the mean distance between points and centroid
  */
 const makePrivacy = (points, centroid) => {
-    // TODO: Miss GPS Perturbation drift
     let total = points.length
     let dist = 0
-    /*
-    let initialDrift = []
-    for(let i = 0; i < total; i++ ){
-        initialDrift.push(points.properties.drift)
-    }
-     */
+
     const cx = centroid.geometry.coordinates[0]
     const cy = centroid.geometry.coordinates[1]
     for (let i = 0; i < total; i++) {
@@ -304,7 +286,7 @@ const makePrivacy = (points, centroid) => {
 
 
 /**
- * makeQoS(points, centroids) return the Mean Squared Error of points on centroid represented the error in the db calculation
+ * makeQoS(points, centroids) return the Mean Squared Error of points on centroid represented the error in the db propagation
  * @param points is the list of points in input to the spatial cloaking
  * @param centroid is the predicted point
  * @returns number of the squared mean error for decibels variation
@@ -314,8 +296,11 @@ const makeQoS = (points, centroid) =>{
     let totalError = 0
     let total = points.length
 
+
     for(let i = 0; i < total; i++){
-        error = Math.pow((points[i].properties.db - centroid.properties.db),2)
+        let dbPoint = points[i].properties.db
+        let dbCentroid = centroid.properties.db
+        error = Math.pow((dbPoint - dbCentroid),2)
         totalError += error
     }
     let mseError = Math.round(totalError * 100.0 / total) / 100
@@ -337,10 +322,8 @@ Return:
 */
 const defineDbMean = (points, centroid) => {
     dbHit = []
-    console.log("Points: \n" + JSON.stringify(points))
     for(var i = 0; i < points.length; i++){
         dbHit.push(points[i].properties.db - inverseSquareLaw(points[i], centroid))
-        console.log('DbHit ' + i + ": " + dbHit[i])
     }
     var dbPoint = 0
     for(var i = 0; i < points.length; i++){
@@ -350,10 +333,8 @@ const defineDbMean = (points, centroid) => {
     sum = 0;
     for(var i = 0; i < dbHit.length; i++){
         sum = sum + Math.pow(10, dbHit[i]/10)
-        console.log("Sum at " + i + ": " + sum)
     }
     dbPoint = 10 * (Math.log(sum) / Math.LN10)
-    console.log('dbPoint ' + dbPoint)
 
     return dbPoint
 }
@@ -396,7 +377,6 @@ When privacy is off or k = 1, we need to  make directly a point and forward to t
 So, this function is called in these cases.
  */
 const makeDirectPoint = (data) => {
-    console.log('Spatial cloaking init...')
     // define point structure
     let point = {
         type: 'Feature',
