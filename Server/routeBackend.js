@@ -3,7 +3,8 @@
 const Pool = require('pg').Pool
 const pg = require('pg')
 const utility = require('./static/js/utility')
-const dbPred = require('./static/js/dbPrediction')
+const predictor = require('./static/js/bridgingPredictor')
+const clustering = require('./static/js/bridgingClustering')
 const turf = require('@turf/turf')
 
 // connection at the init
@@ -115,7 +116,7 @@ const populate = (request, response) => {
 
 const prdCall = (request, response) => {
         point = request.body.myPoint.geometry.coordinates
-         dbPred.predictionDb(point).then(function successCallback(result) {
+         predictor.bridgingPredictor(point).then(function successCallback(result) {
            console.log(result)
            response.status(200).json(result)
           })

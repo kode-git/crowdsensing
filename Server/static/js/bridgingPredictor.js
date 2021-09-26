@@ -1,12 +1,10 @@
-
-
-
-function predictionDb(dataPoint){
+// Bridging with predictor.py python script
+const bridgingPredictor = (dataPoint) =>{
     return new Promise(function(resolve) {
         pointLng = dataPoint[0]
         pointLat = dataPoint[1]
         const spawn = require("child_process").spawn;
-       const pythonProcess = spawn('python',["static/js/predictor.py", pointLng,pointLat]);
+       const pythonProcess = spawn('python',["static/py/predictor.py", pointLng,pointLat]);
     
    
        pythonProcess.stdout.on('data', (data) => {
@@ -22,17 +20,12 @@ function predictionDb(dataPoint){
          pythonProcess.on('close', (code) => {
            console.log(`child process exited with code ${code}`);
          });
-   
-   
-        
-        
+
         });
-
-
 }
 
 
 
 module.exports={
-    predictionDb,
+    bridgingPredictor,
 }
