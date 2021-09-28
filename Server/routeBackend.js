@@ -24,7 +24,7 @@ var duplicated = {}
 // Get Locations from the database
 // using for data visualization inside the dashboard
 const getLocations = (request, response) => {
-    pool.query('select db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    pool.query('select db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             // not happen
             throw error
@@ -60,7 +60,7 @@ const getMeanDb = (request, response) => {
 // centroids and points inside a Leaftlet map on the front-end (dashboard side)
 const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
-    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates) from loc_ref_points', (error, results) => {
+    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
         }

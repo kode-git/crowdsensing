@@ -15,6 +15,8 @@ const convertLocations = (results) => {
             "properties": {
                 "id": row.id,
                 "db": row.db,
+                "qos" : row.qos,
+                "privacy" : row.privacy
             },
             "geometry": {
                 "type": "Point",
@@ -125,9 +127,6 @@ const populate = (pool, n) => {
 // Aggregate data in the server trusted and return true or false depending on
 // update existing data or pushing a new one
 const aggregate = (data, stack) => {
-    stack.push(data)
-    return true
-    /*
     console.log("Log: Aggregate init.....")
     stX = data.geometry.coordinates[0]
     stY = data.geometry.coordinates[1]
@@ -165,7 +164,6 @@ const aggregate = (data, stack) => {
 
     return updated
 
-     */
 }
 
 const getIndex = (stack, data) =>{
