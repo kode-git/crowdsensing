@@ -1,167 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="no-js">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.4/mapbox.js'></script>
     <script src="/static/js/leafletHeat.js"></script>
 
+	<link rel="stylesheet" href="/static/template/css/reset.css"> <!-- CSS reset -->
+	<link rel="stylesheet" href="/static/template/css/style.css"> <!-- Resource style -->
+
+	<script src="/static/template/js2/modernizr.js"></script> <!-- Modernizr -->
+
     <style type="text/css">
-    #map-wrapper {
-    width: 100%;
-    height: 500px;
-    position: relative;
-    border: 1px solid black;
-    }
-
     #map {
-    width: 100%;
-    height: 100%;
+		height: 600px;
     }
-
-    #button-wrapper {
-    position: absolute;
-    bottom: -80px;
-    width: 100%;
-    margin-left: 20px;
-    }
-    
-#container{width:100%; margin-top: 1%;}
-#left{float:left;width:30%;}
-#right{float:right;width:30%;}
-#center{margin:0 auto;width:30%;}
-
-#wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#div1 {
-    display: inline-block;
-    margin-top: 1px;
-}
-
-#div2 {
-    display: inline-block;
-    padding-left: 10%;
-}
-
-
     </style>
+	<title>Content Filters | CodyHouse</title>
 </head>
-
 <body>
-<div class="span9" style="height:100%">
 
-    <div id="map-wrapper">
+	<main class="cd-main-content">
+		<div class="cd-tab-filter-wrapper">
+			<div class="cd-tab-filter">
+				<ul class="cd-filters">
+					<li class="placeholder"> 
+                        
+					</li> 
+					<li class="filter"><a class="selected" >Privacy-aware Crowdsensing</a></li>
+				</ul> <!-- cd-filters -->
+			</div> <!-- cd-tab-filter -->
+		</div> <!-- cd-tab-filter-wrapper -->
 
-        <div id="map"></div>
+		<section class="cd-gallery">
+			<ul>
+				<div id="map-wrapper">
 
-        <div id="button-wrapper">
-            
-        
-          
-        </div>
-        
-        <div class="float-container" id="container">
-            <div class="card" id="left">
-                <h5 id="wrapper" class="card-header">
-                    <button class="btn btn-primary" type="submit" id="marker">Show Noise Markers</button>
-                </h5>
-                <div class="card-body">
-                    
-                  <h5 class="card-title">Special title treatment</h5>
-                        <div id="markerDiv">
-                            <input type="checkbox" name="colorizeMarker" id="colorizeMarker"  onchange="colorizeMarker(this)" />
-                            <label for="color">Colorize</label>
-                        </div>
-                          
-                          
-                  
-                </div>
-              </div>
-              <div class="card" id="right">
-               
-                <h5 id="wrapper" class="card-header">
-                    <button class="btn btn-primary" type="submit" id="heatmap">Show Noise Heatmap</button>
-                </h5>
-                <div class="card-body">
-                    <div id="heatmapDiv">
-                    <label ><p>Blur:</p></label>
-                        <input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
-                    <br>
-                    <label ><p>Radius:</p></label>
-                        <input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius" >
-                    </div>
-                   </div> 
-              </div>
-              <div class="card" id="center">
-                <h5 id="wrapper" class="card-header">
-                    <button class="btn btn-primary" type="submit" id="clusters">Show Noise Clustering</button>
-                </h5>
-                <div class="card-body">
-                
-                <div id="clusterDiv">
-                    <div id="div1">
-                        <h5 class="card-title">Clustering:</h5>
-                        <label ><p>k-means:</p></label>
+					<div id="map"></div>
+					</div>
+				
+				
+				
+			</ul>
+		</section> <!-- cd-gallery -->
+
+		<div class="cd-filter">
+			<form>
+				<div id="a" class="cd-filter-block">
+					<h4 id="markerFilter">Show Markers</h4>
+					
+					<ul id="markerSetting" class="cd-filter-content cd-filters list">
+					<li>
+							<li>
+								<input class="filter" data-filter=".check3" type="checkbox" name="colorizeMarker" id="colorizeMarker"   />
+								
+								<label class="checkbox-label" for="checkbox3">Colorize</label>
+			
+							</li>
+					</li>
+					</ul>
+
+				</div> <!-- cd-filter-block -->
+
+				<div class="cd-filter-block">
+					<h4 id="clusterFilter">Show Cluestering</h4>
+
+					<ul id="clusterSetting" class="cd-filter-content cd-filters list">
+						<li>
+							<p><h3>SET K-MEANS:</h3></p>	
+							</li>	
+					<div class="cd-filter-content">
+						<li>
+						
+							<label ><p>K-means:</p></label>
                         <input type="range" min="1" max="20" value="1" step="1" class="slider" id="cluster">
-                        <div>
-                            <input type="checkbox" id="nc" name="noiseCluster" checked="false" onchange="" />
-                            <label for="plg">Noise Clustering</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="sc" name="spatialCluster" checked="true" onchange=""/>
-                            <label for="cnt">Spatial Clustering</label>
-                        </div>
-                    </div>
-                    <div id="div2">
-                        <h5 class="card-title">Settings:</h5>
-                        <div>
-                            <input type="checkbox" name="vertexlayer" id="mrk"   onchange="checkboxCluster(this)" />
-                            <label for="mrk">Marker</label>
-                        </div>
-                          
-                        <div>
-                            <input type="checkbox" id="plg" name="clusterlayer" checked="true" onchange="checkboxCluster(this)"/>
-                            <label for="plg">Polygons</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" id="cnt" name="centroidlayer" checked="true" onchange="checkboxCluster(this)"/>
-                            <label for="cnt">Centroids</label>
-                        </div>
-                          
-                    </div>
-                </div>
-                </div>
-              </div>
-        </div>
-            <!--
-              <p>Select a map type:</p>
+						<label class="slider" for="cluster" id="kmeansLabel"> </label>
+					</li>
+					</div> <!-- cd-filter-content -->
+						</li>
+						<li>
+						<li>
+						<p><h3>CLUSERING METHOD:</h3></p>
+						</li>
+						<li>
+						<select id="clusterOption">
+							<option value="spatial">Spatial Clustering</option>
+							<option value="noise">Noise Clustering</option>
+							<option value="spatialnoise">Spatial-Noise Clustering</option>
+						</select>
+					</li>
 
-                <div>
-                <input type="radio" id="mapnik" name="drone" value="mapnik"
-                        checked>
-                <label for="huey">OpenStreetMap Mapnik</label>
-                </div>
+						<li>
+						<p><h3>SETTINGS:</h3></p>
+						</li>
 
-                <div>
-                <input type="radio" id="stadia" name="drone" value="stadia">
-                <label for="dewey">Stadia Alidade Smooth Dark</label>
-                </div>
+						<li> 
+							<input class="filter" data-filter=".check3" type="checkbox" name="vertexlayer" id="mrk"  checked onchange="checkboxCluster(this)"> 
+							<label class="checkbox-label" for="mrk">Marker</label>
+		
+						</li>
+						<li>
+							<input class="filter" data-filter=".check3" type="checkbox" name="clusterlayer" id="plg" checked onchange="checkboxCluster(this)">
+							<label class="checkbox-label" for="plg">Polygons</label>
+		
+						</li>
+						<li>
+							<input class="filter" data-filter=".check3" type="checkbox" name="centroidlayer" id="cnt" checked onchange="checkboxCluster(this)">
+							<label class="checkbox-label" for="cnt">Centroids</label>
+		
+						</li>
+					</ul> <!-- cd-filter-content -->
+				</div> <!-- cd-filter-block -->
 
-                <div>
-                <input type="radio" id="thunder" name="drone" value="thunder">
-                <label for="louie">Thunder Forest Transport</label>
-                </div>
-                -->
+				<div class="cd-filter-block">
+					<h4 id="heatmapFilter">Show Heatmap</h4>
+					
+					<div  id="heatmapSetting" class="cd-filter-content">
+						<div class="cd-select cd-filters">
+							<li>
+								<label ><p>Radius:</p></label>
+								<input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
+								</li
+								>
+								<li>
+								<label ><p>Radius:</p></label>
+									<input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius" >
+								</li>
+						</div> <!-- cd-select -->
+					</div> <!-- cd-filter-content -->
+				</div> <!-- cd-filter-block -->
 
-    </div>
-</div>
-    
-<script src='./static/js/index.js'></script>
+			</form>
+
+			<a href="#0" class="cd-close">Close</a>
+		</div> <!-- cd-filter -->
+
+		<a href="#0" class="cd-filter-trigger">Filters</a>
+	</main> <!-- cd-main-content -->
+<script src="/static/template/js2/jquery-2.1.1.js"></script>
+<script src='/static/js/index.js'></script>
+<script src="/static/template/js2/jquery.mixitup.min.js"></script>
+<script src="/static/template/js2/main.js"></script> <!-- Resource jQuery -->
 </body>
 </html>

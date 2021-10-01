@@ -1,5 +1,3 @@
-
-
 var map = L.map('map',{zoomSnap: 0.25,
     zoomDelta: 0.5,}).setView([44.494960715733576, 11.344000549862148], 13);
 
@@ -7,6 +5,16 @@ var map = L.map('map',{zoomSnap: 0.25,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+$(".leaflet-control-zoom").css("visibility", "hidden");
+$('.cd-filter-block h4').toggleClass('closed').siblings('.cd-filter-content').slideToggle(300);
+
+$("#colorizeMarker").removeClass().removeAttr('style');
+
+/*$('#markerFilter').toggleClass('closed').siblings('#markerSetting').slideToggle(300);
+$('#clusterFilter').toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
+$('#heatmapFilter').toggleClass('closed').siblings('#heatmapSetting').slideToggle(300);*/
+console.log($('#markerFilter'));
+console.log($('#clusterFilter'));
 /*
 
 // This is for auto-location on map view entering
@@ -38,12 +46,77 @@ heatmapLayers = [];
 var heatMap = 0;
 
 // Marker Button
-
 $("#marker").on("click", e => {
     e.preventDefault();
     showMarkers();
+    
 });
 
+	//close filter dropdown inside lateral .cd-filter 
+	$('.cd-filter-block h4').on('click', function(){
+        
+        switch (true) {
+            //------------------------ SHOW MARKER ----------------------------------------------------------------------------
+            case ($(this).attr('id')=='markerFilter') ://    
+            if( $(this).hasClass('closed')==false){
+            markerlayer.clearLayers();
+            heatmaplayer.clearLayers();
+            clusterlayer.clearLayers();
+            vertexlayer.clearLayers();
+            centroidlayer.clearLayers();
+            } else{
+                showMarkers();
+            }
+            $(this).toggleClass('closed').siblings('#markerSetting').slideToggle(300);
+            if( $('#clusterFilter').hasClass('closed')==false){
+                $('#clusterFilter').toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
+            } 
+            if( $('#heatmapFilter').hasClass('closed')==false){
+                $('#heatmapFilter').toggleClass('closed').siblings('#heatmapSetting').slideToggle(300);
+            } 
+              break;
+            // ---------------------- CLUSTERING ------------------------------------------------------------------------ 
+            case ($(this).attr('id')=='clusterFilter') ://TTF
+            if( $(this).hasClass('closed')==false){
+                markerlayer.clearLayers();
+                heatmaplayer.clearLayers();
+                clusterlayer.clearLayers();
+                vertexlayer.clearLayers();
+                centroidlayer.clearLayers();
+                } else{
+                  showClusters(map.getZoom());
+                }
+            $(this).toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
+            if( $('#markerFilter').hasClass('closed')==false){
+                $('#markerFilter').toggleClass('closed').siblings('#markerSetting').slideToggle(300);
+            } 
+            if( $('#heatmapFilter').hasClass('closed')==false){
+                $('#heatmapFilter').toggleClass('closed').siblings('#heatmapSetting').slideToggle(300);
+            } 
+              break;
+
+            //------------------------ HEATMAP -------------------------------------------------------------------------
+              case ($(this).attr('id')=='heatmapFilter') ://TTF
+              if( $(this).hasClass('closed')==false){
+                markerlayer.clearLayers();
+                heatmaplayer.clearLayers();
+                clusterlayer.clearLayers();
+                vertexlayer.clearLayers();
+                centroidlayer.clearLayers();
+                } else{
+                  showHeatmap();
+                }
+              $(this).toggleClass('closed').siblings('#heatmapSetting').slideToggle(300);
+              if( $('#markerFilter').hasClass('closed')==false){
+                $('#markerFilter').toggleClass('closed').siblings('#markerSetting').slideToggle(300);
+                } 
+                if( $('#clusterFilter').hasClass('closed')==false){
+                    $('#clusterFilter').toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
+                } 
+              break;
+             default:
+           }
+	})
     function showMarkers() {
 
     $.ajax({
@@ -52,13 +125,13 @@ $("#marker").on("click", e => {
         dataType: "json",
         
         success: function (data) {
-            $('#clusterDiv *').prop('disabled', true);
-            $('#heatmapDiv *').prop('disabled', true);
-            $('#markerDiv *').prop('disabled', false);          
+            //$('#clusterDiv *').prop('disabled', true);
+            //$('#heatmapDiv *').prop('disabled', true);
+            //$('#markerDiv *').prop('disabled', false);          
            
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
-                    if(document.getElementById("colorizeMarker").checked==false){
+                   if(document.getElementById("colorizeMarker").checked==false){
                         var geojsonColorizeOptions = {
                             radius: 6,
                             fillColor: "#0f8bff",
@@ -67,7 +140,7 @@ $("#marker").on("click", e => {
                             opacity: 1,
                             fillOpacity: 0.8
                         };
-                        }else{
+                      }else{
                         var geojsonColorizeOptions={
                             radius: 6,
                             fillColor: getColor(feature.properties.db),
@@ -79,7 +152,7 @@ $("#marker").on("click", e => {
                     }
                     return L.circleMarker(latlng, geojsonColorizeOptions);
                 }, onEachFeature: function (feature, layer) {
-                    layer.bindPopup('<p>DB: ' + feature.properties.db + '\n </p>');
+                    layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
                 }
                 
             });
@@ -96,19 +169,16 @@ $("#marker").on("click", e => {
 };
 
 
-// Heatmap Button
-
-$("#heatmap").on("click", e => {
-    e.preventDefault();
+// Heatmap 
+function showHeatmap() {
     $.ajax({
         url: "/getLocations",
         type: "POST",
         dataType: "json",
         
         success: function (data) {
-            $('#clusterDiv *').prop('disabled', true);
-            $('#heatmapDiv *').prop('disabled', false);
-            $('#markerDiv *').prop('disabled', true);
+
+            var mapZoom= map.getZoom();
             var geoData = geoJson2heat(data, 1);
             heatMap = new L.heatLayer(geoData, {max: 1});
             clusterlayer.clearLayers();
@@ -116,25 +186,41 @@ $("#heatmap").on("click", e => {
             markerlayer.clearLayers();
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
-            
+             if(mapZoom==12){
+                heatMap =  {max: 3};
+            }else if(mapZoom==13){
+                 heatMap = new L.heatLayer(geoData, {max: 2});
+            }else if(mapZoom==15){
+                 heatMap = new L.heatLayer(geoData, {max: 7});
+            }
+        
+
+
             heatmaplayer.addLayer(heatMap);
             
             map.addLayer(heatmaplayer);
+
         }
         
     });
-});
+};
+
 
 // Clusters Button
-/*
+
 map.on('zoomend', function() {
-showClusters(map.getZoom());
+   var mapZoom= map.getZoom();
+   console.log(mapZoom)
+   if( $('#heatmapFilter').hasClass('closed')==false){
+   showHeatmap();
+   }  
 });
-*/
+
 $("#clusters").on("click", e => {
     e.preventDefault();
     showClusters(map.getZoom());
 });
+
 
 function showClusters(mapZoom) {
     $.ajax({
@@ -155,7 +241,6 @@ function showClusters(mapZoom) {
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
             
-            console.log(data);
             kmeans = parseInt(mapZoom)
             for (let i = 0; i < kmeans; i++) {
                 
@@ -222,7 +307,7 @@ function showClusters(mapZoom) {
             }
 
 
-            document.getElementById("cluster").value=kmeans;
+            //document.getElementById("cluster").value=kmeans;
             var cls=document.getElementById("plg").checked;
             var vtx=document.getElementById("mrk").checked;
             var cnt=document.getElementById("cnt").checked;
@@ -268,7 +353,7 @@ function showClusters(mapZoom) {
 // Convert DB in a color shade from green to red
 function getColor(value){
     var min=20;
-    var max=43;
+    var max=80;
     if (value > max) value = max;
     var v = (value-min) / (max-min);
     var hue=((1 - v)*120).toString(10);
@@ -301,6 +386,26 @@ geoJson2heat = function (geojson) {
     });
 }
 
+$('#colorizeMarker').change(function () {
+    showMarkers();
+});
+
+$('#clusterOption').on('change', function (e) {
+    var optionSelected = $("option:selected", this);
+    var valueSelected = this.value;
+
+});
+/*
+$('#mrk').change(function () {
+    showCluster();
+});
+$('#plg').change(function () {
+    showClusters();
+});
+$('#cnt').change(function () {
+    showCluster();
+});
+*/
 
 //Slider for blur heatmap
 var blurSlider = document.getElementById("blur");
@@ -327,15 +432,29 @@ radiusSlider.oninput = function () {
 // Slider for k setting for k-means clustering
 var clusterSlider = document.getElementById("cluster");
 clusterSlider.oninput = function () {
+    console.log(this.value);
+    $("#kmeansLabel").empty();
+    $("#kmeansLabel").append("(", this.value,")");
     showClusters(this.value);
+    
 }
 
 
+
+/*
+$('#clusterCheckbox').change(function () {
+    console.log(this);
+});*/
+
 // Checkbox trigger for cluster settings (markers,polygons,centroids)
 function checkboxCluster(checkboxElem) {
+    console.log("AAAAAAAa");
     if (checkboxElem.checked ) {
+        console.log(checkboxElem.name)
         map.addLayer(eval(checkboxElem.name));
     } else{
+        
+        console.log(checkboxElem.name)
         map.removeLayer(eval(checkboxElem.name));
     }
 }    
@@ -343,6 +462,7 @@ function checkboxCluster(checkboxElem) {
 function colorizeMarker(checkboxElem) {
         showMarkers();
 }
+
 
 // Temporal Radio Buttons
 $('input[type="radio"]').on('click', function () {
@@ -397,6 +517,7 @@ function onMapClick(e) {
            console.log(data);
             
         
+    showClusters(map.getZoom());
         }
         
     });
@@ -406,4 +527,8 @@ function onMapClick(e) {
 }
 
 map.on('dblclick', onMapClick);
+
+$("#clusters").on("click", e => {
+    e.preventDefault();
+});
 

@@ -15,7 +15,7 @@ const convertLocations = (results) => {
             "properties": {
                 "id": row.id,
                 "db": row.db,
-                "qos" : row.qos,
+                "QoS" : row.QoS,
                 "privacy" : row.privacy
             },
             "geometry": {

@@ -5,8 +5,6 @@ const route = require('./routeBackend')
 const path = require('path');
 const port = 4000
 
-
-
 app.use(bodyParser.json())
 app.use(
     bodyParser.urlencoded({
@@ -15,7 +13,6 @@ app.use(
 )
 
 app.use("/static", express.static('./static/'));
-
 
 app.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../Dashboard/index/index.html'));
