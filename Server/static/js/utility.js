@@ -124,9 +124,11 @@ const populate = (pool, n) => {
         maxDb = 90.0
         minDb = 40.0
         db = Math.floor(Math.random() * (maxDb - minDb) + minDb)
+        qos = Math.random() * 12.0
+        privacy = Math.random() * 10
         long = Math.random() * (44.5226164783769 - 44.428249953517265) + 44.428249953517265;
         lat = Math.random() * (11.42506902374428 - 11.280186829752083) + 11.280186829752083
-        pool.query('INSERT INTO public.loc_ref_points(db, coordinates)VALUES ($1, ST_Point($2, $3));', [db, long, lat], (error, results) => {
+        pool.query('INSERT INTO public.loc_ref_points(db, coordinates, qos, privacy)VALUES ($1, ST_Point($2, $3), $4, $5);', [db, long, lat, qos, privacy], (error, results) => {
             if (error) {
                 throw error
             }
