@@ -1,8 +1,9 @@
 // Bridging with clustering.py python script
-const bridgingClustering = (locations, k) =>{
+const bridgingClustering = (k) =>{
+    console.log(k)
     return new Promise(function(resolve) {
         const spawn = require("child_process").spawn;
-       const pythonProcess = spawn('python',["static/py/clustering.py", locations, k]);
+       const pythonProcess = spawn('python',["static/py/clustering.py", k]);
 
 
        pythonProcess.stdout.on('data', (data) => {

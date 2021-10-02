@@ -25,7 +25,7 @@ app.post('/getMeanDb', route.getMeanDb)
 
 // Clustering API
 app.post('/showClusters', route.showClusters)
-app.post('/showClustersOnDb/', route.showClustersOnDb)
+app.get('/showClustersOnDb/:id', route.showClustersOnDb)
 app.get('/populate', route.populate)
 
 app.post('/createBackendLocation', function(request, response){

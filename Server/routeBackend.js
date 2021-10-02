@@ -88,7 +88,7 @@ const showClusters = (request, response) => {
 
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
-    const k = request.body
+    const k = parseInt(request.params.k)
     pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
@@ -97,10 +97,10 @@ const showClustersOnDb = (request, response) => {
         // locations setting to manage
         locations = utility.convertLocations(results)
         // taking dataset as a geoJSON clustering on decibels
-        clustering.bridgingClustering(locations, k).then(function successCallback(result) {
+        clustering.bridgingClustering(k).then(function successCallback(result) {
             console.log(result)
             dataset = utility.convertClustersOnDb(locations, result)
-            print(dataset)
+            console.log(dataset)
             response.status(200).json(dataset)
         })
     })
