@@ -192,6 +192,7 @@ const getIndex = (stack, data) =>{
 module.exports = {
     convertLocations,
     convertClusters,
+    convertClustersOnDb,
     populate,
     aggregate,
     getIndex
