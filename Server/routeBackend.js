@@ -24,12 +24,13 @@ var duplicated = {}
 // Get Locations from the database
 // using for data visualization inside the dashboard
 const getLocations = (request, response) => {
-    pool.query('select db, ST_X(coordinates), ST_Y(coordinates), QoS, privacy from loc_ref_points', (error, results) => {
+    pool.query('select db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             // not happen
             throw error
         }
         dataset = utility.convertLocations(results)
+        console.log(dataset.features[0].properties);
         response.status(200).json(dataset)
     })
 }
@@ -60,7 +61,7 @@ const getMeanDb = (request, response) => {
 // centroids and points inside a Leaftlet map on the front-end (dashboard side)
 const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
-    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), QoS, privacy from loc_ref_points', (error, results) => {
+    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
         }
@@ -88,7 +89,7 @@ const showClusters = (request, response) => {
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
     const k = request.body
-    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), QoS, privacy from loc_ref_points', (error, results) => {
+    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
         }
@@ -115,7 +116,7 @@ const createBackendLocation = (request, response) => {
         let QoS = point.QoS
         let privacy = point.privacy
         console.log(point)
-        pool.query('insert into public.loc_ref_points(db, coordinates, QoS, privacy)values ($1, ST_Point($2, $3), $4, $5);', [db, st_X, st_Y, QoS, privacy], (error, results) => {
+        pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy)values ($1, ST_Point($2, $3), $4, $5);', [db, st_X, st_Y, QoS, privacy], (error, results) => {
             if (error) {
                 throw error
             }
