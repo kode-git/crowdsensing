@@ -15,8 +15,8 @@ sql = "select db, coordinates from loc_ref_points"
 data = gpd.read_postgis(sql=sql, con=con, geom_col="coordinates")
 print(len(data))
 
-k = sys.argv[1]
-
+locations = sys.argv[1]
+k = sys.argv[2]
 input_data = gpd.GeoDataFrame()
 
 input_data['lat'] = data["coordinates"].x
@@ -31,11 +31,10 @@ results = [0 for x in range(len(input_data['lat']))]
 kmeans = KMeans(n_clusters=k, n_init=40)
 
 # Fitting
-
 result = kmeans.fit(input_data, results)
 
-
-print(kmeans.predict(input_data))
+# writing in the stdout stream
+print(kmeans.predict(locations))
 
 
 sys.stdout.flush()

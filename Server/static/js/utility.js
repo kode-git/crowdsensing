@@ -105,6 +105,17 @@ const convertClusters = (featureCollection, k) => {
 
 }
 
+
+const convertClustersOnDb = (locations, clusters) => {
+
+    length = locations.length
+    for(let i = 0; i < length; i++){
+        locations.features[i].properties.cluster = clusters[i]
+    }
+
+    return locations
+}
+
 // populate DB with dummy points in Bologna area
 // range are 0 and 3000 with step 1
 // DBs are between 20 to 50

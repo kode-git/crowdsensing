@@ -85,6 +85,25 @@ const showClusters = (request, response) => {
     })
 }
 
+const showClustersOnDb = (request, response) => {
+    // const k = parseInt(request.body.k)
+    const k = request.body
+    pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), QoS, privacy from loc_ref_points', (error, results) => {
+        if (error) {
+            throw error
+        }
+
+        // locations setting to manage
+        locations = utility.convertLocations(results)
+        // taking dataset as a geoJSON clustering on decibels
+        clustering.bridgingClustering(locations, k).then(function successCallback(result) {
+            console.log(result)
+            dataset = utility.convertClustersOnDb(locations, result)
+            print(dataset)
+            response.status(200).json(dataset)
+        })
+    })
+}
 
 const createBackendLocation = (request, response) => {
 
@@ -120,9 +139,6 @@ const prdCall = (request, response) => {
            console.log(result)
            response.status(200).json(result)
           })
-       
-        
-    
 }
 
 
@@ -134,6 +150,7 @@ const prdCall = (request, response) => {
 module.exports = {
     getLocations,
     showClusters,
+    showClustersOnDb,
     getMeanDb,
     populate,
     createBackendLocation,
