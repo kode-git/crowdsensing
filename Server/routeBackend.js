@@ -90,7 +90,7 @@ const showClusters = (request, response) => {
 
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
-    const k = request.params.k
+    const k = parseInt(request.body.k)
     console.log(k)
     pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {

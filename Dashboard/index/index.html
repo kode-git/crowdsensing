@@ -20,6 +20,67 @@
     #map {
 		height: 600px;
     }
+	.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 14px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 6px;
+  width: 6px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
     </style>
 	<title>Content Filters | CodyHouse</title>
 </head>
@@ -62,6 +123,14 @@
 								<label class="checkbox-label" for="checkbox3">Colorize</label>
 			
 							</li>
+							<li>
+								<label class="switch">
+									<input id="switchPrediction" type="checkbox">
+									<span class="slider round"></span>
+								  </label>
+								  <label>Prediction</label>
+			
+							</li>
 					</li>
 					</ul>
 
@@ -78,8 +147,8 @@
 						<li>
 						
 							<label ><p>K-means:</p></label>
-                        <input type="range" min="1" max="20" value="1" step="1" class="slider" id="cluster">
-						<label class="slider" for="cluster" id="kmeansLabel"> </label>
+                        <input type="range" min="1" max="20" value="1" step="1" class="slider2" id="cluster">
+						<label class="slider2" for="cluster" id="kmeansLabel"> </label>
 					</li>
 					</div> <!-- cd-filter-content -->
 						</li>
@@ -123,22 +192,25 @@
 						<div class="cd-select cd-filters">
 							<li>
 								<label ><p>Radius:</p></label>
-								<input type="range" min="1" max="50" value="15" step="0.1" class="slider" id="blur">
+								<input type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
 								</li
 								>
 								<li>
 								<label ><p>Radius:</p></label>
-									<input type="range" min="1" max="85" value="25" step="0.1" class="slider" id="radius" >
+									<input type="range" min="1" max="85" value="25" step="0.1" class="slider2" id="radius" >
 								</li>
 						</div> <!-- cd-select -->
 					</div> <!-- cd-filter-content -->
+					
 				</div> <!-- cd-filter-block -->
-
-			</form>
+				
 
 			<a href="#0" class="cd-close">Close</a>
+			
+			  
 		</div> <!-- cd-filter -->
-
+	
+		
 		<a href="#0" class="cd-filter-trigger">Filters</a>
 	</main> <!-- cd-main-content -->
 <script src="/static/template/js2/jquery-2.1.1.js"></script>

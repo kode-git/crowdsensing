@@ -54,6 +54,11 @@ $("#marker").on("click", e => {
     
 });
 
+$("#checkTog").on("click", e =>{
+    e.preventDefault();
+    //console.log($(this).is(':checked'));
+   // console.log(this)
+});
 	//close filter dropdown inside lateral .cd-filter 
 	$('.cd-filter-block h4').on('click', function(){
         
@@ -171,6 +176,24 @@ $("#marker").on("click", e => {
 };
 
 
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+function showPredictedMarker(e) {
+    var db= getRandomArbitrary(20,80)
+    var circle = L.circleMarker([e.latlng.lat,e.latlng.lng], {
+        fillColor: getColor(db),
+        color: '#000',
+        radius: 6,
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+    })
+
+    markerlayer.addLayer(circle);
+    map.addLayer(markerlayer);
+}
 
 // Heatmap 
 function showHeatmap() {
@@ -190,7 +213,7 @@ function showHeatmap() {
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
              if(mapZoom==12){
-                heatMap =  {max: 3};
+                 heatMap = new L.heatLayer(geoData, {max: 2});
             }else if(mapZoom==13){
                  heatMap = new L.heatLayer(geoData, {max: 2});
             }else if(mapZoom==15){
@@ -275,8 +298,9 @@ function showSpatialNoiseCluster(num) {
         },
         
         success: function (data) {
-            
+            console.log(data);
             console.log("SPATIALNOISE");
+
         }
     })
 }
@@ -382,8 +406,9 @@ function showClusters(mapZoom) {
                     map.addLayer(vertexlayer);        
                   break;
                 case (cls === true && vtx === true && cnt === false) ://TTF
-                    map.addLayer(clusterlayer);
+                
                     map.addLayer(vertexlayer);
+                    map.addLayer(clusterlayer);
                   break;
                 case (cls === true && vtx === false && cnt === true) ://TFT
                     map.addLayer(clusterlayer);
@@ -463,9 +488,21 @@ $('#clusterOption').on('change', function (e) {
         console.log(" normale");
     }  else if(valueSelected=='spatialnoise'){
         console.log(" spatial-noise");
-        showSpatialNoiseCluster();
+        showSpatialNoiseCluster(3);
     }
 });
+
+
+map.on('click', function(e) {        
+    var boolPrediction=document.getElementById("switchPrediction").checked;
+    if(boolPrediction==true){
+        showPredictedMarker(e);
+    }
+});
+
+
+
+
 /*
 $('#mrk').change(function () {
     showCluster();
@@ -583,6 +620,8 @@ $('input[type="radio"]').on('click', function () {
 
 //prediction test
 function onMapClick(e) {
+    
+
     feature = {
         "type": "Feature",
         "geometry": {
@@ -615,7 +654,7 @@ function onMapClick(e) {
 
 }
 
-map.on('click', onMapClick);
+map.on('dblclick', onMapClick);
 
 $("#clusters").on("click", e => {
     e.preventDefault();
