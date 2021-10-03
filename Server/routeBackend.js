@@ -98,7 +98,7 @@ const showClustersOnDb = (request, response) => {
         locations = utility.convertLocations(results)
         // taking dataset as a geoJSON clustering on decibels
         clustering.bridgingClustering(k).then(function successCallback(result) {
-            console.log(result)
+            console.log(JSOn.parse(result))
             dataset = utility.convertClustersOnDb(locations, result)
             console.log(dataset)
             response.status(200).json(dataset)

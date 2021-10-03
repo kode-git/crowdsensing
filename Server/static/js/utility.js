@@ -107,7 +107,8 @@ const convertClusters = (featureCollection, k) => {
 
 
 const convertClustersOnDb = (locations, clusters) => {
-
+    console.log(locations)
+    console.log(clusters)
     length = locations.length
     for(let i = 0; i < length; i++){
         locations.features[i].properties.cluster = clusters[i]
