@@ -13,7 +13,7 @@ con = engine.connect()
 sql = "select id,coordinates,db from loc_ref_points as l1 where ST_DWithin( l1.coordinates, ST_GeomFromText('POINT({} {})'),50);".format(float(sys.argv[1]),float(sys.argv[2]))
 
 data = gpd.read_postgis(sql=sql, con=con, geom_col="coordinates")
-print(len(data))
+#print(len(data))
 if(len(data)<10):
     print("less than ten points")
     sql = "select id,coordinates,db from loc_ref_points;"
@@ -31,7 +31,9 @@ regB = BayesianRidge()
 regB.fit(train_data, train_result)
 
 #Predict
-print(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]))
+#print(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]))
 
+outLine="'db':{}".format(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]) )
+print('{'+outLine+'}')
 
 sys.stdout.flush()
