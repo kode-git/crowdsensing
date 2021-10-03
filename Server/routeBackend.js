@@ -7,6 +7,8 @@ const predictor = require('./static/js/bridgingPredictor')
 const clustering = require('./static/js/bridgingClustering')
 const turf = require('@turf/turf')
 
+
+
 // connection at the init
 
 const pool = new Pool({
@@ -88,7 +90,8 @@ const showClusters = (request, response) => {
 
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
-    const k = parseInt(request.params.k)
+    const k = request.params.k
+    console.log(k)
     pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
@@ -97,12 +100,11 @@ const showClustersOnDb = (request, response) => {
         // locations setting to manage
         locations = utility.convertLocations(results)
         // taking dataset as a geoJSON clustering on decibels
-        clustering.bridgingClustering(k).then(function successCallback(result) {
-            console.log(JSOn.parse(result))
-            dataset = utility.convertClustersOnDb(locations, result)
-            console.log(dataset)
-            response.status(200).json(dataset)
-        })
+        result = clustering.bridgingClustering(k)
+        console.log("RESULTS TAKEN IS: " + JSON.parse(JSON.stringify(result)))
+        dataset = utility.convertClustersOnDb(locations, result)
+        response.status(200).json(dataset)
+
     })
 }
 

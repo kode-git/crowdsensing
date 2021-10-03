@@ -1,29 +1,13 @@
+    const execSync = require('child_process').execSync;
+
 // Bridging with clustering.py python script
 const bridgingClustering = (k) =>{
-    console.log(k)
-    return new Promise(function(resolve) {
-        const spawn = require("child_process").spawn;
-       const pythonProcess = spawn('python',["static/py/clustering.py", k]);
+    console.log("Log: Clusters are " + k)
+    execution = "python3 static/py/clustering.py "+ k
 
-
-       pythonProcess.stdout.on('data', (data) => {
-           //console.log(data.toString())
-           resolve(data.toString());
-       });
-
-
-       pythonProcess.stderr.on('data', (data) => {
-           console.error(`stderr: ${data}`);
-         });
-
-         pythonProcess.on('close', (code) => {
-           console.log(`child process exited with code ${code}`);
-         });
-
-
-
-
-        });
+    // import { execSync } from 'child_process';  // replace ^ if using ES modules
+    const output = execSync(execution, { encoding: 'utf-8' });  // the default is 'buffer'
+    return output
 }
 
 module.exports = {

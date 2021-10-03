@@ -583,8 +583,6 @@ $('input[type="radio"]').on('click', function () {
 
 //prediction test
 function onMapClick(e) {
-    
-
     feature = {
         "type": "Feature",
         "geometry": {
@@ -617,7 +615,7 @@ function onMapClick(e) {
 
 }
 
-map.on('dblclick', onMapClick);
+map.on('click', onMapClick);
 
 $("#clusters").on("click", e => {
     e.preventDefault();
