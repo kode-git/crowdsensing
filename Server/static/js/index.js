@@ -187,9 +187,9 @@ $("#checkTog").on("click", e =>{
                     'width': '200',
                     'className' : 'popupCustom'
                     }
-                       var customPopup = "  <p> <span style='font-weight: bold'>DB:</span>. feature.properties.db </p>. <strong></strong> <b>My office</b><br/> width='150px'/>";
-                    layer.bindPopup(customPopup,customOptions);
-                   // layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
+                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+'<br>  <span>QoS: </span> '+ feature.properties.qos+'<br>  <span>Privacy: </span> '+ feature.properties.privacy+'<br>';
+                   layer.bindPopup(customPopup,customOptions);
+                  // layer.bindPopup('<p> DB: ' + feature.properties.db + '\n <br/>QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
                 }
              
             });
@@ -248,7 +248,7 @@ function showPredictedMarker(e) {
         },
         
         success: function (data) {
-           console.log(feature.db);
+           console.log(data.properties);
            load=0;
                
                $('#loading').hide(); 
@@ -257,6 +257,7 @@ function showPredictedMarker(e) {
           
 console.log("entrato")
     var db= 10;
+
     if(document.getElementById("colorizeMarker").checked==false){
         var geojsonColorizeOptions = {
             radius: 9,
@@ -279,7 +280,14 @@ console.log("entrato")
         
     }
     var circle = L.circleMarker([e.latlng.lat,e.latlng.lng],geojsonColorizeOptions)
-
+    var customOptions =
+    {
+    'maxWidth': '400',
+    'width': '200',
+    'className' : 'popupCustom'
+    }
+       var customPopup = '<span>Noise: </span> '+ +'<br>  <span>QoS: </span> '+  +'<br>  <span>Privacy: </span> '+  +'<br>';
+   circle.bindPopup(customPopup,customOptions);
 
     predictedlayer.addLayer(circle);
     map.addLayer(predictedlayer);
@@ -307,15 +315,22 @@ function showHeatmap() {
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
             predictedlayer.clearLayers();
-            
             spatialnoiselayer.clearLayers();
           
              if(mapZoom==12){
-                 heatMap = new L.heatLayer(geoData, {max: 2});
+                 heatMap = new L.heatLayer(geoData, {max: 1.5});
             }else if(mapZoom==13){
-                 heatMap = new L.heatLayer(geoData, {max: 2});
+                 heatMap = new L.heatLayer(geoData, {max: 2.5});
+            }else if(mapZoom==14){
+                 heatMap = new L.heatLayer(geoData, {max: 5});
             }else if(mapZoom==15){
-                 heatMap = new L.heatLayer(geoData, {max: 7});
+                heatMap = new L.heatLayer(geoData, {max: 10});
+            }else if(mapZoom==16){
+                heatMap = new L.heatLayer(geoData, {max: 20});
+            }else if(mapZoom==17){
+                heatMap = new L.heatLayer(geoData, {max: 40});
+            }else if(mapZoom==18){
+                heatMap = new L.heatLayer(geoData, {max: 80});
             }
         
             heatMap.setOptions({
@@ -477,7 +492,10 @@ function showClusters(mapZoom) {
                     fillOpacity: 0.8
                 };
                 // Polygons geometry views
-                var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<h1>' + data.centroids[i].properties.db + 'db </h1> <p> ' + data.clusters[i].geometry.coordinates.length + ' points belongs to this cluster </p>');
+               
+                var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
+               
+
                 polygon.on('mouseover', function () {
                     this.setStyle({
                         'fillColor': getColorHover(data.clusters[i].properties.db),
@@ -493,8 +511,29 @@ function showClusters(mapZoom) {
                 var lng = data.centroids[i].geometry.coordinates[1];
                 var latlng = new L.latLng(lat, lng);
                 
-                var centroid = L.circleMarker(latlng, geojsonMarkerOptions).bindPopup('<h1>' + data.clusters[i].properties.db + 'db </h1>');
+               
+                  var centroid;
+                  centroid= L.circleMarker(latlng,geojsonMarkerOptions).bindPopup('<h1>' + data.clusters[i].properties.db + 'db </h1>');
+                if(data.clusters[i].geometry.coordinates.length>=10){       
+                var icon = L.marker([lat,lng], {
+                    icon: L.divIcon({
+                        className: 'my-custom-icon',
+                        html: data.clusters[i].geometry.coordinates.length
+                    })
+                });
+            }
+            else{
+                var icon = L.marker([lat,lng], {
+                    icon: L.divIcon({
+                        className: 'my-custom-icon2',
+                        html: data.clusters[i].geometry.coordinates.length
+                    })
+                });
+            }
                 
+                centroidlayer.addLayer(icon);
+
+
                 //Both layers from centroids and cluster geometries
                 clusterlayer.addLayer(polygon); //
                 centroidlayer.addLayer(centroid); //
@@ -604,8 +643,12 @@ geoJson2heat = function (geojson) {
 
 $('#colorizeMarker').change(function () {
     showMarkers();
+    console.log(latlngPredicted)
+    
+    var boolPrediction=document.getElementById("switchPrediction").checked;
+    if(latlngPredicted!=undefined && boolPrediction==true){
     showPredictedMarker(latlngPredicted);
-
+    }
 });
 
 $('#clusterOption').on('change', function (e) {
@@ -703,13 +746,13 @@ function getColorArray() {
         var color;
     switch( true ) {
         case (i==1) :
-            color='#4287f5'
-            break;
-        case (i==2) :
             color='#4ef542'
             break;
-        case (i==3) :
+        case (i==2) :
             color='#f5f242'
+            break;
+        case (i==3) :
+            color='#4287f5'
             break;
         case (i==4) :
             color='#f54242'
