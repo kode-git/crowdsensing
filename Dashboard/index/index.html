@@ -81,6 +81,19 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
     </style>
 	<title>Content Filters | CodyHouse</title>
 </head>
@@ -146,9 +159,28 @@ input:checked + .slider:before {
 					<div class="cd-filter-content">
 						<li>
 						
-							<label ><p>K-means:</p></label>
-                        <input type="range" min="1" max="20" value="1" step="1" class="slider2" id="cluster">
-						<label class="slider2" for="cluster" id="kmeansLabel"> </label>
+							<label ><p style="font-size: 1.3rem;">K-means:</p></label>
+						<select  id="cluster" class="form-select" aria-label="Default select example">
+							<option  selected value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+							<option value="15">15</option>
+							<option value="16">16</option>
+							<option value="17">17</option>
+							<option value="18">18</option>
+
+						  </select>
 					</li>
 					</div> <!-- cd-filter-content -->
 						</li>
@@ -178,35 +210,38 @@ input:checked + .slider:before {
 		
 						</li>
 						<li>
-							<input class="filter" data-filter=".check3" type="checkbox" name="centroidlayer" id="cnt" checked onchange="checkboxCluster(this)">
+							<input class="filter" data-filter=".check3" type="checkbox" name="centroidlayer" id="cnt"  onchange="checkboxCluster(this)">
 							<label class="checkbox-label" for="cnt">Centroids</label>
 		
 						</li>
 					</ul> <!-- cd-filter-content -->
 				</div> <!-- cd-filter-block -->
 
+				
 				<div class="cd-filter-block">
 					<h4 id="heatmapFilter">Show Heatmap</h4>
 					
-					<div  id="heatmapSetting" class="cd-filter-content">
-						<div class="cd-select cd-filters">
+					<div  id="heatmapSetting" class="cd-filter-content cd-filters list">
+						   <ul>
 							<li>
-								<label ><p>Radius:</p></label>
-								<input type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
-								</li
-								>
-								<li>
-								<label ><p>Radius:</p></label>
-									<input type="range" min="1" max="85" value="25" step="0.1" class="slider2" id="radius" >
+								<label ><p style="font-size: 1.3rem;">Blur:</p></label>
+								<input style="height: 10px; width: 50%;" type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
 								</li>
-						</div> <!-- cd-select -->
+								<li>
+								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
+								<input  style="height: 10px; width: 50%;" type="range" min="1" max="85" value="25" step="0.1" class="slider2" id="radius" >
+								</li>
+								<li>
+									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>
+								</li>
+						   </ul>
 					</div> <!-- cd-filter-content -->
 					
 				</div> <!-- cd-filter-block -->
 				
 
 			<a href="#0" class="cd-close">Close</a>
-			
+			<div id="loading" class="loader"></div>
 			  
 		</div> <!-- cd-filter -->
 	

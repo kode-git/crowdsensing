@@ -43,6 +43,8 @@ clusterLayers = [];
 const vertexlayer = new L.layerGroup();
 const centroidlayer = new L.layerGroup();
 const spatialnoiselayer = new L.layerGroup();
+
+const predictedlayer = new L.layerGroup();
 vertexLayers = [];
 heatmapLayers = [];
 var heatMap = 0;
@@ -71,6 +73,9 @@ $("#checkTog").on("click", e =>{
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             centroidlayer.clearLayers();
+            spatialnoiselayer.clearLayers();
+            
+            predictedlayer.clearLayers();
             } else{
                 showMarkers();
             }
@@ -90,8 +95,19 @@ $("#checkTog").on("click", e =>{
                 clusterlayer.clearLayers();
                 vertexlayer.clearLayers();
                 centroidlayer.clearLayers();
+                
+            spatialnoiselayer.clearLayers();
+            predictedlayer.clearLayers();
                 } else{
-                  showClusters(map.getZoom());
+                    console.log($("#clusterOption"))
+                    console.log($("#cluster").val())
+                    if($("#clusterOption").val()=='spatial'){
+                        showClusters($("#cluster").val());
+                        console.log(" normale");
+                    }  else if($("#clusterOption").val()=='spatialnoise'){
+                        console.log(" spatial-noise");
+                        showSpatialNoiseCluster($("#cluster").val());
+                    }
                 }
             $(this).toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
             if( $('#markerFilter').hasClass('closed')==false){
@@ -110,6 +126,10 @@ $("#checkTog").on("click", e =>{
                 clusterlayer.clearLayers();
                 vertexlayer.clearLayers();
                 centroidlayer.clearLayers();
+                
+            spatialnoiselayer.clearLayers();
+            
+            predictedlayer.clearLayers();
                 } else{
                   showHeatmap();
                 }
@@ -158,16 +178,29 @@ $("#checkTog").on("click", e =>{
                             fillOpacity: 0.8
                         };
                     }
+                   
                     return L.circleMarker(latlng, geojsonColorizeOptions);
                 }, onEachFeature: function (feature, layer) {
-                    layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
+                    var customOptions =
+                    {
+                    'maxWidth': '400',
+                    'width': '200',
+                    'className' : 'popupCustom'
+                    }
+                       var customPopup = "  <p> <span style='font-weight: bold'>DB:</span>. feature.properties.db </p>. <strong></strong> <b>My office</b><br/> width='150px'/>";
+                    layer.bindPopup(customPopup,customOptions);
+                   // layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
                 }
-                
+             
             });
             markerlayer.clearLayers();
+            predictedlayer.clearLayers();
             heatmaplayer.clearLayers();
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
+            predictedlayer.clearLayers();
+            
+            spatialnoiselayer.clearLayers();
             centroidlayer.clearLayers();
             markerlayer.addLayer(marker);
             map.addLayer(markerlayer);
@@ -181,18 +214,79 @@ function getRandomArbitrary(min, max) {
   }
 
 function showPredictedMarker(e) {
-    var db= getRandomArbitrary(20,80)
-    var circle = L.circleMarker([e.latlng.lat,e.latlng.lng], {
-        fillColor: getColor(db),
-        color: '#000',
-        radius: 6,
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-    })
+    load=1;
+    console.log(load);
+    if(load==1){
+        
+        $('#loading').show(); 
+    }
+            predictedlayer.clearLayers();
+            heatmaplayer.clearLayers();
+            clusterlayer.clearLayers();
+            vertexlayer.clearLayers();
+            predictedlayer.clearLayers();
+            
+            spatialnoiselayer.clearLayers();
+            centroidlayer.clearLayers();
+    feature = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [e.latlng.lng, e.latlng.lat] // inverted respect postGIS data
 
-    markerlayer.addLayer(circle);
-    map.addLayer(markerlayer);
+        }
+
+    }
+    
+
+    $.ajax({
+        url: "/prd",
+        type: "POST",
+        dataType: "json",
+        data: {
+            myPoint: feature
+        },
+        
+        success: function (data) {
+           console.log(feature.db);
+           load=0;
+               
+               $('#loading').hide(); 
+           
+        
+          
+console.log("entrato")
+    var db= 10;
+    if(document.getElementById("colorizeMarker").checked==false){
+        var geojsonColorizeOptions = {
+            radius: 9,
+            fillColor: "#00ffb4",
+            color: "#000",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+        console.log("non colorato")
+      }else{
+        var geojsonColorizeOptions={
+            radius: 9,
+            fillColor: getColor(db),
+            color: "#000",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+        
+    }
+    var circle = L.circleMarker([e.latlng.lat,e.latlng.lng],geojsonColorizeOptions)
+
+
+    predictedlayer.addLayer(circle);
+    map.addLayer(predictedlayer);
+        }
+        
+    });
+
 }
 
 // Heatmap 
@@ -212,6 +306,10 @@ function showHeatmap() {
             markerlayer.clearLayers();
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
+            predictedlayer.clearLayers();
+            
+            spatialnoiselayer.clearLayers();
+          
              if(mapZoom==12){
                  heatMap = new L.heatLayer(geoData, {max: 2});
             }else if(mapZoom==13){
@@ -220,7 +318,11 @@ function showHeatmap() {
                  heatMap = new L.heatLayer(geoData, {max: 7});
             }
         
-
+            heatMap.setOptions({
+                blur: parseInt($("#blur").val()),
+                radius: parseInt($("#radius").val())
+            });
+            // render the new options
 
             heatmaplayer.addLayer(heatMap);
             
@@ -244,8 +346,20 @@ map.on('zoomend', function() {
 
 
 //Spatial noise clustering
-/*
+
+$('#loading').hide(); 
+var load;
 function showSpatialNoiseCluster(num) {
+    load=1;
+    console.log(load);
+    if(load==1){
+        
+        $('#loading').show(); 
+    }
+    
+    $('#mrk').prop( "disabled", true );
+    $('#cnt').prop( "disabled", true );
+    $('#plg').prop( "disabled", true );
     $.ajax({
         url: "/showClustersOnDb",
         type: "POST",
@@ -254,6 +368,10 @@ function showSpatialNoiseCluster(num) {
             k: num
         },
         success: function (data) {
+            load=0;
+            
+        $('#loading').hide(); 
+            
             console.log("SPATIALNOISE");
             var listColor=getColorArray();
             //$('#clusterDiv *').prop('disabled', true);
@@ -282,11 +400,13 @@ function showSpatialNoiseCluster(num) {
             vertexlayer.clearLayers();
             centroidlayer.clearLayers();
             spatialnoiselayer.clearLayers();
+            predictedlayer.clearLayers();
             spatialnoiselayer.addLayer(marker);
             map.addLayer(spatialnoiselayer);
         }
     });
-};*/
+};
+/*
 
 function showSpatialNoiseCluster(num) {
     $.ajax({
@@ -305,11 +425,16 @@ function showSpatialNoiseCluster(num) {
     })
 }
 
-
+*/
 
 
 //Clustering function
 function showClusters(mapZoom) {
+    
+            
+    $('#mrk').prop( "disabled", false );
+    $('#cnt').prop( "disabled", false );
+    $('#plg').prop( "disabled", false );
     $.ajax({
         type: 'POST',
         url: '/showClusters',
@@ -327,6 +452,8 @@ function showClusters(mapZoom) {
             markerlayer.clearLayers();
             centroidlayer.clearLayers();
             heatmaplayer.clearLayers();
+            spatialnoiselayer.clearLayers();
+            predictedlayer.clearLayers();
             
             kmeans = parseInt(mapZoom)
             for (let i = 0; i < kmeans; i++) {
@@ -387,7 +514,7 @@ function showClusters(mapZoom) {
                     
                     
                     var vertex = L.circleMarker(latlng, geojsonVertexOptions).bindPopup('<h1>' + data.locations[j].properties.db + 'db </h1>');
-                    ;
+                    
                     vertexlayer.addLayer(vertex);
                     
                 }
@@ -407,8 +534,9 @@ function showClusters(mapZoom) {
                   break;
                 case (cls === true && vtx === true && cnt === false) ://TTF
                 
-                    map.addLayer(vertexlayer);
                     map.addLayer(clusterlayer);
+                    
+                    map.addLayer(vertexlayer);
                   break;
                 case (cls === true && vtx === false && cnt === true) ://TFT
                     map.addLayer(clusterlayer);
@@ -476,6 +604,7 @@ geoJson2heat = function (geojson) {
 
 $('#colorizeMarker').change(function () {
     showMarkers();
+    showPredictedMarker(latlngPredicted);
 
 });
 
@@ -483,20 +612,27 @@ $('#clusterOption').on('change', function (e) {
     var optionSelected = $("option:selected", this);
     var valueSelected = this.value;
     
+    console.log($('#clusterOption').val());
     if(valueSelected=='spatial'){
-        showClusters();
+        showClusters($("#cluster").val());
         console.log(" normale");
     }  else if(valueSelected=='spatialnoise'){
         console.log(" spatial-noise");
-        showSpatialNoiseCluster(3);
+        showSpatialNoiseCluster($("#cluster").val());
     }
 });
 
-
+var latPredicted;
+var lngPredicted;
+var latlngPredicted;
 map.on('click', function(e) {        
     var boolPrediction=document.getElementById("switchPrediction").checked;
     if(boolPrediction==true){
         showPredictedMarker(e);
+         latlngPredicted=e;
+        console.log(latlngPredicted)
+        latPredicted=e.latlng.lat;
+        lngPredicted=e.latlng.lng;
     }
 });
 
@@ -525,6 +661,7 @@ blurSlider.oninput = function () {
     });
     // render the new options
     heatMap.redraw();
+    console.log($("#blur").val());
 }
 
 //Slider for radius of heatmap
@@ -541,23 +678,89 @@ radiusSlider.oninput = function () {
 var clusterSlider = document.getElementById("cluster");
 clusterSlider.oninput = function () {
     console.log(this.value);
-    $("#kmeansLabel").empty();
-    $("#kmeansLabel").append("(", this.value,")");
+    if($('#clusterOption').val()=="spatial"){
     showClusters(this.value);
+    }else {
+    showSpatialNoiseCluster(this.value);
+    }
     
 }
 
   
+
 function getColorArray() {
+
+    
     console.log($('#cluster').value);
     var colorArray=[];
-    for (var i = 0; i < 10; i++) {
-        var letters = '0123456789ABCDEF';
-    var color = '#';
-        for (var j = 0; j < 6; j++) {
+    for (var i = 1; i < 18; i++) {
+        //var letters = '0123456789ABCDEF';
+    //var color = '#';
+        /*for (var j = 0; j < 6; j++) {
             color += letters[Math.floor(Math.random() * 16)];
-        }
+        }*/
+     
+        var color;
+    switch( true ) {
+        case (i==1) :
+            color='#4287f5'
+            break;
+        case (i==2) :
+            color='#4ef542'
+            break;
+        case (i==3) :
+            color='#f5f242'
+            break;
+        case (i==4) :
+            color='#f54242'
+            break;
+        case (i==5) :
+            color='#c842f5'
+            break;
+        case (i==6) :
+            color='#42f5a1'
+            break;
+        case (i==7) :
+            color='#619114'
+            break;
+        case (i==8) :
+            color='#995837'
+            break;
+        case (i==9) :
+            color='#543799'
+            break;
+        case (i==10) :
+            color='#752249'
+            break;
+        case (i==11) :
+            color='#666341'
+            break;
+        case (i==12) :
+            color='#755668'
+            break;
+        case (i==13) :
+            color='#403312'
+            break;
+        case (i==14) :
+            color='#a60871'
+            break;
+        case (i==15) :
+            color='#4a4448'
+            break;
+        case (i==16) :
+            color='#b0ba9c'
+            break;
+        case (i==17) :
+            color='#0e5440'
+            break;
+        case (i==18) :
+            color='#e1f2ed'
+            break;
+            default:
+    }
+    
     colorArray.push(color);
+    console.log(color)
     }
     console.log(colorArray);
     return colorArray;
@@ -592,6 +795,12 @@ function colorizeMarker(checkboxElem) {
 }
 
 
+$('#resetFilter').on('click', function () {
+ $('#blur').val(15);
+ $('#radius').val(25);
+ showHeatmap();
+});
+
 // Temporal Radio Buttons
 $('input[type="radio"]').on('click', function () {
     var value = $(this).val();
@@ -618,7 +827,7 @@ $('input[type="radio"]').on('click', function () {
     }
 });
 
-//prediction test
+//prediction test//
 function onMapClick(e) {
     
 
@@ -645,7 +854,7 @@ function onMapClick(e) {
            console.log(data);
             
         
-    showClusters(map.getZoom());
+    //showClusters(map.getZoom());
         }
         
     });
@@ -654,7 +863,7 @@ function onMapClick(e) {
 
 }
 
-map.on('dblclick', onMapClick);
+//map.on('click', onMapClick);
 
 $("#clusters").on("click", e => {
     e.preventDefault();
