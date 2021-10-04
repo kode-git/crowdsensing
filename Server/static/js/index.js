@@ -248,7 +248,12 @@ function showPredictedMarker(e) {
         },
         
         success: function (data) {
-           console.log(data.properties);
+           console.log(data.db);
+           console.log("RESULTS TAKEN IS: " + JSON.parse(JSON.stringify(data)))
+           var obj=JSON.parse(JSON.stringify(data));
+           console.log(obj.db);
+
+
            load=0;
                
                $('#loading').hide(); 
@@ -364,7 +369,10 @@ map.on('zoomend', function() {
 
 $('#loading').hide(); 
 var load;
+var latitudine;
+var longitudine;
 function showSpatialNoiseCluster(num) {
+    spatialnoiselayer.clearLayers();
     load=1;
     console.log(load);
     if(load==1){
@@ -393,6 +401,17 @@ function showSpatialNoiseCluster(num) {
             //$('#heatmapDiv *').prop('disabled', true);
             //$('#markerDiv *').prop('disabled', false);          
            console.log(listColor[1]);
+
+               
+               /*var icon2 = L.circleMarker([latitudine,longitudine], {
+                   icon2: L.divIcon({
+                       className: 'my-custom-icon4',
+                       html: "aaa",
+                       opacity: 0
+                   })
+               });*/
+               
+
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                         var geojsonColorizeOptions={
@@ -403,20 +422,33 @@ function showSpatialNoiseCluster(num) {
                             opacity: 1,
                             fillOpacity: 0.8
                     }
+                    console.log(latlng);
+                    console.log(latlng.lat)
+                    latitudine=latlng.lat;
+                    longitudine=latlng.lng;
                     return L.circleMarker(latlng, geojsonColorizeOptions);
+                    
                 }, onEachFeature: function (feature, layer) {
+                    
+                    console.log(feature.properties);
                     layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Cluster: '+ feature.properties.cluster +'</p>');
+                   
+                        //console.log(icon2);
+                
                 }
             });
+
+
 
             markerlayer.clearLayers();
             heatmaplayer.clearLayers();
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             centroidlayer.clearLayers();
-            spatialnoiselayer.clearLayers();
+            //spatialnoiselayer.clearLayers();
             predictedlayer.clearLayers();
             spatialnoiselayer.addLayer(marker);
+            
             map.addLayer(spatialnoiselayer);
         }
     });
@@ -530,7 +562,7 @@ function showClusters(mapZoom) {
                     })
                 });
             }
-                
+                console.log(icon);
                 centroidlayer.addLayer(icon);
 
 

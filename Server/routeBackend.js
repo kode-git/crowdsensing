@@ -139,8 +139,8 @@ const populate = (request, response) => {
 const prdCall = (request, response) => {
         point = request.body.myPoint.geometry.coordinates
          predictor.bridgingPredictor(point).then(function successCallback(result) {
-           console.log(result)
-           response.status(200).json(result)
+         result=JSON.parse(JSON.stringify(result));
+         response.status(200).json(result)
           })
 }
 

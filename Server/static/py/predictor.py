@@ -33,7 +33,9 @@ regB.fit(train_data, train_result)
 #Predict
 #print(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]))
 
-outLine="'db':{}".format(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]]) )
-print('{'+outLine+'}')
+outLine='\"db\":{}'.format(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]])[0] )
+outLine="{" + outLine + "}"
+
+print(outLine)
 
 sys.stdout.flush()
