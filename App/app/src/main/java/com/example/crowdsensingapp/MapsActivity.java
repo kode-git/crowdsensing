@@ -82,7 +82,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean startRec = false;
     private UUID id;
     private Timestamp timestamp;
-    private int toastcounter=0;
+    private int toastCounter=0;
 
 
     @Override
@@ -221,7 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             actuaLocation=location;
                         LatLng latLngLoc = new LatLng( actuaLocation.getLatitude(),actuaLocation.getLongitude());
                         myPosition.setPosition(latLngLoc);
-                            //getMeanDb();
+                            getMeanDb();
                         if (startRec){
                             double powerDb = 10 * log10(getAmplitude());
                             Log.i("Actual value", String.valueOf(powerDb));
@@ -234,9 +234,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 int duration = Toast.LENGTH_SHORT;
 
                                 Toast toast = Toast.makeText(context, text, duration);
-                                if(toastcounter<1){
+                                if(toastCounter<1){
                                     toast.show();
-                                    toastcounter++;
+                                    toastCounter++;
                                 }
                             }
                         }
@@ -362,7 +362,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void openSettings(){
-        toastcounter=0;
+        toastCounter=0;
         SettingsView settingsView = new SettingsView();
         Bundle bundle = new Bundle();
         bundle.putInt("range",actualSettings.getRange());
@@ -475,6 +475,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
 
 /*
     public void updateSettings(){
