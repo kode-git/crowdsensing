@@ -89,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         id = UUID.randomUUID();
-        actualSettings = new SettingData(1,1000,60,true,false);
+        actualSettings = new SettingData(1,1000,60,true,false,50);
 
     //restoring privacy preferences
         pref = getPreferences(Context.MODE_PRIVATE);
@@ -107,8 +107,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }else if(entry.getKey().equals("def")){
                 actualSettings.setDefaultOnOff((boolean) entry.getValue());
                 if(actualSettings.isDefaultOnOff()){
-                    updateSettings();
+                    //updateSettings();
                 }
+            }else if(entry.getKey().equals("to")){
+                actualSettings.setTo((int)entry.getValue());
             }
         }
 
@@ -368,6 +370,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bundle.putInt("time",actualSettings.getMinutesTime());
         bundle.putBoolean("prv", actualSettings.isPrivacyOnOff());
         bundle.putBoolean("def", actualSettings.isDefaultOnOff());
+        bundle.putInt("to", actualSettings.getTo());
         settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
@@ -379,13 +382,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         actualSettings.setMinutesTime(s.getMinutesTime());
         actualSettings.setPrivacyOnOff(s.isPrivacyOnOff());
         actualSettings.setDefaultOnOff(s.isDefaultOnOff());
+        actualSettings.setTo(s.getTo());
         editor.putInt("nNeighbour", s.getnNeighbour());
         editor.putInt("range", s.getRange());
         editor.putInt("time", s.getMinutesTime());
         editor.putBoolean("prv", s.isPrivacyOnOff());
         editor.putBoolean("def", s.isDefaultOnOff());
+        editor.putInt("to", s.getTo());
         editor.commit();
-        if(s.isDefaultOnOff())updateSettings();
+       // if(s.isDefaultOnOff())updateSettings();
     }
 
     /**
@@ -417,9 +422,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pointFeature.addNumberProperty("range", actualSettings.getRange());
             pointFeature.addNumberProperty("minutesTime", actualSettings.getMinutesTime());
             pointFeature.addBooleanProperty("privacyOnOff", actualSettings.isPrivacyOnOff());
+            pointFeature.addBooleanProperty("automatic", actualSettings.isDefaultOnOff());
             pointFeature.addStringProperty("timestamp", timestamp.toString());
             pointFeature.addStringProperty("userId", id.toString());
             pointFeature.addNumberProperty("db", myDB);
+            pointFeature.addNumberProperty("to", (((double)actualSettings.getTo())/100));
 
             final String requestBody = pointFeature.toJson();
 
@@ -469,7 +476,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
+/*
     public void updateSettings(){
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -543,5 +550,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-    }
+    } */
 }

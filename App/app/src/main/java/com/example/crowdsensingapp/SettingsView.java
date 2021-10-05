@@ -29,9 +29,11 @@ public class SettingsView extends AppCompatDialogFragment {
     private TextView neighText;
     private TextView rangeText;
     private TextView timeText;
+    private TextView tradeL;
     private SeekBar seekNeigh;
     private SeekBar seekRange;
     private SeekBar seekTime;
+    private SeekBar seekTrade;
     private Switch privacyOnOff;
     private Switch defaultOnOff;
     private SettingData setting;
@@ -49,15 +51,18 @@ public class SettingsView extends AppCompatDialogFragment {
         int actualTime = bundle.getInt("time",60);
         boolean actualPrivacy = bundle.getBoolean("prv",true);
         boolean actualDefPrivacy = bundle.getBoolean("def",false);
-        setting = new SettingData(actualNeigh,actualRange,actualTime,actualPrivacy,actualDefPrivacy);
+        int autoTO = bundle.getInt("to",50);
+        setting = new SettingData(actualNeigh,actualRange,actualTime,actualPrivacy,actualDefPrivacy,autoTO);
         privacyOnOff = (Switch) view.findViewById(R.id.privacyOnOff);
         defaultOnOff = (Switch) view.findViewById(R.id.autoOnOff);
         neighText = (TextView) view.findViewById(R.id.titleNeigh);
         rangeText = (TextView) view.findViewById(R.id.titleRange);
         timeText = (TextView) view.findViewById(R.id.titleTime);
+        tradeL = (TextView) view.findViewById(R.id.trdL);
         seekNeigh = (SeekBar) view.findViewById(R.id.seek);
         seekRange = (SeekBar) view.findViewById(R.id.seekRange);
         seekTime = (SeekBar) view.findViewById(R.id.seekTime);
+        seekTrade = (SeekBar) view.findViewById(R.id.tradeBar);
         neighText.setText("Min. neigh: "+ actualNeigh+"+");
         seekNeigh.setProgress(setting.getnNeighbour());
         rangeText.setText("Range in meters: "+ actualRange);
@@ -66,6 +71,32 @@ public class SettingsView extends AppCompatDialogFragment {
         seekTime.setProgress(setting.getMinutesTime());
         privacyOnOff.setChecked(setting.isPrivacyOnOff());
         defaultOnOff.setChecked(setting.isDefaultOnOff());
+        if(autoTO!=100) {
+            tradeL.setText("Privacy auto tradeOff: " + "0." + autoTO);
+        }else {
+            tradeL.setText("Privacy auto tradeOff: 1" );
+        }
+        seekTrade.setProgress(setting.getTo());
+
+        if (!privacyOnOff.isChecked()){
+            defaultOnOff.setChecked(false);
+            seekNeigh.setVisibility(View.GONE);
+            seekRange.setVisibility(View.GONE);
+            seekTime.setVisibility(View.GONE);
+            neighText.setVisibility(View.GONE);
+            rangeText.setVisibility(View.GONE);
+            timeText.setVisibility(View.GONE);
+        }
+        if (defaultOnOff.isChecked()){
+            seekNeigh.setVisibility(View.GONE);
+            seekRange.setVisibility(View.GONE);
+            seekTime.setVisibility(View.GONE);
+            neighText.setVisibility(View.GONE);
+            rangeText.setVisibility(View.GONE);
+            timeText.setVisibility(View.GONE);
+            seekTrade.setVisibility(View.VISIBLE);
+            tradeL.setVisibility(View.VISIBLE);
+        }
 
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -105,13 +136,47 @@ public class SettingsView extends AppCompatDialogFragment {
             }
         });
 
+        //tradeoff bar
+        seekTrade.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                setting.setTo(i);
+                if(i!=100) {
+                    tradeL.setText("Privacy auto tradeOff: " + "0." + i);
+                }else tradeL.setText("Privacy auto tradeOff: 1");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         privacyOnOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     setting.setPrivacyOnOff(true);
+                    seekNeigh.setVisibility(View.VISIBLE);
+                    seekRange.setVisibility(View.VISIBLE);
+                    seekTime.setVisibility(View.VISIBLE);
+                    neighText.setVisibility(View.VISIBLE);
+                    rangeText.setVisibility(View.VISIBLE);
+                    timeText.setVisibility(View.VISIBLE);
                 } else {
                     setting.setPrivacyOnOff(false);
                     defaultOnOff.setChecked(false);
+                    seekNeigh.setVisibility(View.GONE);
+                    seekRange.setVisibility(View.GONE);
+                    seekTime.setVisibility(View.GONE);
+                    neighText.setVisibility(View.GONE);
+                    rangeText.setVisibility(View.GONE);
+                    timeText.setVisibility(View.GONE);
+
                 }
             }
         });
@@ -120,8 +185,25 @@ public class SettingsView extends AppCompatDialogFragment {
                 if (isChecked) {
                     setting.setDefaultOnOff(true);
                     privacyOnOff.setChecked(true);
+                    seekNeigh.setVisibility(View.GONE);
+                    seekRange.setVisibility(View.GONE);
+                    seekTime.setVisibility(View.GONE);
+                    neighText.setVisibility(View.GONE);
+                    rangeText.setVisibility(View.GONE);
+                    timeText.setVisibility(View.GONE);
+                    seekTrade.setVisibility(View.VISIBLE);
+                    tradeL.setVisibility(View.VISIBLE);
+
                 } else {
                     setting.setDefaultOnOff(false);
+                    seekNeigh.setVisibility(View.VISIBLE);
+                    seekRange.setVisibility(View.VISIBLE);
+                    seekTime.setVisibility(View.VISIBLE);
+                    neighText.setVisibility(View.VISIBLE);
+                    rangeText.setVisibility(View.VISIBLE);
+                    timeText.setVisibility(View.VISIBLE);
+                    seekTrade.setVisibility(View.GONE);
+                    tradeL.setVisibility(View.GONE);
                 }
             }
         });

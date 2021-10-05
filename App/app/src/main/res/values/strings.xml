@@ -9,5 +9,6 @@
     <string name="TitleRange">Range in meters: </string>
     <string name="TitleTime">Maximum minutes time: </string>
     <string name="PrivacyOnOff">Privacy settings: </string>
-    <string name="autoOnOff">Default privacy: </string>
+    <string name="autoOnOff">Automatic privacy: </string>
+    <string name="trd">Privacy auto tradeOff:  </string>
 </resources>
