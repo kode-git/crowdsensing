@@ -20,9 +20,11 @@ console.log('Log: Starting server...')
 
 // create a new location with trusted way
 const createLocation = (request, response) => {
-    console.log("\n\nLog: Have a new request from the App!\n\n\n")
     let data = request.body
-    // pushing data in the stack
+    // setting of k and range based on the alpha parameter
+    console.log(data)
+    data = automatic.opt(data)
+    console.log("Log: Data received are:\n " + JSON.stringify(data))
     // Aggregate/Update data with the same userId and same location
     let point = makeSpatialPoint(data)
 

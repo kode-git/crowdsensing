@@ -426,7 +426,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             pointFeature.addStringProperty("timestamp", timestamp.toString());
             pointFeature.addStringProperty("userId", id.toString());
             pointFeature.addNumberProperty("db", myDB);
-            pointFeature.addNumberProperty("to", (((double)actualSettings.getTo())/100));
+            pointFeature.addNumberProperty("alpha", (((double)actualSettings.getTo())/100));
 
             final String requestBody = pointFeature.toJson();
 
