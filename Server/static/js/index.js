@@ -1,19 +1,15 @@
 var map = L.map('map',{zoomSnap: 0.25,
-    zoomDelta: 0.5,}).setView([44.494960715733576, 11.344000549862148], 13);
+    zoomDelta: 0.5,minZoom:5}).setView([44.494960715733576, 11.344000549862148], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+
 $(".leaflet-control-zoom").css("visibility", "hidden");
 $('.cd-filter-block h4').toggleClass('closed').siblings('.cd-filter-content').slideToggle(300);
 $("#colorizeMarker").removeClass().removeAttr('style');
 
-
-
-/*$('#markerFilter').toggleClass('closed').siblings('#markerSetting').slideToggle(300);
-$('#clusterFilter').toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
-$('#heatmapFilter').toggleClass('closed').siblings('#heatmapSetting').slideToggle(300);*/
 console.log($('#markerFilter'));
 console.log($('#clusterFilter'));
 /*
@@ -49,19 +45,7 @@ vertexLayers = [];
 heatmapLayers = [];
 var heatMap = 0;
 
-// Marker Button
-$("#marker").on("click", e => {
-    e.preventDefault();
-    showMarkers();
-    
-});
-
-$("#checkTog").on("click", e =>{
-    e.preventDefault();
-    //console.log($(this).is(':checked'));
-   // console.log(this)
-});
-	//close filter dropdown inside lateral .cd-filter 
+    //close filter dropdown inside side bar 
 	$('.cd-filter-block h4').on('click', function(){
         
         switch (true) {
@@ -88,7 +72,7 @@ $("#checkTog").on("click", e =>{
             } 
               break;
             // ---------------------- CLUSTERING ------------------------------------------------------------------------ 
-            case ($(this).attr('id')=='clusterFilter') ://TTF
+            case ($(this).attr('id')=='clusterFilter') :
             if( $(this).hasClass('closed')==false){
                 markerlayer.clearLayers();
                 heatmaplayer.clearLayers();
@@ -99,8 +83,6 @@ $("#checkTog").on("click", e =>{
             spatialnoiselayer.clearLayers();
             predictedlayer.clearLayers();
                 } else{
-                    console.log($("#clusterOption"))
-                    console.log($("#cluster").val())
                     if($("#clusterOption").val()=='spatial'){
                         showClusters($("#cluster").val());
                         console.log(" normale");
@@ -144,19 +126,15 @@ $("#checkTog").on("click", e =>{
              default:
            }
 	})
-
-  
+//---------------------------MARKER-------------------------------------------------------------
+   // Show markers clicking in sidebar showmarkers section
     function showMarkers() {
     $.ajax({
         url: "/getLocations",
         type: "POST",
         dataType: "json",
         
-        success: function (data) {
-            //$('#clusterDiv *').prop('disabled', true);
-            //$('#heatmapDiv *').prop('disabled', true);
-            //$('#markerDiv *').prop('disabled', false);          
-           
+        success: function (data) {        
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                    if(document.getElementById("colorizeMarker").checked==false){
@@ -189,7 +167,6 @@ $("#checkTog").on("click", e =>{
                     }
                        var customPopup = '<span>Noise: </span> '+ feature.properties.db+'<br>  <span>QoS: </span> '+ feature.properties.qos+'<br>  <span>Privacy: </span> '+ feature.properties.privacy+'<br>';
                    layer.bindPopup(customPopup,customOptions);
-                  // layer.bindPopup('<p> DB: ' + feature.properties.db + '\n <br/>QoS: '+feature.properties.qos +'\n Privacy: '+ feature.properties.privacy +'</p>');
                 }
              
             });
@@ -208,11 +185,8 @@ $("#checkTog").on("click", e =>{
     });
 };
 
-
-function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
+//--------------------------- PREDICTED MARKER-------------------------------------------------------------
+   // Show predicted marker 
 function showPredictedMarker(e) {
     load=1;
     console.log(load);
@@ -228,16 +202,13 @@ function showPredictedMarker(e) {
             
             spatialnoiselayer.clearLayers();
             centroidlayer.clearLayers();
-    feature = {
-        "type": "Feature",
-        "geometry": {
-            "type": "Point",
-            "coordinates": [e.latlng.lng, e.latlng.lat] // inverted respect postGIS data
-
-        }
-
+        feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [e.latlng.lng, e.latlng.lat] // inverted respect postGIS data
+            }
     }
-    
 
     $.ajax({
         url: "/prd",
@@ -248,31 +219,26 @@ function showPredictedMarker(e) {
         },
         
         success: function (data) {
-           console.log(data.db);
-           console.log("RESULTS TAKEN IS: " + JSON.parse(JSON.stringify(data)))
-           var obj=JSON.parse(JSON.stringify(data));
-           console.log(obj.db);
-
-
-           load=0;
-               
-               $('#loading').hide(); 
-           
-        
-          
-console.log("entrato")
-    var db= 10;
+           let obj=JSON.parse(JSON.stringify(data));
+         
+         let str1=obj.replace('{"db','');
+         let str2=str1.replace('":','');
+         let str3=str2.replace('}','');
+         var db=parseInt(str3);
+         console.log("DB predicted: "+db)
+         load=0;
+              
+         $('#loading').hide(); 
 
     if(document.getElementById("colorizeMarker").checked==false){
         var geojsonColorizeOptions = {
             radius: 9,
-            fillColor: "#00ffb4",
+            fillColor: "#621cb8",
             color: "#000",
             weight: 3,
             opacity: 1,
             fillOpacity: 0.8
         };
-        console.log("non colorato")
       }else{
         var geojsonColorizeOptions={
             radius: 9,
@@ -291,7 +257,7 @@ console.log("entrato")
     'width': '200',
     'className' : 'popupCustom'
     }
-       var customPopup = '<span>Noise: </span> '+ +'<br>  <span>QoS: </span> '+  +'<br>  <span>Privacy: </span> '+  +'<br>';
+       var customPopup = '<span>Noise: </span> '+ db +'<br>  <span>QoS: </span> <br>  <span>Privacy: </span> <br>';
    circle.bindPopup(customPopup,customOptions);
 
     predictedlayer.addLayer(circle);
@@ -302,7 +268,27 @@ console.log("entrato")
 
 }
 
-// Heatmap 
+//---------------------------ZOOMING ALERT -------------------------------------------------------------
+   // Show markers clicking in sidebar showmarkers section
+var start;
+var end;
+var confirmation=false;
+map.on("zoomstart", function (e) { start=e.target._zoom;  });
+map.on("zoomend", function (e) { 
+     end= e.target._zoom;
+     if(end==start-2 || end==start+2 || start==end-2 || start==end+2 || end==start-3 || end==start+3 || start==end-3 || start==end+3){
+        if(confirmation==false){
+         var result =confirm("Use trackpad for a precise zoom!");
+        if (result) {
+            confirmation=true;
+        }
+    }
+    }
+
+    });
+
+//---------------------------HEATMAP -------------------------------------------------------------
+   // Show heatmap
 function showHeatmap() {
     $.ajax({
         url: "/getLocations",
@@ -356,8 +342,6 @@ function showHeatmap() {
 
 //Bugfixed heatmap while zooming
 map.on('zoomend', function() {
-   var mapZoom= map.getZoom();
-   console.log(mapZoom)
    if( $('#heatmapFilter').hasClass('closed')==false){
    showHeatmap();
    }  
@@ -365,6 +349,8 @@ map.on('zoomend', function() {
 
 
 
+//---------------------------SPATIAL NOISE CLUSTERING-------------------------------------------------------------
+   // Show spatial noise clustering
 //Spatial noise clustering
 
 $('#loading').hide(); 
@@ -396,21 +382,8 @@ function showSpatialNoiseCluster(num) {
         $('#loading').hide(); 
             
             console.log("SPATIALNOISE");
-            var listColor=getColorArray();
-            //$('#clusterDiv *').prop('disabled', true);
-            //$('#heatmapDiv *').prop('disabled', true);
-            //$('#markerDiv *').prop('disabled', false);          
+            var listColor=getColorArray();        
            console.log(listColor[1]);
-
-               
-               /*var icon2 = L.circleMarker([latitudine,longitudine], {
-                   icon2: L.divIcon({
-                       className: 'my-custom-icon4',
-                       html: "aaa",
-                       opacity: 0
-                   })
-               });*/
-               
 
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
@@ -437,15 +410,11 @@ function showSpatialNoiseCluster(num) {
                 
                 }
             });
-
-
-
             markerlayer.clearLayers();
             heatmaplayer.clearLayers();
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             centroidlayer.clearLayers();
-            //spatialnoiselayer.clearLayers();
             predictedlayer.clearLayers();
             spatialnoiselayer.addLayer(marker);
             
@@ -453,29 +422,9 @@ function showSpatialNoiseCluster(num) {
         }
     });
 };
-/*
 
-function showSpatialNoiseCluster(num) {
-    $.ajax({
-        type: 'POST',
-        url: '/showClustersOnDb',
-        dataType: 'json',
-        data: {
-            k: parseInt(num)
-        },
-        
-        success: function (data) {
-            console.log(data);
-            console.log("SPATIALNOISE");
-
-        }
-    })
-}
-
-*/
-
-
-//Clustering function
+//---------------------------SPARIAL CLUSTERING-------------------------------------------------------------
+   // Show clustering clicking in sidebar showclusters section
 function showClusters(mapZoom) {
     
             
@@ -491,9 +440,6 @@ function showClusters(mapZoom) {
         },
         
         success: function (data) {
-           /*$('#clusterDiv *').prop('disabled', false);
-            $('#heatmapDiv *').prop('disabled', true);
-            $('#markerDiv *').prop('disabled', true);*/
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             markerlayer.clearLayers();
@@ -504,8 +450,6 @@ function showClusters(mapZoom) {
             
             kmeans = parseInt(mapZoom)
             for (let i = 0; i < kmeans; i++) {
-                
-                //console.log(getColor(data.centroids[i].properties.db));
                 var geojsonPolygonOptions = {
                     fillColor: getColor(data.clusters[i].properties.db),
                     weight: 4,
@@ -523,7 +467,6 @@ function showClusters(mapZoom) {
                     opacity: 1,
                     fillOpacity: 0.8
                 };
-                // Polygons geometry views
                
                 var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
                
@@ -599,14 +542,12 @@ function showClusters(mapZoom) {
         
             switch (true) {
                 case (cls === true && vtx === true && cnt === true) ://TTT
-                    map.addLayer(clusterlayer);
                     map.addLayer(centroidlayer);
+                    map.addLayer(clusterlayer);
                     map.addLayer(vertexlayer);        
                   break;
                 case (cls === true && vtx === true && cnt === false) ://TTF
-                
                     map.addLayer(clusterlayer);
-                    
                     map.addLayer(vertexlayer);
                   break;
                 case (cls === true && vtx === false && cnt === true) ://TFT
@@ -627,17 +568,13 @@ function showClusters(mapZoom) {
                   map.addLayer(centroidlayer);
                 break;    
                  default:
-               }
-
-
-
-            
+               }            
         }
     })
 }
 
 
-// Convert DB in a color shade from green to red
+// Convert DB in a color shade from green to red------------------------------------------------------------------
 function getColor(value){
     var min=20;
     var max=80;
@@ -647,6 +584,7 @@ function getColor(value){
     return ["hsl(",hue,",100%,50%)"].join("");
 }
 
+// Convert DB in a darker color shade from green to red--------------------------------------------------------------
 function getColorDarker(value){
     var min=20;
     var max=80;
@@ -656,6 +594,7 @@ function getColorDarker(value){
     return ["hsl(",hue,",100%,40%)"].join("");
 }
 
+// Convert Polygon background in a color shade from green to red-----------------------------------------------------------
 function getColorHover(value){
     var min=20;
     var max=80;
@@ -666,13 +605,14 @@ function getColorHover(value){
 }
 
 
-//Heatmap geoJSON formatting
+//Heatmap geoJSON formatting--------------------------------------------------------------------------------------------------
 geoJson2heat = function (geojson) {
     return geojson.features.map(function (feature) {
         return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]), feature.properties.db];
     });
 }
 
+// colorize marker ------------------------------------------------------------------------------------------------------
 $('#colorizeMarker').change(function () {
     showMarkers();
     console.log(latlngPredicted)
@@ -683,20 +623,18 @@ $('#colorizeMarker').change(function () {
     }
 });
 
+//Managed the option value in the form related to spatial or noise spatial clustering-------------------------------------
 $('#clusterOption').on('change', function (e) {
     var optionSelected = $("option:selected", this);
     var valueSelected = this.value;
-    
-    console.log($('#clusterOption').val());
     if(valueSelected=='spatial'){
         showClusters($("#cluster").val());
-        console.log(" normale");
     }  else if(valueSelected=='spatialnoise'){
-        console.log(" spatial-noise");
         showSpatialNoiseCluster($("#cluster").val());
     }
 });
 
+//function to predict a marker db-----------------------------------------------------
 var latPredicted;
 var lngPredicted;
 var latlngPredicted;
@@ -711,22 +649,7 @@ map.on('click', function(e) {
     }
 });
 
-
-
-
-/*
-$('#mrk').change(function () {
-    showCluster();
-});
-$('#plg').change(function () {
-    showClusters();
-});
-$('#cnt').change(function () {
-    showCluster();
-});
-*/
-
-//Slider for blur heatmap
+//Slider for blur heatmap--------------------------------------------------------------
 var blurSlider = document.getElementById("blur");
 
 blurSlider.oninput = function () {
@@ -739,7 +662,7 @@ blurSlider.oninput = function () {
     console.log($("#blur").val());
 }
 
-//Slider for radius of heatmap
+//Slider for radius of heatmap----------------------------------------------------------
 var radiusSlider = document.getElementById("radius");
 radiusSlider.oninput = function () {
     heatMap.setOptions({
@@ -749,7 +672,7 @@ radiusSlider.oninput = function () {
     heatMap.redraw();
 }
 
-// Slider for k setting for k-means clustering
+// Slider for k setting for k-means clustering-----------------------------------------------
 var clusterSlider = document.getElementById("cluster");
 clusterSlider.oninput = function () {
     console.log(this.value);
@@ -761,19 +684,11 @@ clusterSlider.oninput = function () {
     
 }
 
-  
-
+// color managing for n=18 cluster each with different color--------------------------------------
 function getColorArray() {
-
-    
     console.log($('#cluster').value);
     var colorArray=[];
     for (var i = 1; i < 18; i++) {
-        //var letters = '0123456789ABCDEF';
-    //var color = '#';
-        /*for (var j = 0; j < 6; j++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }*/
      
         var color;
     switch( true ) {
@@ -842,19 +757,8 @@ function getColorArray() {
   }
 
 
-  
-
-
-
-
-/*
-$('#clusterCheckbox').change(function () {
-    console.log(this);
-});*/
-
 // Checkbox trigger for cluster settings (markers,polygons,centroids)
 function checkboxCluster(checkboxElem) {
-    console.log("AAAAAAAa");
     if (checkboxElem.checked ) {
         console.log(checkboxElem.name)
         map.addLayer(eval(checkboxElem.name));
@@ -876,7 +780,9 @@ $('#resetFilter').on('click', function () {
  showHeatmap();
 });
 
+// TODO
 // Temporal Radio Buttons
+/*
 $('input[type="radio"]').on('click', function () {
     var value = $(this).val();
     
@@ -900,47 +806,4 @@ $('input[type="radio"]').on('click', function () {
         }).addTo(map);
         
     }
-});
-
-//prediction test//
-function onMapClick(e) {
-    
-
-    feature = {
-        "type": "Feature",
-        "geometry": {
-            "type": "Point",
-            "coordinates": [e.latlng.lng, e.latlng.lat] // inverted respect postGIS data
-
-        }
-
-    }
-    
-
-    $.ajax({
-        url: "/prd",
-        type: "POST",
-        dataType: "json",
-        data: {
-            myPoint: feature
-        },
-        
-        success: function (data) {
-           console.log(data);
-            
-        
-    //showClusters(map.getZoom());
-        }
-        
-    });
-
-
-
-}
-
-//map.on('click', onMapClick);
-
-$("#clusters").on("click", e => {
-    e.preventDefault();
-});
-
+});*/
