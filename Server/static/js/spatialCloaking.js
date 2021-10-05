@@ -8,21 +8,14 @@ inverse square law for the decibel management
 and logarithmic summary for noise additions.
 ----------------------------------------
 
-Declaration:
-makePoint : function(data, stack) =>
-- data : last aggregated location in the stack
-- stack : collection of pending locations
-
-Aim:
-This function get the stack and the new data and try to make a point
-using the spatial cloaking algorithm to preserve the privacy of the users
-depending on parameters k and range
-
-Return:
-- null in case of pending locations
-- point in case of spatial cloaking point making
 */
 
+/**
+ * makePoint(data,stack) tries to make a point with the adding of data into the stack
+ * @param data
+ * @param stack
+ * @returns {[undefined, (*|{geometry: {coordinates: *[], type: string}, type: string, properties: {QoS: number, privacy: number, db: number}})]|[undefined, null]}
+ */
 const makePoint = (data, stack) => {
     // load initial parameters
 
@@ -60,23 +53,13 @@ const makePoint = (data, stack) => {
 
 }
 
-/*
-Declaration:
-filter : function(data, stack) =>
-- data : last aggregated location in the stack
-- stack : collection of pending locations
-
-Aim:
-This function filter data and put into the tmp array the locations to satisfies the k-anonymity
-relationship between points of stack considering user_id, k and range. In addition to the
-tmp array, we make an index array for the flush function with the stack index of locations added to
-tmp array itself.
-
-Return:
-- [null, null] in case of k-anonymity is not satisfied by points stack
-- [index, tmp] otherwise
-*/
-
+/**
+ * filter(data,stack) is used to filters locations and group them to select a subset of nodes used for centroids
+ * generator
+ * @param data is the data that changes the static status of the stack
+ * @param stack is the list of locations without the data
+ * @returns {[null, null]|[*[], []]}, in the first case when data didn't change the pending state, second case when is possible to select a subset and return the subset and index of locations selected on the stack
+ */
 const filter = (data, stack) => {
      var k = data.properties.neighbour
      var n = k - 1;
@@ -131,20 +114,13 @@ const filter = (data, stack) => {
      }
 }
 
-/*
-Declaration:
-flush : function(index, stack) =>
-- index : list of index of location to delete from the stack
-- stack : collection of pending locations
 
-Aim:
-This function remove in the stack used locations after filter invocation to avoid duplicates
-spatial cloaking locations or duplicated using of the same stack pending points.
-
-Return:
-- Nothing, update only the stack locations
-*/
-
+/**
+ * Remove the element in index into the stack
+ * @param index is the position of the element to delete
+ * @param stack is list of locations
+ * @returns {*}, the list of elements updated
+ */
 const flush = (index, stack) => {
     for(let i = 0; i < index.length; i++){
         stack = stack.slice(index[i], 1)
@@ -152,20 +128,12 @@ const flush = (index, stack) => {
     return stack
 }
 
-/*
-Declaration:
-time : function(stack, timestamp) =>
-- stack : collection of pending locations
-- timestamp : timestamp of the last added location
-
-Aim:
-This function remove in the stack locations with the timeout over the timestamp values and
-return the stack without these kinds of elements to preserve privacy.
-
-Return:
-- stack, updated and with no elements out of time
-*/
-
+/**
+ * time(stack, timestamp) calculates and delete locations in the stack out-of-time
+ * @param stack is the collection of locations
+ * @param timestamp used to determinate if a point is out-of-time or not
+ * @returns {*} is the list of stack updated
+ */
 const time = (stack, timestamp) => {
     let length = stack.length
     for(let i = 0; i < length; i++){
@@ -190,40 +158,55 @@ const time = (stack, timestamp) => {
     
 }
 
-/*
-Declaration:
-distance : function(x1, y1, x2, y2) =>
-- x1, x2 : first coordinates of points
-- y1, y2: second coordinates of points
-
-Aim:
-This function calculates the euclidean distance between two points using
-coordinates passed as arguments and returns the their distance in meter.
-
-Return:
-- distance, between 2 coordinates of points
-*/
-
+/**
+ * distance(x1,y1,x2,y2) calculate the euclidean distance between 2 points
+ * @param x1 is the first coordinate of the point 1
+ * @param y1 is the second coordinate of the point 1
+ * @param x2 is the first coordinate of the point 2
+ * @param y2 is the second coordinate of the point 1
+ * @returns {number} equal to the distance between the 2 points
+ */
 const distance = (x1, y1, x2, y2) => {
     var xDiff = x1 - x2;
     var yDiff = y1 - y2;
-    return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+    return Math.round(Math.sqrt(xDiff * xDiff + yDiff * yDiff) * 1000.0) / 1000;
 }
 
-/*
-Declaration:
-spatialCloaking : function(points) =>
-- points: list of points used to make the spatial cloaking point
+/**
+ * geographical(lat,lon1,lat2,lon2) calculate the geographical distance between 2 points
+ * @param lat1 is the first coordinate of the point 1
+ * @param lon1 is the second coordinate of the point 1
+ * @param lat2 is the first coordinate of the point 2
+ * @param lon2 is the second coordinate of the point 1
+ * @returns {number} equal to the geographical distance between the 2 points
+ */
+const geographicalDistance = (lat1,lon1,lat2,lon2) => {
+    if ((lat1 == lat2) && (lon1 == lon2)) {
+        return 0;
+    } else {
+        var radLat1 = Math.PI * lat1 / 180;
+        var radLat2 = Math.PI * lat2 / 180;
+        var theta = lon1 - lon2;
+        var radTheta = Math.PI * theta / 180;
+        var dist = Math.sin(radLat1) * Math.sin(radLat2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.cos(radTheta);
+        if (dist > 1) {
+            dist = 1;
+        }
+        dist = Math.acos(dist);
+        dist = dist * 180 / Math.PI;
+        dist = dist * 60 * 1.1515;
+        dist = (dist * 1.609344) // convert in kilometers
+        return dist;
+    }
 
-Aim:
-This function make the point from a set of points in input and return
-the spatial cloaking point with the mean of noise hit to the centroid (the point itself)
-located in the center of the euclidean distance between 2 or more points (in according to the
-length of the points array).
+}
 
-Return:
-- point : geojSON of the point to insert into the database
-*/
+
+/**
+ * spatialCloaking(points) return the centroid generated using the list of points
+ * @param points is the list of real points selected to make a centroid
+ * @returns {*|{geometry: {coordinates: *[], type: string}, type: string, properties: {QoS: number, privacy: number, db: number}}}
+ */
 const spatialCloaking = (points) => {
     // define point structure
     point = {
@@ -246,8 +229,8 @@ const spatialCloaking = (points) => {
         y_acc += points[i].geometry.coordinates[1];
       }
 
-      const centroid_x = Math.round(x_acc * 100.0/ points.length) / 100;
-      const centroid_y = Math.round(y_acc * 100.0 / points.length) / 100;
+      const centroid_x = Math.round(x_acc * 10000.0/ points.length) / 10000;
+      const centroid_y = Math.round(y_acc * 10000.0 / points.length) / 10000;
       centroid = [centroid_x, centroid_y]
       point.geometry.coordinates = centroid
 
@@ -277,11 +260,14 @@ const makePrivacy = (points, centroid) => {
     for (let i = 0; i < total; i++) {
         const px = points[i].geometry.coordinates[0]
         const py = points[i].geometry.coordinates[1]
-        dist += distance(cx, cy, px, py)
+        dist += geographicalDistance(cx, cy, px, py)
+        console.log("Dist at " + i + ", is:" + dist)
     }
 
-    let meanDistance = Math.round(dist  * 100.0 / total) / 100
-    return meanDistance
+    let meanDistance = dist / total
+     // convert kilometers in meters
+    meanDistance = meanDistance * 1000
+    return +(meanDistance.toFixed(2))
 }
 
 
@@ -304,22 +290,16 @@ const makeQoS = (points, centroid) =>{
         totalError += error
     }
     let mseError = Math.round(totalError * 100.0 / total) / 100
-    return mseError
+    return +(mseError.toFixed(2))
 
 }
-/*
-Declaration:
-defineDbMean  : function(points, centroid) =>
-- points : list of noise sources
-- centroid: point to define the calculation of the noise hit in according of points noise radius and intensity
 
-Aim:
-This function calculates the noise hit on centroid from the points noise sources
-using inverse square law algorithm and logarithmic noise summary function.
-
-Return:
-- dbPoint, the noise in decibel of the centroid
-*/
+/**
+ * defineDbMean(points, centroid) define the mean noise for the centroid based on the inverse square law
+ * @param points is the list of points that generate the centroid, possible sources of the ISL
+ * @param centroid is the element destination of the ISL
+ * @returns {number} is the noise of the centroid
+ */
 const defineDbMean = (points, centroid) => {
     dbHit = []
     for(var i = 0; i < points.length; i++){
@@ -339,42 +319,22 @@ const defineDbMean = (points, centroid) => {
     return dbPoint
 }
 
-/*
-Declaration:
-inverseSquareLaw : function(point, centroid) =>
-- point : a source of noise
-- centroid: the receiver of the point noise
-
-Aim:
-From the input, we can calculate the noise hitted by centroid from the point source
-using the range between point and centroid (their current distance), Math.PI and noise intensity
-on the source point:
-
-x = I / 4 * 3.14 * range * range
-
-Return:
-- result of the equation
-*/
+/**
+ * Implement the Inverse Square Law
+ * @param point is the source
+ * @param centroid is the destination
+ * @returns {number} is the propagated noise touched by destination
+ */
 const inverseSquareLaw = (point, centroid) => {
     range = distance(point.geometry.coordinates[0], point.geometry.coordinates[1], centroid[0], centroid[1])
     sourceDb = point.properties.db;
     return sourceDb / 4 * Math.PI * (range * range)
 }
 
-/*
-module exports
-*/
-
-
-/*
-Declaration:
-makeDirectPoint : function(data) =>
-- data : the point to forward
-
-Aim:
-Convert the location geoJSON in a point geoJSON to forward in the backend.
-When privacy is off or k = 1, we need to  make directly a point and forward to the backend.
-So, this function is called in these cases.
+/**
+ * makeDirectPoint(data) is an alternative geoJSON point element made when k = 1, it is the no-privacy location
+ * @param data is collection of informations to generate the geoJSON element
+ * @returns {{geometry: {coordinates: ([]|[*, *]|[*, *]|[*, *]|*), type: string}, type: string, properties: {QoS: number, privacy: number, db: any}}} is the output geoJSON point
  */
 const makeDirectPoint = (data) => {
     // define point structure
@@ -392,6 +352,8 @@ const makeDirectPoint = (data) => {
     return point
 
 }
+
+// module exports
 
 module.exports = {
     makePoint,
