@@ -66,6 +66,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 
+/**
+ * MapsActivity is the class to define the main UI of the Android application with displaying a map with a current location marker,
+ * two buttons for settings and send records activities and a regular time location sending
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,SettingsView.SettingsAdderViewListener {
 
     private GoogleMap mMap;
@@ -91,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         id = UUID.randomUUID();
         actualSettings = new SettingData(1,1000,60,true,false,50);
 
-    //restoring privacy preferences
+        //restoring privacy preferences
         pref = getPreferences(Context.MODE_PRIVATE);
         Map <String, ?> privacySett= (Map<String, Integer>) pref.getAll();
         for (Map.Entry<String, ?> entry : privacySett.entrySet()) {
@@ -179,7 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-//permission request if the permissions are denied
+        //permission request if the permissions are denied
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -277,7 +281,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
     }
 
-//get the db amplitude when mRecorder is on
+    /**
+     * getAmplitude() gets the amplitude in decibels when mRecorder is in "online" status
+     * @return amplitude of the noise in decibels
+     */
     public double getAmplitude(){
         if (mRecorder != null)
             return  (mRecorder.getMaxAmplitude());
@@ -285,6 +292,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return 0;
     }
 
+    /**
+     * getMeanDb() send periodically a request to the backend server to ask the mean noise amplitude in decibels around
+     * an area of 3 kilometers from the current app user location.
+     */
     public void getMeanDb(){
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -361,6 +372,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /**
+     * openSettings() modify the view of the app with the opening of the settings table
+     */
     public void openSettings(){
         toastCounter=0;
         SettingsView settingsView = new SettingsView();
@@ -374,7 +388,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         settingsView.setArguments(bundle);
         settingsView.show(getSupportFragmentManager(), "settings");
     }
-//interface between the dialog fragment and the main activity
+
+
+    /**
+     * ApplyAdder is the UI dialogs between fragments of the settigView in the MapsActivity
+     * @param s is the setting data passed during the fragment transactions
+     */
     public void applyAdder(SettingData s){
         SharedPreferences.Editor editor = pref.edit();
         actualSettings.setnNeighbour(s.getnNeighbour());
@@ -408,6 +427,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * sendRecord makes a request to the trusted server and call an API to create a location based on the spatial
+     * clock method.
+     * @param myDB is the decibel associated to the location sent to the trusted server
+     */
     public void sendRecord(double myDB){
 
         try {
@@ -476,80 +500,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
-/*
-    public void updateSettings(){
-        try {
-            RequestQueue requestQueue = Volley.newRequestQueue(this);
-            String URL = "http://10.0.2.2:3000/getSettingsUpd";
-
-
-            Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
-
-
-            final String requestBody = pointFeature.toJson();
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    JSONObject json = null;
-                    try {
-                        json = new JSONObject(response);
-                        int myNeigh = Integer.parseInt(json.getString("neigh"));
-                        int myRange = Integer.parseInt(json.getString("range"));
-                        int myTime = Integer.parseInt(json.getString("time"));
-                        actualSettings.setnNeighbour(myNeigh);
-                        actualSettings.setRange(myRange);
-                        actualSettings.setMinutesTime(myTime);
-
-
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("Error Log", error.toString());
-                    meanDb.setText( "Mean: NaN dB");
-                }
-            }) {
-                @Override
-                public String getBodyContentType() {
-                    return "application/json; charset=utf-8";
-                }
-
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    try {
-                        return requestBody == null ? null : requestBody.getBytes("utf-8");
-                    } catch (UnsupportedEncodingException uee) {
-                        VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", requestBody, "utf-8");
-                        return null;
-                    }
-                }
-
-                @Override
-                protected Response<String> parseNetworkResponse(NetworkResponse response) {
-                    String responseString = "";
-                    if (response != null) {
-
-                        try {
-                            responseString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
-                }
-            };
-
-            requestQueue.add(stringRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    } */
 }

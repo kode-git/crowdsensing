@@ -24,7 +24,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+/**
+ * SettingsView is the class to manage the view of the settingsData inside the Android application UI
+ */
 public class SettingsView extends AppCompatDialogFragment {
+
+    // instance variables
     private SettingsAdderViewListener listener;
     private TextView neighText;
     private TextView rangeText;
@@ -39,6 +44,11 @@ public class SettingsView extends AppCompatDialogFragment {
     private SettingData setting;
 
 
+    /**
+     * onCreateDialog has an invocation when we click on the "Settings" button and show SettingData in the UI
+     * @param savedInstanceState is the bundle to save the current instance state
+     * @return the dialog
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
