@@ -21,25 +21,26 @@ app.get('/', (request, response) => {
 // Locations API
 app.post('/getLocations',route.getLocations )
 app.post('/getMeanDb', route.getMeanDb)
-
+app.post('/createBackendLocation', function(request, response){
+    // forwarding the request and the response
+    route.createBackendLocation(request, response)
+    // no manage the response because the user doesn't know when the
+    // point is processing on the database
+    // response is detected in the trusted console
+});
 
 // Clustering API
 app.post('/showClusters', route.showClusters)
 app.post('/showClustersOnDb', route.showClustersOnDb)
+
+// Developing API
 app.get('/populate', route.populate)
 
-app.post('/createBackendLocation', function(request, response){
-        // forwarding the request and the response
-        route.createBackendLocation(request, response)
-        // no manage the response because the user doesn't know when the
-        // point is processing on the database
-        // response is detected in the trusteds console
-});
 
 // Prediction API
 app.post('/prd', route.prdCall)
 
-
+// default listening
 app.listen(port, () => {
     console.log(`Log: Backend Server running on port ${port}.`)
     console.log(`Log: Waiting a request...`)

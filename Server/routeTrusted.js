@@ -18,7 +18,11 @@ console.log('Log: Stack initialization...')
 console.log('Log: Starting server...')
 
 
-// create a new location with trusted way
+/**
+ * createLocation(request, response) takes a location and forward the response to the backend server in case of spatial point making
+ * @param request consists in the data of a point to add in the local stack
+ * @param response forwarded to the backed server and is 200 or 500 in according to the success of database insert
+ */
 const createLocation = (request, response) => {
     let data = request.body
     // setting of k and range based on the alpha parameter
@@ -41,6 +45,11 @@ const createLocation = (request, response) => {
 }
 
 
+/**
+ * makeRequest(point) makes a new POST request for server forwarding adding point information in the body
+ * @param point is the collection of data to send
+ * @returns {[Uint8Array, {path: string, headers: {"Content-Length": number, "Content-Type": string}, hostname: string, method: string, port: number}]} is the request to send
+ */
 const makeRequest = (point) => {
     // making data request
     const dataRequest = new TextEncoder().encode(
@@ -68,6 +77,10 @@ const makeRequest = (point) => {
     return [dataRequest, options]
 }
 
+/**
+ * forwardBackend(point) applies the http protocol of the made request for forwarding
+ * @param point is the point to forward to the backend server
+ */
 const forwardBackend = (point) => {
     // listening on the server backend
     let [dataRequest, options] = makeRequest(point)
@@ -92,7 +105,11 @@ const forwardBackend = (point) => {
 }
 
 
-
+/**
+ * makeSpatialPoint(data) is a function to make a spatial point (k > 1) or direct point (k = 1) in geoJSON format
+ * @param data is the data to process
+ * @returns {*} geoJSON of the spatial location to insert in the database
+ */
 const makeSpatialPoint = (data) => {
     // Privacy Management
     let point = null

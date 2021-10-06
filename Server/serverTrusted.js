@@ -15,12 +15,13 @@ app.use(
         extended: true,
     })
 )
-
+// static directory used to the app
 app.use("/static", express.static('./static/'));
 
-// Trusted API
+// Trusted createLocation API
 app.post('/createLocation', route.createLocation)
 
+// default listening
 app.listen(port, () => {
     console.log(`Log: Trusted Server running on port ${port}.`)
     console.log(`Log: Waiting a request...`)

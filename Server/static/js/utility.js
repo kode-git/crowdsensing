@@ -1,7 +1,11 @@
 // library of functions used for data manipulation and visualization
-
 const polygon = require('./polygon')
-// given result as a set of loc_ref_points rows, returns data in geoJSON format
+
+/**
+ * convertLocations(results), given a set of rows of the table locations, return the equivalent geoJSON
+ * @param results is the rows of locations taken from the database
+ * @returns {*|{features: *[], type: string}} is the geoJSON format of the database data
+ */
 const convertLocations = (results) => {
     geoJSON = {
         "type" : "FeatureCollection",
@@ -31,9 +35,12 @@ const convertLocations = (results) => {
     return geoJSON
 }
 
-// convert clusters dataset into a geoJSON data format
-// it's similar to the locations but there are like centroids
-// and clusters as added attributes in circle geometry format
+/**
+ * convertClusters(featureCollection, j), taken a set of locations in geoJSON format, return them with the properties based on the clustering algorithm (kmeans)
+ * @param featureCollection is the list of geoJSON locations
+ * @param k is the k parameter for determinate the number of clusters
+ * @returns {*|{centroids: *[], locations: *[], type: string, clusters: *[]}} is the list of geoJSON with clusters properties.
+ */
 const convertClusters = (featureCollection, k) => {
     geoJSON = {
         "type" : "FeaturesCollection",
@@ -105,7 +112,12 @@ const convertClusters = (featureCollection, k) => {
 
 }
 
-
+/**
+ * convertClustersOnDb(locations, clusters) is a function where we can add clusters properties to locations geoJSON considering noise parameter too
+ * @param locations is the list of locations
+ * @param clusters is the list of assignments number that determinate for the position i the cluster of the location i
+ * @returns {*} is the geoJSON with updated clusters properties
+ */
 const convertClustersOnDb = (locations, clusters) => {
     clusters = JSON.parse(clusters)
     for(i in clusters){
@@ -122,9 +134,11 @@ const convertClustersOnDb = (locations, clusters) => {
     return locations
 }
 
-// populate DB with dummy points in Bologna area
-// range are 0 and 3000 with step 1
-// DBs are between 20 to 50
+/**
+ * populate(pool,n) is a function to populate the database with n random points
+ * @param pool is the pool used to do the query on the postgres database
+ * @param n is the number of random rows to insert inside the database
+ */
 const populate = (pool, n) => {
     for(let i = 0; i < n; i++){
         maxDb = 90.0
@@ -143,8 +157,12 @@ const populate = (pool, n) => {
     }
 }
 
-// Aggregate data in the server trusted and return true or false depending on
-// update existing data or pushing a new one
+/**
+ * aggregate(data, stack) verify if in the stack there is an equivalent location passed by the same user
+ * @param data is the data to verify
+ * @param stack is the collection of locations to compare
+ * @returns {boolean} is true if we have aggregated locations, false otherwise
+ */
 const aggregate = (data, stack) => {
     console.log("Log: Aggregate init.....")
     stX = data.geometry.coordinates[0]
@@ -185,6 +203,12 @@ const aggregate = (data, stack) => {
 
 }
 
+/**
+ * getIndex(stack, data) is a function that returns the current index of the data in the stack
+ * @param stack is the collection of locations
+ * @param data is the data to find in the stack
+ * @returns {number} is the index of data in the stack, -1 if it is not present
+ */
 const getIndex = (stack, data) =>{
     for(let i = 0; i < stack.length; i++){
         if(stack[i].geometry.coordinates == data.geometry.coordinates){
@@ -194,6 +218,8 @@ const getIndex = (stack, data) =>{
 
     return -1
 }
+
+// module exports
 
 module.exports = {
     convertLocations,

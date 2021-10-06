@@ -22,9 +22,11 @@ const pool = new Pool({
 // duplicated is used to avoid double insert from a double click on app
 var duplicated = {}
 
-// --- Locations API ---
-// Get Locations from the database
-// using for data visualization inside the dashboard
+/**
+ * getLocations(request,response) don't consider request and give in response the geoJSON of database locations
+ * @param request is not considered
+ * @param response is the geoJSON to returns
+ */
 const getLocations = (request, response) => {
     pool.query('select db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
@@ -32,13 +34,15 @@ const getLocations = (request, response) => {
             throw error
         }
         dataset = utility.convertLocations(results)
-        console.log(dataset.features[0].properties);
         response.status(200).json(dataset)
     })
 }
 
-// Given coordinates and a range, return a list of geometry
-// points near the given coordinates and inside the specified range
+/**
+ * getMeanDb(request, response) gives the location in the request and return the mean noise on range of 3 kilometers in response
+ * @param request is the location
+ * @param response is the mean noise around 3 kilometers from the location
+ */
 const getMeanDb = (request, response) => {
     // getting location
     data = request.body
@@ -61,6 +65,11 @@ const getMeanDb = (request, response) => {
 
 // Build a geoJSON and send to the dashboard to visualize polygons
 // centroids and points inside a Leaftlet map on the front-end (dashboard side)
+/**
+ * showClusters(request, response) gives the number of clusters in the request and returns the geoJSON polygons in the response
+ * @param request is the number of clusters to classify using kmeans algorithm
+ * @param response i
+ */
 const showClusters = (request, response) => {
     const k = parseInt(request.body.k)
     pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
@@ -88,6 +97,11 @@ const showClusters = (request, response) => {
     })
 }
 
+/**
+ * showClustersOnDb(request, response) gives the number of clusters in the request and returns the geoJSON polygons in the response considering noise parameter too
+ * @param request is the number of clusters to classify using kmeans algorithm
+ * @param response i
+ */
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
     const k = parseInt(request.body.k)
@@ -108,6 +122,11 @@ const showClustersOnDb = (request, response) => {
     })
 }
 
+/**
+ * createBackendLocation(request, response) is the backend insert directly in the database
+ * @param request is the location to insert
+ * @param response is 200 or not in according to the success of the insert
+ */
 const createBackendLocation = (request, response) => {
 
     let point = request.body
@@ -131,11 +150,21 @@ const createBackendLocation = (request, response) => {
 
 }
 
+/**
+ * populate(request, response) is the populate API that insert 30 random positions
+ * @param request is void
+ * @param response is 200 or 500 in according to the success of populate
+ */
 const populate = (request, response) => {
     utility.populate(pool, 30)
     response.sendStatus(200).send('Populate execution: done')
 }
 
+/**
+ * prdCall(request, response) is the API to call the bridging of the prediction python algorithm
+ * @param request gives the coordinates to determinate the predicted noise
+ * @param response is 200 or 500 in
+ */
 const prdCall = (request, response) => {
         point = request.body.myPoint.geometry.coordinates
          predictor.bridgingPredictor(point).then(function successCallback(result) {

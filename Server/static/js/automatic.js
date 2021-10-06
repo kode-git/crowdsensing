@@ -1,14 +1,7 @@
-
-
-/*
-Declaration:
-opt : function(stack, i) =>
-- stack: dataset to use for optimize range and k
-- i: index of point to optimize properties
-
-Aim:
-Optimize range and k of an automatic point to manage the spatial-cloaking and finding
-the best trade-off between Privacy and QoS
+/**
+ * opt(data) is a function to define the best tradeoff based on alpha value passed in data
+ * @param data is the set of information where we should determinate optimal k and range
+ * @returns {*} the data with k and range defined in case of automatic location, data itself otherwise
  */
 
 const opt = (data) =>{
@@ -36,7 +29,7 @@ const opt = (data) =>{
 
 }
 
-
+// module exports
 module.exports = {
 opt
 }

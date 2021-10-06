@@ -1,4 +1,8 @@
-// Bridging with predictor.py python script
+/**
+ * bridgingPredictor(dataPoint) using a regressor to predict the location noise based on the actual ranged noises
+ * @param dataPoint is the location to determinate the predicted noise
+ * @returns {Promise<unknown>} is the Promise of the response where is the predicted noise or an error
+ */
 const bridgingPredictor = (dataPoint) =>{
     return new Promise(function(resolve) {
         pointLng = dataPoint[0]

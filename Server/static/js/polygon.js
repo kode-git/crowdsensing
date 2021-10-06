@@ -1,5 +1,11 @@
 // library of functions for polygon making on the geoJSON coordinates ordering
 
+/**
+ * squaredPolar(point, centre) determinate the polarization algorithm on the polygon point respect the centre
+ * @param point is one of the endpoint
+ * @param centre is the centre of the polygon and second endpoint
+ * @returns {(number|number)[]} the squared distance between point and centre
+ */
 function squaredPolar(point, centre) {
     return [
         Math.atan2(point[1]-centre[1], point[0]-centre[0]),
@@ -7,7 +13,11 @@ function squaredPolar(point, centre) {
     ];
 }
 
-// Main algorithm:
+/**
+ * polySort(locations) get the centre of mass of locations and sort them based on the squaredPolar distance
+ * @param locations is the list of positions to determinate the squaredPolar and sort them
+ * @returns {*} is the sorted list based on the squaredPolar distance differences
+ */
 function polySort(locations) {
     // Get "centre of mass"
     let centre = [locations.reduce((sum, p) => sum + p[0], 0) / locations.length,
@@ -22,7 +32,7 @@ function polySort(locations) {
     return locations
 }
 
-
+// module exports
 module.exports = {
     polySort,
     squaredPolar,

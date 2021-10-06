@@ -5,8 +5,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.cluster import KMeans
 import numpy as np
 import json
-# Create a database connection
 
+# Create a database connection
 engine = db.create_engine(
     "postgresql://postgres:blockchain@localhost:5432/csdb")
 con = engine.connect()
