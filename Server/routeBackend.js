@@ -137,7 +137,7 @@ const createBackendLocation = (request, response) => {
         let QoS = point.QoS
         let privacy = point.privacy
         console.log(point)
-        pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy)values ($1, ST_Point($2, $3), $4, $5);', [db, st_X, st_Y, QoS, privacy], (error, results) => {
+        pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy) values ($1, ST_Point($2, $3), $4, $5) on conflict(coordinates) do update set db=$6, qos=$7, privacy=$8;', [db, st_X, st_Y, QoS, privacy, db, QoS, privacy], (error, results) => {
             if (error) {
                 throw error
             }
