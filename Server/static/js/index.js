@@ -448,8 +448,14 @@ function showClusters(mapZoom) {
             spatialnoiselayer.clearLayers();
             predictedlayer.clearLayers();
             
+            var listColor=getColorArray();  
             kmeans = parseInt(mapZoom)
             for (let i = 0; i < kmeans; i++) {
+                
+            console.log(data.clusters[i].properties.cluster);
+            
+            if(document.getElementById("colorizeCluster").checked==false){
+                console.log("normale");
                 var geojsonPolygonOptions = {
                     fillColor: getColor(data.clusters[i].properties.db),
                     weight: 4,
@@ -459,28 +465,84 @@ function showClusters(mapZoom) {
                     smoothFactor: 3
                     
                 };
-                
-                var geojsonMarkerOptions = {
-                    fillColor: getColor(data.clusters[i].properties.db),
-                    color: "#000",
-                    weight: 1,
+            }else{
+                console.log("non colorato")
+                var geojsonPolygonOptions = {
+                    fillColor: listColor[data.clusters[i].properties.cluster],
+                    weight: 4,
                     opacity: 1,
-                    fillOpacity: 0.8
+                    color: LightenDarkenColor(listColor[data.clusters[i].properties.cluster], -40),
+                    fillOpacity: 0.5,
+                    smoothFactor: 3
+                    
                 };
+            }
+            /*
+            var geojsonPolygonOptions = {
+                    fillColor: getColor(data.clusters[i].properties.db),
+                    weight: 4,
+                    opacity: 1,
+                    color: getColorDarker(data.clusters[i].properties.db),
+                    fillOpacity: 0.5,
+                    smoothFactor: 3
+                    
+                };*/
+                
+                
+                
+                if(document.getElementById("colorizeCluster").checked==false){
+                    console.log("normale");
+                    var geojsonMarkerOptions = {
+                        fillColor: getColor(data.clusters[i].properties.db),
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    };
+                }else{
+                    console.log("non colorato")
+
+                    var geojsonMarkerOptions = {
+                        fillColor: listColor[data.clusters[i].properties.cluster],
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    };
+
+                }
                
                 var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
                
+                if(document.getElementById("colorizeCluster").checked==false){
+                    console.log("normale");
 
-                polygon.on('mouseover', function () {
-                    this.setStyle({
-                        'fillColor': getColorHover(data.clusters[i].properties.db),
-                    })
-                });
-                polygon.on('mouseout', function () {
-                    this.setStyle({
-                        'fillColor': getColor(data.clusters[i].properties.db)
+                    polygon.on('mouseover', function () {
+                        this.setStyle({
+                            'fillColor': getColorHover(data.clusters[i].properties.db),
+                        })
                     });
-                });
+                    polygon.on('mouseout', function () {
+                        this.setStyle({
+                            'fillColor': getColor(data.clusters[i].properties.db)
+                        });
+                    });
+
+                   
+                }else{
+                    console.log("non colorato")
+                    polygon.on('mouseover', function () {
+                        this.setStyle({
+                            'fillColor': LightenDarkenColor(listColor[data.clusters[i].properties.cluster], -40)
+                        })
+                    });
+                    polygon.on('mouseout', function () {
+                        this.setStyle({
+                            'fillColor': listColor[data.clusters[i].properties.cluster]
+                        });
+                    });
+                }
+               
                 // Centroids geometry view
                 var lat = data.centroids[i].geometry.coordinates[0];
                 var lng = data.centroids[i].geometry.coordinates[1];
@@ -508,7 +570,6 @@ function showClusters(mapZoom) {
                 console.log(icon);
                 centroidlayer.addLayer(icon);
 
-
                 //Both layers from centroids and cluster geometries
                 clusterlayer.addLayer(polygon); //
                 centroidlayer.addLayer(centroid); //
@@ -517,6 +578,16 @@ function showClusters(mapZoom) {
                     var lat = data.locations[j].geometry.coordinates[0];
                     var lng = data.locations[j].geometry.coordinates[1];
                     var latlng = new L.latLng(lat, lng);
+
+               
+                    
+
+
+                    
+                if(document.getElementById("colorizeCluster").checked==false){
+                    console.log("normale");
+
+                   console.log(data.locations[j].properties.cluster);
                     var geojsonVertexOptions = {
                         radius: 3,
                         fillColor: getColor(data.locations[j].properties.db),
@@ -525,7 +596,23 @@ function showClusters(mapZoom) {
                         opacity: 1,
                         fillOpacity: 0.8
                     };
-                    
+                }else{
+                    console.log(data.locations[j].properties.cluster," E ",data.clusters[i].properties.cluster)
+                    //if((data.locations[j].properties.cluster==data.clusters[i].properties.cluster)){
+                    var geojsonVertexOptions = {
+                        radius: 3,
+                        fillColor: listColor[data.locations[j].properties.cluster],
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    };
+               // }
+                }
+
+
+
+
                     
                     var vertex = L.circleMarker(latlng, geojsonVertexOptions).bindPopup('<h1>' + data.locations[j].properties.db + 'db </h1>');
                     
@@ -536,43 +623,66 @@ function showClusters(mapZoom) {
 
 
             //document.getElementById("cluster").value=kmeans;
-            var cls=document.getElementById("plg").checked;
-            var vtx=document.getElementById("mrk").checked;
-            var cnt=document.getElementById("cnt").checked;
-        
-            switch (true) {
-                case (cls === true && vtx === true && cnt === true) ://TTT
-                    map.addLayer(centroidlayer);
-                    map.addLayer(clusterlayer);
-                    map.addLayer(vertexlayer);        
-                  break;
-                case (cls === true && vtx === true && cnt === false) ://TTF
-                    map.addLayer(clusterlayer);
-                    map.addLayer(vertexlayer);
-                  break;
-                case (cls === true && vtx === false && cnt === true) ://TFT
-                    map.addLayer(clusterlayer);
-                    map.addLayer(centroidlayer);
-                  break;
-                case (cls === false && vtx === true && cnt === true) ://FTT
-                    map.addLayer(centroidlayer);
-                    map.addLayer(vertexlayer);
-                  break;
-                case (cls === true && vtx === false && cnt === false) ://TFF
-                    map.addLayer(clusterlayer);
-                  break;
-                case (cls === false && vtx === true && cnt === false) ://FTF
-                  map.addLayer(vertexlayer);
-                  break;
-                case (cls === false && vtx === false && cnt === true) ://FFT
-                  map.addLayer(centroidlayer);
-                break;    
-                 default:
-               }            
+                   layerOrdering() 
         }
     })
 }
 
+
+function layerOrdering(){
+
+    var cls=document.getElementById("plg").checked;
+    var vtx=document.getElementById("mrk").checked;
+    var cnt=document.getElementById("cnt").checked;
+map.removeLayer(centroidlayer);
+map.removeLayer(vertexlayer);
+map.removeLayer(clusterlayer);
+    switch (true) {
+        case (cls === true && vtx === true && cnt === true) ://TTT
+            map.addLayer(clusterlayer);
+            map.addLayer(vertexlayer);        
+            map.addLayer(centroidlayer);
+          break;
+        case (cls === true && vtx === true && cnt === false) ://TTF
+        console.log("cluster e sopra vertex")
+            map.addLayer(clusterlayer);
+            map.addLayer(vertexlayer);
+          break;
+        case (cls === true && vtx === false && cnt === true) ://TFT
+        
+            map.addLayer(clusterlayer);
+            
+        map.addLayer(centroidlayer);
+          break;
+        case (cls === false && vtx === true && cnt === true) ://FTT
+            map.addLayer(vertexlayer);
+            
+        map.addLayer(centroidlayer);
+          break;
+        case (cls === true && vtx === false && cnt === false) ://TFF
+            map.addLayer(clusterlayer);
+          break;
+        case (cls === false && vtx === true && cnt === false) ://FTF
+          map.addLayer(vertexlayer);
+          break;
+        case (cls === false && vtx === false && cnt === true) ://FFT
+          map.addLayer(centroidlayer);
+        break;    
+         default:
+       }   
+}
+
+// Checkbox trigger for cluster settings (markers,polygons,centroids)
+function checkboxCluster(checkboxElem) {
+    
+    if (checkboxElem.checked ) {
+       // map.addLayer(eval(checkboxElem.name));
+       layerOrdering()
+    } else{
+        layerOrdering()
+        map.removeLayer(eval(checkboxElem.name));
+    }
+}    
 
 // Convert DB in a color shade from green to red------------------------------------------------------------------
 function getColor(value){
@@ -621,6 +731,24 @@ $('#colorizeMarker').change(function () {
     if(latlngPredicted!=undefined && boolPrediction==true){
     showPredictedMarker(latlngPredicted);
     }
+});
+
+
+$('#colorizeMarker').change(function () {
+    showMarkers();
+    console.log(latlngPredicted)
+    
+    var boolPrediction=document.getElementById("switchPrediction").checked;
+    if(latlngPredicted!=undefined && boolPrediction==true){
+    showPredictedMarker(latlngPredicted);
+    }
+});
+
+
+//COLORIZE CLUSTER----------------------------------------------------
+$('#colorizeCluster').change(function () {
+    showClusters($('#cluster').val());
+    
 });
 
 //Managed the option value in the form related to spatial or noise spatial clustering-------------------------------------
@@ -685,6 +813,39 @@ clusterSlider.oninput = function () {
 }
 
 // color managing for n=18 cluster each with different color--------------------------------------
+function LightenDarkenColor(col, amt) {
+  
+    var usePound = false;
+  
+    if (col[0] == "#") {
+        col = col.slice(1);
+        usePound = true;
+    }
+ 
+    var num = parseInt(col,16);
+ 
+    var r = (num >> 16) + amt;
+ 
+    if (r > 255) r = 255;
+    else if  (r < 0) r = 0;
+ 
+    var b = ((num >> 8) & 0x00FF) + amt;
+ 
+    if (b > 255) b = 255;
+    else if  (b < 0) b = 0;
+ 
+    var g = (num & 0x0000FF) + amt;
+ 
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+ 
+    return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16);
+  
+}
+  
+  // TEST
+
+
 function getColorArray() {
     console.log($('#cluster').value);
     var colorArray=[];
@@ -694,6 +855,7 @@ function getColorArray() {
     switch( true ) {
         case (i==1) :
             color='#4ef542'
+            
             break;
         case (i==2) :
             color='#f5f242'
@@ -757,17 +919,6 @@ function getColorArray() {
   }
 
 
-// Checkbox trigger for cluster settings (markers,polygons,centroids)
-function checkboxCluster(checkboxElem) {
-    if (checkboxElem.checked ) {
-        console.log(checkboxElem.name)
-        map.addLayer(eval(checkboxElem.name));
-    } else{
-        
-        console.log(checkboxElem.name)
-        map.removeLayer(eval(checkboxElem.name));
-    }
-}    
        
 function colorizeMarker(checkboxElem) {
         showMarkers();
