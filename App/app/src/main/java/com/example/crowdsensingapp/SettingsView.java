@@ -73,8 +73,8 @@ public class SettingsView extends AppCompatDialogFragment {
         seekRange = (SeekBar) view.findViewById(R.id.seekRange);
         seekTime = (SeekBar) view.findViewById(R.id.seekTime);
         seekTrade = (SeekBar) view.findViewById(R.id.tradeBar);
-        neighText.setText("Min. neigh: "+ actualNeigh+"+");
-        seekNeigh.setProgress(setting.getnNeighbour());
+        neighText.setText("Min. neigh: "+ (actualNeigh));
+        seekNeigh.setProgress(setting.getnNeighbour()-1);
         rangeText.setText("Range in meters: "+ actualRange);
         seekRange.setProgress(setting.getRange());
         timeText.setText("Maximum minutes time: "+ actualTime);
@@ -111,8 +111,8 @@ public class SettingsView extends AppCompatDialogFragment {
         seekNeigh.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                setting.setnNeighbour(i);
-                neighText.setText("Min. neigh: "+ i+"+");
+                setting.setnNeighbour(i+1);
+                neighText.setText("Min. neigh: "+ (i+1));
                 defaultOnOff.setChecked(false);
             }
 

@@ -31,8 +31,9 @@
             style="@style/Widget.AppCompat.SeekBar.Discrete"
             android:layout_width="200dp"
             android:layout_height="match_parent"
-            android:max="3"
-            android:progress="0"
+            android:min="0"
+            android:max="2"
+            android:progress="1"
 
 
             />
