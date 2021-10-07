@@ -154,7 +154,9 @@ input:checked + .slider:before {
 .box.blue:before{
   background-color:blue;
 }
-
+select option:hover {
+    box-shadow: 0 0 10px 100px #ffffff inset;
+}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -300,6 +302,14 @@ input:checked + .slider:before {
 							<option value="20"> All</option>
 								</select>
 							</li>
+
+							<li>
+
+							</li>
+							<li>
+								<label ><p style="font-size: 1.3rem;">Marker size:</p></label>
+								<input style="height: 10px; width: 50%;" type="range" min="1" max="50" value="4" step="0.1" class="slider2" id="markersize">
+									</li>
 							
 					</ul> <!-- cd-filter-content -->
 				</div> <!-- cd-filter-block -->
@@ -316,7 +326,7 @@ input:checked + .slider:before {
 								</li>
 								<li>
 								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
-								<input  style="height: 10px; width: 50%;" type="range" min="1" max="85" value="25" step="0.1" class="slider2" id="radius" >
+								<input  style="height: 10px; width: 50%;" type="range" min="1" max="9" value="3" step="0.1" class="slider2" id="radius" >
 								</li>
 								<li>
 									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>

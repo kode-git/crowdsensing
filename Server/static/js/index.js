@@ -38,7 +38,7 @@ clusterLayers = [];
 const vertexlayer = new L.layerGroup();
 const centroidlayer = new L.layerGroup();
 const spatialnoiselayer = new L.layerGroup();
-
+const markerC= new L.layerGroup();
 const predictedlayer = new L.layerGroup();
 vertexLayers = [];
 heatmapLayers = [];
@@ -379,11 +379,15 @@ options.appendTo("#list");
 */
 
 
+var listColor=getColorArray();   
     
     $('#list').append($('<option>', {
         value: nCluster,
-        text: "DB: "+Math.min(... points)+ '-'+Math.max(... points) 
+        text: "DB: "+Math.min(... points)+ '-'+Math.max(... points) ,
+      
     }));
+    $("#list option[value="+nCluster+"]").css({"background-color":  listColor[ nCluster]});
+    
 console.log("CLUSTER: ",nCluster," : ",Math.min(... points), '-',Math.max(... points) )
 
 }
@@ -393,8 +397,11 @@ $('#loading').hide();
 var load;
 var latitudine;
 var longitudine;
+
+var dataCluster;
 function showSpatialNoiseCluster(num) {
    
+    markerC.clearLayers();
     spatialnoiselayer.clearLayers();
     load=1;
     if(load==1){
@@ -413,6 +420,7 @@ function showSpatialNoiseCluster(num) {
             k: num
         },
         success: function (data) {
+            dataCluster=data;
             load=0;
             optionsReset();
     for(i=0;i<=num-1;i++){
@@ -489,6 +497,66 @@ function showSpatialNoiseCluster(num) {
         }
     });
 };
+
+//-----------------------------NOISE ON FILTER-------------------------------------------------------
+
+
+var markerCluster
+function showSpatialNoiseClusterFilter(n,size) {
+    
+   console.log(n);
+   
+    console.log("---------------------------------------------------------")
+    data=dataCluster;
+    markerC.clearLayers();
+    spatialnoiselayer.clearLayers();
+console.log(data);
+            var listColor=getColorArray();        
+           //
+           
+          // var markerCluster;
+           console.log(data.features[1].geometry.coordinates)
+           for(i=0;i<180;i++){
+            
+               if(data.features[i].properties.cluster==n){
+                var geojsonColorizeOptions={
+                    radius: size,
+                    fillColor: listColor[ data.features[i].properties.cluster],
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+            }
+                   console.log("---------------------------------------------------------------------")
+                   console.log("DB DEI DATI: ",data.features[i].properties.cluster)
+                   console.log("N CLUSTER: ",data.features[i].geometry.coordinates)
+             markerCluster = L.circleMarker([data.features[i].geometry.coordinates[1],data.features[i].geometry.coordinates[0]], geojsonColorizeOptions);//.bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
+             // map.addLayer(markerC);
+             var marker = L.circleMarker([51.5, -0.09])
+            markerC.addLayer(markerCluster);
+            markerC.addLayer(marker);
+            map.addLayer(markerC);
+        }else{
+            
+            console.log(data.features[i].properties.cluster)
+           // var marker = L.marker([51.5, -0.09])
+           // markerC.addLayer(marker);
+           // map.addLayer(markerC);
+        }
+        }
+                 
+            markerlayer.clearLayers();
+            heatmaplayer.clearLayers();
+            clusterlayer.clearLayers();
+            vertexlayer.clearLayers();
+            centroidlayer.clearLayers();
+            predictedlayer.clearLayers();
+        
+            
+        
+   
+};
+
 //---------------------------OPTION ORDERING---------------------------------------------------------
 function optionsOrdering(){
 var options = $("#list option");                    // Collect options 
@@ -832,7 +900,8 @@ $('#colorizeMarker').change(function () {
 });
 
 $('#list').change(function () {
-    
+    showSpatialNoiseClusterFilter($(this).val(),$('#markersize').val())
+    //showHeatmap();
     console.log($(this).val())
 });
 $('#colorizeMarker').change(function () {
@@ -1030,6 +1099,18 @@ $('#resetFilter').on('click', function () {
  $('#blur').val(15);
  $('#radius').val(25);
  showHeatmap();
+});
+
+$('#markersize').on('change', function(){
+    showSpatialNoiseClusterFilter($('#list').val(),$('#markersize').val());
+console.log($(this).val());
+//markerC.setStyle({radius:$(this).val()})
+markerCluster.setRadius($(this).val());
+console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+console.log(markerC._layers);
+//markerC._layers.forEach(element => console.log(element));
+//markerC._layers.foreach(console.log(markerC._layers.options))
+
 });
 
 // TODO
