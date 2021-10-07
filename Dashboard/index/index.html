@@ -132,12 +132,36 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
+.box {
+  position: relative;
+  margin-left: 20px;
+}
+.box:before{
+  position: absolute;
+  left: -20px;
+  content: "";
+  height:20px;
+  width:20px;
+  margin-bottom:15px;
+  border:1px solid black;
+}
+.box.red:before{
+  background-color:red;
+}
+.box.green:before{
+  background-color:green;
+}
+.box.blue:before{
+  background-color:blue;
+}
+
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
     </style>
-	<title>Content Filters | CodyHouse</title>
+	<title>Privacy-Aware Crowdsensing | Context-Aware</title>
 </head>
 <body>
 
@@ -196,7 +220,7 @@ input:checked + .slider:before {
 
 					<ul id="clusterSetting" class="cd-filter-content cd-filters list">
 						<li>
-							<p><h3>SET K-MEANS:</h3></p>	
+							<p><h3>-SET K-MEANS:</h3></p>	
 							</li>	
 					<div class="cd-filter-content">
 						<li>
@@ -228,7 +252,7 @@ input:checked + .slider:before {
 						</li>
 						<li>
 						<li>
-						<p><h3>CLUSERING METHOD:</h3></p>
+						<p><h3>-CLUSERING METHOD:</h3></p>
 						</li>
 						<li>
 						<select id="clusterOption">
@@ -238,7 +262,7 @@ input:checked + .slider:before {
 					</li>
 
 						<li>
-						<p><h3>SETTINGS:</h3></p>
+						<p><h3>-SETTINGS:</h3></p>
 						</li>
 
 						<li> 
@@ -257,14 +281,26 @@ input:checked + .slider:before {
 		
 						</li>
 						<li>
-							<p><h3>COLORING:</h3></p>
+							<p><h3>-COLORING:</h3></p>
 							</li>
+							<li>
 							<label class="switch">
 								<input id="colorizeCluster" type="checkbox">
 								<span class="slider round"></span>
 							  </label>
 							  <label>Colorize</label>
-							<li> 
+							</li>
+							<li>
+							  <p><h3>-NOISE FILTER:</h3></p>
+							</li>
+						
+							<li>
+								<select id="list">
+									
+							<option value="20"> All</option>
+								</select>
+							</li>
+							
 					</ul> <!-- cd-filter-content -->
 				</div> <!-- cd-filter-block -->
 

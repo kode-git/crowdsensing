@@ -10,8 +10,7 @@ $(".leaflet-control-zoom").css("visibility", "hidden");
 $('.cd-filter-block h4').toggleClass('closed').siblings('.cd-filter-content').slideToggle(300);
 $("#colorizeMarker").removeClass().removeAttr('style');
 
-console.log($('#markerFilter'));
-console.log($('#clusterFilter'));
+
 /*
 
 // This is for auto-location on map view entering
@@ -85,9 +84,9 @@ var heatMap = 0;
                 } else{
                     if($("#clusterOption").val()=='spatial'){
                         showClusters($("#cluster").val());
-                        console.log(" normale");
+
                     }  else if($("#clusterOption").val()=='spatialnoise'){
-                        console.log(" spatial-noise");
+
                         showSpatialNoiseCluster($("#cluster").val());
                     }
                 }
@@ -189,7 +188,7 @@ var heatMap = 0;
    // Show predicted marker 
 function showPredictedMarker(e) {
     load=1;
-    console.log(load);
+
     if(load==1){
         
         $('#loading').show(); 
@@ -290,6 +289,7 @@ map.on("zoomend", function (e) {
 //---------------------------HEATMAP -------------------------------------------------------------
    // Show heatmap
 function showHeatmap() {
+    
     $.ajax({
         url: "/getLocations",
         type: "POST",
@@ -352,15 +352,51 @@ map.on('zoomend', function() {
 //---------------------------SPATIAL NOISE CLUSTERING-------------------------------------------------------------
    // Show spatial noise clustering
 //Spatial noise clustering
+function clusterFilter(data,nCluster){
+   // console.log(data.features.length)
+   // console.log(data.features[0].properties.db)
+   
+    var points=[]
+    for (i=0;i<data.features.length;i++){
+        //console.log(data.features[i].properties.db)
+               if(data.features[i].properties.cluster==nCluster){
+                points.push(data.features[i].properties.db);
+                
+            }
+        
+    }
+    /*
+    var options = $("#list option");                    // Collect options 
+    console.log(options)        
+options.detach().sort(function(a,b) {               // Detach from select, then Sort
+    var at = $(a).text();
+    console.log(at);
+    var bt = $(b).text();   
+    console.log(bt)      
+    return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+});
+options.appendTo("#list"); 
+*/
+
+
+    
+    $('#list').append($('<option>', {
+        value: nCluster,
+        text: "DB: "+Math.min(... points)+ '-'+Math.max(... points) 
+    }));
+console.log("CLUSTER: ",nCluster," : ",Math.min(... points), '-',Math.max(... points) )
+
+}
+
 
 $('#loading').hide(); 
 var load;
 var latitudine;
 var longitudine;
 function showSpatialNoiseCluster(num) {
+   
     spatialnoiselayer.clearLayers();
     load=1;
-    console.log(load);
     if(load==1){
         
         $('#loading').show(); 
@@ -378,37 +414,65 @@ function showSpatialNoiseCluster(num) {
         },
         success: function (data) {
             load=0;
+            optionsReset();
+    for(i=0;i<=num-1;i++){
+        clusterFilter(data,i)
+            }
             
         $('#loading').hide(); 
-            
-            console.log("SPATIALNOISE");
-            var listColor=getColorArray();        
-           console.log(listColor[1]);
 
+
+            var listColor=getColorArray();        
+            var i=0;
             marker = L.geoJson(data, {
                 pointToLayer: function (feature, latlng) {
                         var geojsonColorizeOptions={
-                            radius: 6,
+                            radius: 4,
                             fillColor: listColor[ feature.properties.cluster],
                             color: "#000",
                             weight: 1,
                             opacity: 1,
                             fillOpacity: 0.8
                     }
-                    console.log(latlng);
-                    console.log(latlng.lat)
                     latitudine=latlng.lat;
                     longitudine=latlng.lng;
                     return L.circleMarker(latlng, geojsonColorizeOptions);
                     
                 }, onEachFeature: function (feature, layer) {
+                  /*  while(k<=180){
+
+                        for(j=0;j<=num;j++){
+                            if(feature.properties.cluster==j){
+                                points.push(feature.properties.db)
+                            }
+
+                    }
+                }*/
+                   // console.log(points)
+                   // for(i=0;i<data.size();i++){
+
+                    /*for(j=0;j<=num;j++){
+                        if(feature.properties.cluster==j){
+                            console.log("index "+i+" has cluster:  "+j)
+                            //points.push([j,i])
+                            points[j].push(i);
+                        }else{
+                            
+                            points[j].push(19);
+                        }
+                    }
+              //  }*/
+              
+            
+              i++;
+                    //console.table(points);
                     
-                    console.log(feature.properties);
                     layer.bindPopup('<p>DB: ' + feature.properties.db + '\n QoS: '+feature.properties.qos +'\n Cluster: '+ feature.properties.cluster +'</p>');
                    
-                        //console.log(icon2);
+                    
                 
                 }
+              
             });
             markerlayer.clearLayers();
             heatmaplayer.clearLayers();
@@ -419,10 +483,42 @@ function showSpatialNoiseCluster(num) {
             spatialnoiselayer.addLayer(marker);
             
             map.addLayer(spatialnoiselayer);
+            
+            console.log($('#list').length);
+            optionsOrdering();
         }
     });
 };
+//---------------------------OPTION ORDERING---------------------------------------------------------
+function optionsOrdering(){
+var options = $("#list option");                    // Collect options 
+    console.log(options)        
+options.detach().sort(function(a,b) {               // Detach from select, then Sort
+    var at = $(a).text();
+   // console.log(at);
+    var bt = $(b).text();   
+   // console.log(bt)      
+    return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
+});
+options.appendTo("#list"); 
+console.log( $('#list > option'));
+}
 
+//---------------------------OPTION RESET-------------------------
+function optionsReset(){
+    /*var length = $('#list > option').length;
+console.log(length);
+for(i=0;i<length;i++){
+    var x = document.getElementById("#list");
+  console.log($('#list > option'));
+*/
+$('#list')
+    .find('option')
+    .remove()
+    .end()
+
+
+}
 //---------------------------SPARIAL CLUSTERING-------------------------------------------------------------
    // Show clustering clicking in sidebar showclusters section
 function showClusters(mapZoom) {
@@ -452,10 +548,10 @@ function showClusters(mapZoom) {
             kmeans = parseInt(mapZoom)
             for (let i = 0; i < kmeans; i++) {
                 
-            console.log(data.clusters[i].properties.cluster);
+                
             
             if(document.getElementById("colorizeCluster").checked==false){
-                console.log("normale");
+                
                 var geojsonPolygonOptions = {
                     fillColor: getColor(data.clusters[i].properties.db),
                     weight: 4,
@@ -466,7 +562,7 @@ function showClusters(mapZoom) {
                     
                 };
             }else{
-                console.log("non colorato")
+                
                 var geojsonPolygonOptions = {
                     fillColor: listColor[data.clusters[i].properties.cluster],
                     weight: 4,
@@ -491,7 +587,7 @@ function showClusters(mapZoom) {
                 
                 
                 if(document.getElementById("colorizeCluster").checked==false){
-                    console.log("normale");
+
                     var geojsonMarkerOptions = {
                         fillColor: getColor(data.clusters[i].properties.db),
                         color: "#000",
@@ -500,8 +596,8 @@ function showClusters(mapZoom) {
                         fillOpacity: 0.8
                     };
                 }else{
-                    console.log("non colorato")
 
+                    
                     var geojsonMarkerOptions = {
                         fillColor: listColor[data.clusters[i].properties.cluster],
                         color: "#000",
@@ -515,7 +611,8 @@ function showClusters(mapZoom) {
                 var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
                
                 if(document.getElementById("colorizeCluster").checked==false){
-                    console.log("normale");
+
+                    
 
                     polygon.on('mouseover', function () {
                         this.setStyle({
@@ -530,7 +627,7 @@ function showClusters(mapZoom) {
 
                    
                 }else{
-                    console.log("non colorato")
+
                     polygon.on('mouseover', function () {
                         this.setStyle({
                             'fillColor': LightenDarkenColor(listColor[data.clusters[i].properties.cluster], -40)
@@ -567,8 +664,8 @@ function showClusters(mapZoom) {
                     })
                 });
             }
-                console.log(icon);
-                centroidlayer.addLayer(icon);
+
+            centroidlayer.addLayer(icon);
 
                 //Both layers from centroids and cluster geometries
                 clusterlayer.addLayer(polygon); //
@@ -585,9 +682,9 @@ function showClusters(mapZoom) {
 
                     
                 if(document.getElementById("colorizeCluster").checked==false){
-                    console.log("normale");
 
-                   console.log(data.locations[j].properties.cluster);
+                    
+
                     var geojsonVertexOptions = {
                         radius: 3,
                         fillColor: getColor(data.locations[j].properties.db),
@@ -597,7 +694,7 @@ function showClusters(mapZoom) {
                         fillOpacity: 0.8
                     };
                 }else{
-                    console.log(data.locations[j].properties.cluster," E ",data.clusters[i].properties.cluster)
+
                     //if((data.locations[j].properties.cluster==data.clusters[i].properties.cluster)){
                     var geojsonVertexOptions = {
                         radius: 3,
@@ -644,8 +741,8 @@ map.removeLayer(clusterlayer);
             map.addLayer(centroidlayer);
           break;
         case (cls === true && vtx === true && cnt === false) ://TTF
-        console.log("cluster e sopra vertex")
-            map.addLayer(clusterlayer);
+
+        map.addLayer(clusterlayer);
             map.addLayer(vertexlayer);
           break;
         case (cls === true && vtx === false && cnt === true) ://TFT
@@ -722,10 +819,11 @@ geoJson2heat = function (geojson) {
     });
 }
 
+
 // colorize marker ------------------------------------------------------------------------------------------------------
 $('#colorizeMarker').change(function () {
     showMarkers();
-    console.log(latlngPredicted)
+
     
     var boolPrediction=document.getElementById("switchPrediction").checked;
     if(latlngPredicted!=undefined && boolPrediction==true){
@@ -733,10 +831,13 @@ $('#colorizeMarker').change(function () {
     }
 });
 
-
+$('#list').change(function () {
+    
+    console.log($(this).val())
+});
 $('#colorizeMarker').change(function () {
     showMarkers();
-    console.log(latlngPredicted)
+
     
     var boolPrediction=document.getElementById("switchPrediction").checked;
     if(latlngPredicted!=undefined && boolPrediction==true){
@@ -771,8 +872,8 @@ map.on('click', function(e) {
     if(boolPrediction==true){
         showPredictedMarker(e);
          latlngPredicted=e;
-        console.log(latlngPredicted)
-        latPredicted=e.latlng.lat;
+
+         latPredicted=e.latlng.lat;
         lngPredicted=e.latlng.lng;
     }
 });
@@ -781,13 +882,13 @@ map.on('click', function(e) {
 var blurSlider = document.getElementById("blur");
 
 blurSlider.oninput = function () {
-    console.log(blurSlider);
+
     heatMap.setOptions({
         blur: parseInt(this.value)
     });
     // render the new options
     heatMap.redraw();
-    console.log($("#blur").val());
+
 }
 
 //Slider for radius of heatmap----------------------------------------------------------
@@ -803,7 +904,7 @@ radiusSlider.oninput = function () {
 // Slider for k setting for k-means clustering-----------------------------------------------
 var clusterSlider = document.getElementById("cluster");
 clusterSlider.oninput = function () {
-    console.log(this.value);
+
     if($('#clusterOption').val()=="spatial"){
     showClusters(this.value);
     }else {
@@ -847,7 +948,7 @@ function LightenDarkenColor(col, amt) {
 
 
 function getColorArray() {
-    console.log($('#cluster').value);
+
     var colorArray=[];
     for (var i = 1; i < 18; i++) {
      
@@ -912,10 +1013,10 @@ function getColorArray() {
     }
     
     colorArray.push(color);
-    console.log(color)
-    }
-    console.log(colorArray);
-    return colorArray;
+
+}
+
+return colorArray;
   }
 
 
