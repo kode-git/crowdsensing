@@ -18,7 +18,7 @@
 
     <style type="text/css">
     #map {
-		height: 600px;
+		height: 800px;
     }
 	.switch {
   position: relative;
@@ -221,10 +221,11 @@ select option:hover {
 					<h4 id="clusterFilter">Show Cluestering</h4>
 
 					<ul id="clusterSetting" class="cd-filter-content cd-filters list">
+						
+					<div class="cd-filter-content">
 						<li>
 							<p><h3>-SET K-MEANS:</h3></p>	
 							</li>	
-					<div class="cd-filter-content">
 						<li>
 						
 							<label ><p style="font-size: 1.3rem;">K-means:</p></label>
@@ -251,8 +252,7 @@ select option:hover {
 						  </select>
 					</li>
 					</div> <!-- cd-filter-content -->
-						</li>
-						<li>
+						
 						<li>
 						<p><h3>-CLUSERING METHOD:</h3></p>
 						</li>
@@ -261,12 +261,12 @@ select option:hover {
 							<option value="spatial">Spatial Clustering</option>
 							<option value="spatialnoise">Spatial-Noise Clustering</option>
 						</select>
-					</li>
-
-						<li>
-						<p><h3>-SETTINGS:</h3></p>
 						</li>
-
+						<div id="settings" >
+						<li>
+						<p><h3 >SETTINGS:</h3></p>
+						</li>
+						
 						<li> 
 							<input class="filter" data-filter=".check3" type="checkbox" name="vertexlayer" id="mrk"  checked onchange="checkboxCluster(this)"> 
 							<label class="checkbox-label" for="mrk">Marker</label>
@@ -282,34 +282,30 @@ select option:hover {
 							<label class="checkbox-label" for="cnt">Centroids</label>
 		
 						</li>
+					
 						<li>
-							<p><h3>-COLORING:</h3></p>
+							<p id="coloring1"><h3 id="coloring">-COLORING:</h3></p>
 							</li>
 							<li>
 							<label class="switch">
 								<input id="colorizeCluster" type="checkbox">
 								<span class="slider round"></span>
 							  </label>
-							  <label>Colorize</label>
+							  <label id="colorizelabel">Colorize</label>
 							</li>
-							<li>
-							  <p><h3>-NOISE FILTER:</h3></p>
-							</li>
+						</div>
 						
-							<li>
+						<div id="listsettings">
+							<li >
+							  <p><h3 id="noisefilter" >-NOISE FILTER:</h3></p>
+							</li>
+							<li >
 								<select id="list">
 									
 							<option value="20"> All</option>
 								</select>
 							</li>
-
-							<li>
-
-							</li>
-							<li>
-								<label ><p style="font-size: 1.3rem;">Marker size:</p></label>
-								<input style="height: 10px; width: 50%;" type="range" min="1" max="50" value="4" step="0.1" class="slider2" id="markersize">
-									</li>
+						</div>
 							
 					</ul> <!-- cd-filter-content -->
 				</div> <!-- cd-filter-block -->
@@ -326,7 +322,7 @@ select option:hover {
 								</li>
 								<li>
 								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
-								<input  style="height: 10px; width: 50%;" type="range" min="1" max="9" value="3" step="0.1" class="slider2" id="radius" >
+								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="25" step="0.1" class="slider2" id="radius" >
 								</li>
 								<li>
 									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>
@@ -347,6 +343,7 @@ select option:hover {
 	</main> <!-- cd-main-content -->
 <script src="/static/template/js2/jquery-2.1.1.js"></script>
 <script src='/static/js/index.js'></script>
+<script src="/static/js/leaflet-heat.js"></script>
 <script src="/static/template/js2/jquery.mixitup.min.js"></script>
 <script src="/static/template/js2/main.js"></script> <!-- Resource jQuery -->
 </body>
