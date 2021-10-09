@@ -1,9 +1,29 @@
 var map = L.map('map',{zoomSnap: 0.25,
     zoomDelta: 0.5,minZoom:5}).setView([44.494960715733576, 11.344000549862148], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+    var normal1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
+    var normal = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
+    var jawg_light=L.tileLayer('https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token={accessToken}', {
+        attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        minZoom: 0,
+        maxZoom: 22,
+        //subdomains: 'abcd',
+        accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
+    
+    })
+    var jawg_dark = L.tileLayer('https://{s}.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token={accessToken}', {
+        attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        minZoom: 0,
+        maxZoom: 22,
+        accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
+    })
+
+   normal1.addTo(map);
+
 
 
 $(".leaflet-control-zoom").css("visibility", "hidden");
@@ -32,7 +52,7 @@ let marker;
 let heat;
 const heatmaplayer = new L.layerGroup();
 const markerlayer = new L.layerGroup();
-markerLayers = [];
+markerLayer = [];
 const clusterlayer = new L.layerGroup();
 clusterLayers = [];
 const vertexlayer = new L.layerGroup();
@@ -306,41 +326,139 @@ function showHeatmap() {
         
         success: function (data) {
 
-            var mapZoom= map.getZoom();
+            var currentZoom= map.getZoom();
             var geoData = geoJson2heat(data, 1);
-            heatMap = new L.heatLayer(geoData);
+           // heatMap = new L.heatLayer(geoData,{max:1});
             console.log(heatMap)
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             markerlayer.clearLayers();
+            
+    heatmaplayer.clearLayers();
             centroidlayer.clearLayers();
-            heatmaplayer.clearLayers();
             predictedlayer.clearLayers();
             map.removeLayer(spatialnoiselayer);
-            /*
-             if(mapZoom==12){
-                 heatMap = new L.heatLayer(geoData, {max: 1.5});
-            }else if(mapZoom==13){
-                 heatMap = new L.heatLayer(geoData, {max: 2.5});
-            }else if(mapZoom==14){
-                 heatMap = new L.heatLayer(geoData, {max: 5});
-            }else if(mapZoom==15){
-                heatMap = new L.heatLayer(geoData, {max: 10});
-            }else if(mapZoom==16){
-                heatMap = new L.heatLayer(geoData, {max: 20});
-            }else if(mapZoom==17){
-                heatMap = new L.heatLayer(geoData, {max: 40});
-            }else if(mapZoom==18){
-                heatMap = new L.heatLayer(geoData, {max: 80});
+         
+            console.log(currentZoom);
+            if(map.hasLayer(normal)==true){
+            if(currentZoom<=11){
+                heatMap = new L.heatLayer(geoData, {max: (2/16.6)});
+            }else if(currentZoom==12){
+                
+                 heatMap = new L.heatLayer(geoData, {max: (1.5/16.6)});
+            }else if(currentZoom==13){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: (2.5/16.6)});
+            }else if(currentZoom==14){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: (5/16.6)});
+            }else if(currentZoom==15){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (10/16.6)});
+            }else if(currentZoom==16){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (20/16.6)});
+            }else if(currentZoom==17){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (40/16.6)});
+            }else if(currentZoom==18){
+                
+                heatMap = new L.heatLayer(geoData, {radius:radius,max: (80/16.6)});
+                
+            
             }
-        */
+        } else if(map.hasLayer(jawg_light)==true){
+
+            console.log(map.hasLayer(normal))
+           // heatMap = new L.heatLayer(geoData,{max:(2.5/16.6)});
+         //-----------------------------------------------
+            if(currentZoom<=11){
+                heatMap = new L.heatLayer(geoData, {max: (2/16.6)});
+            }else if(currentZoom==12){
+                
+                 heatMap = new L.heatLayer(geoData, {max: (1.5/16.6)});
+            }else if(currentZoom==13){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: (2.5/16.6)});
+            }else if(currentZoom==14){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: (5/16.6)});
+            }else if(currentZoom==15){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (10/16.6)});
+            }else if(currentZoom==16){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (20/16.6)});
+            }else if(currentZoom==17){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: (40/16.6)});
+            }else if(currentZoom==18){
+                
+                heatMap = new L.heatLayer(geoData, {radius:radius,max: (80/16.6)});
+                
+            
+            }
+            
+            //---------------------------------------------
+            
+        } else{
+
+            console.log(map.hasLayer(normal))
+            if(currentZoom<=11){
+                heatMap = new L.heatLayer(geoData, {max: 2});
+            }else if(currentZoom==12){
+                
+                 heatMap = new L.heatLayer(geoData, {max: 1.5});
+            }else if(currentZoom==13){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: 2.5});
+            }else if(currentZoom==14){
+                
+            map.removeLayer(spatialnoiselayer);
+                 heatMap = new L.heatLayer(geoData, {max: 5});
+            }else if(currentZoom==15){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: 10});
+            }else if(currentZoom==16){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: 20});
+            }else if(currentZoom==17){
+                
+            map.removeLayer(spatialnoiselayer);
+                heatMap = new L.heatLayer(geoData, {max: 40});
+            }else if(currentZoom==18){
+                
+                heatMap = new L.heatLayer(geoData, {radius:radius,max: 80});
+                
+            map.removeLayer(spatialnoiselayer);
+            }
+
+
+
+        }
+        
+            map.removeLayer(spatialnoiselayer);
+        heatmaplayer.addLayer(heatMap);
+        
             heatMap.setOptions({
-                blur: parseInt($("#blur").val()),
-                radius: parseInt($("#radius").val())
+               blur: parseInt($("#blur").val()),
+               radius: parseInt($("#radius").val())
             });
             // render the new options
 
-            heatmaplayer.addLayer(heatMap);
             
             map.addLayer(heatmaplayer);
 
@@ -479,14 +597,15 @@ function showSpatialNoiseCluster(num) {
     });
     lastSpatialNoiseCluster=num;
 }else{
-    /*
-    markerlayer.clearLayers();
+    
     heatmaplayer.clearLayers();
     clusterlayer.clearLayers();
     vertexlayer.clearLayers();
     centroidlayer.clearLayers();
-    predictedlayer.clearLayers();
-    */
+    markerlayer.clearLayers();
+    
+   $('#list option[value=20]').attr('selected','selected');
+
     map.addLayer(spatialnoiselayer);
 }
 };
@@ -504,19 +623,21 @@ function showSpatialNoiseClusterFilter(n) {
     console.log("------------------------------------------")
     map.removeLayer(spatialnoiselayer);
 
-    console.log('spatialnoise')
     var optionSelected = $("option:selected", this);
     var valueSelected = this.value;
-    console.log(optionSelected)
 
     //map.addLayer(spatialnoiselayer);
-console.log(data);
             var listColor=getColorArray();        
            //
            
           // var markerCluster;
+          
+    console.log("------------------------------------------")
+    console.log(data.features.length)
+    console.log("------------------------------------------")
+
            console.log(data.features[1].geometry.coordinates)
-           for(i=0;i<180;i++){
+           for(i=0;i<data.features.length;i++){
             
                if(data.features[i].properties.cluster==n){
                 var geojsonColorizeOptions={
@@ -527,17 +648,14 @@ console.log(data);
                     opacity: 1,
                     fillOpacity: 0.8
             }
-                   console.log("---------------------------------------------------------------------")
-                   console.log("DB DEI DATI: ",data.features[i].properties.cluster)
-                   console.log("N CLUSTER: ",data.features[i].geometry.coordinates)
              markerCluster = L.circleMarker([data.features[i].geometry.coordinates[1],data.features[i].geometry.coordinates[0]], geojsonColorizeOptions);//.bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
              // map.addLayer(markerC);
             markerC.addLayer(markerCluster);
             map.addLayer(markerC);
         }else{
             
-            console.log(data.features[i].properties.cluster)
-           // var marker = L.marker([51.5, -0.09])
+
+            // var marker = L.marker([51.5, -0.09])
            // markerC.addLayer(marker);
            // map.addLayer(markerC);
         }
@@ -563,7 +681,6 @@ function optionsOrdering(){
         
     }));
 var options = $("#list option");                    // Collect options 
-    console.log(options)        
 options.detach().sort(function(a,b) {               // Detach from select, then Sort
     var at = $(a).text();
    // console.log(at);
@@ -575,7 +692,6 @@ options.appendTo("#list");
 
 $('#list option[value=20]').attr('selected','selected');
 
-console.log( $('#list > option'));
 }
 
 //---------------------------OPTION RESET-------------------------
@@ -895,7 +1011,7 @@ geoJson2heat = function (geojson) {
     return geojson.features.map(function (feature) {
         var db=parseFloat(feature.properties.db/100).toFixed(1);
     console.log(db);
-        return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]), db];
+        return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]), feature.properties.db];
     });
 }
 
@@ -1132,28 +1248,38 @@ $('#resetFilter').on('click', function () {
 
 // TODO
 // Temporal Radio Buttons
-/*
+
 $('input[type="radio"]').on('click', function () {
     var value = $(this).val();
-    
+    console.log(value);
     var name = $(this).attr('value');
     if (value == 'mapnik') {
-        L.tileLayer('https://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+     
+    normal=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
     } else if (value == 'thunder') {
-        var Thunderforest_Transport = L.tileLayer('https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey={apikey}', {
-            attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            apikey: '4d975f2a48924ef0beda223fc08d16ef',
-            maxZoom: 22
-        }).addTo(map);
+        map.removeLayer(normal);
+        jawg_light = L.tileLayer('https://{s}.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token={accessToken}', {
+	attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	minZoom: 0,
+	maxZoom: 22,
+    accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
+}).addTo(map);
+console.log(map.hasLayer(jawg_dark));
+
     } else if (value == 'stadia') {
-        var Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            r: 'f7bbae07-5f38-4731-92c2-3f977975be0a',
-            attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      jawg_dark= L.tileLayer('https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token={accessToken}', {
+            attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            minZoom: 0,
+            maxZoom: 22,
+            //subdomains: 'abcd',
+            accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
+        
         }).addTo(map);
+           
+console.log(map.hasLayer(jawg_dark));
+        
         
     }
-});*/
+});

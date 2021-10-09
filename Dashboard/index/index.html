@@ -224,12 +224,22 @@ select option:hover {
 						
 					<div class="cd-filter-content">
 						<li>
+							<p><h3>-CLUSERING METHOD:</h3></p>
+							</li>
+							<li>
+							<select id="clusterOption">
+								<option value="spatial">Spatial Clustering</option>
+								<option value="spatialnoise">Spatial-Noise Clustering</option>
+							</select>
+							</li>
+						</li>	
+						<li>
 							<p><h3>-SET K-MEANS:</h3></p>	
 							</li>	
 						<li>
 						
 							<label ><p style="font-size: 1.3rem;">K-means:</p></label>
-						<select  id="cluster" class="form-select" aria-label="Default select example">
+							<select  id="cluster" class="form-select" aria-label="Default select example">
 							<option  selected value="1">1</option>
 							<option value="2">2</option>
 							<option value="3">3</option>
@@ -250,18 +260,15 @@ select option:hover {
 							<option value="18">18</option>
 
 						  </select>
-					</li>
+						</li>
 					</div> <!-- cd-filter-content -->
 						
-						<li>
-						<p><h3>-CLUSERING METHOD:</h3></p>
-						</li>
-						<li>
-						<select id="clusterOption">
-							<option value="spatial">Spatial Clustering</option>
-							<option value="spatialnoise">Spatial-Noise Clustering</option>
-						</select>
-						</li>
+						
+
+
+
+
+						
 						<div id="settings" >
 						<li>
 						<p><h3 >SETTINGS:</h3></p>
@@ -322,7 +329,7 @@ select option:hover {
 								</li>
 								<li>
 								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
-								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="25" step="0.1" class="slider2" id="radius" >
+								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="19" step="0.1" class="slider2" id="radius" >
 								</li>
 								<li>
 									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>
@@ -332,6 +339,27 @@ select option:hover {
 					
 				</div> <!-- cd-filter-block -->
 				
+				<div>
+					<li>
+					<h4 id="heatmapFilter">Show Heatmap</h4>
+				</li>
+				<li>
+					<input type="radio" id="contactChoice"
+					name="contact" value="mapnik">
+				   <label for="contactChoice3">mappa 1</label>
+				</li>
+				<li>
+				   <input type="radio" id="contactChoice"
+					name="contact" value="thunder">
+				   <label for="contactChoice3">mappa 2</label>
+				</li>
+				<li>
+				   <input type="radio" id="contactChoice"
+					name="contact" value="stadia">
+				   <label for="contactChoice3">mappa 3</label>
+				</li>
+
+				</div>
 
 			<a href="#0" class="cd-close">Close</a>
 			<div id="loading" class="loader"></div>
@@ -343,7 +371,7 @@ select option:hover {
 	</main> <!-- cd-main-content -->
 <script src="/static/template/js2/jquery-2.1.1.js"></script>
 <script src='/static/js/index.js'></script>
-<script src="/static/js/leaflet-heat.js"></script>
+<script src="/static/js/leafletHeat.js"></script>
 <script src="/static/template/js2/jquery.mixitup.min.js"></script>
 <script src="/static/template/js2/main.js"></script> <!-- Resource jQuery -->
 </body>
