@@ -19,7 +19,7 @@ k = int(sys.argv[1])
 input_data = gpd.GeoDataFrame()
 input_data['long'] = data['coordinates'].y
 input_data['lat'] = data['coordinates'].x
-input_data['db'] = data['db']
+input_data['db'] = data['db']/1000
 kmeans = KMeans(n_clusters=k, random_state=520, n_init=40, max_iter=300).fit(input_data)
 arr = np.array(kmeans.predict(input_data))
 clusters = []

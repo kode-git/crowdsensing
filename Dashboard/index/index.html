@@ -201,7 +201,12 @@ select option:hover {
 							<li>
 								<input class="filter" data-filter=".check3" type="checkbox" name="colorizeMarker" id="colorizeMarker"   />
 								
-								<label class="checkbox-label" for="checkbox3">Colorize</label>
+								<label class="checkbox-label" for="checkbox3" style= "
+								position: relative;
+								margin-bottom: 1.1em;
+								padding: 10px 1 10px 20px;
+								font-size: 1.3rem;
+							  ">Colorize</label>
 			
 							</li>
 							<li>
@@ -209,7 +214,12 @@ select option:hover {
 									<input id="switchPrediction" type="checkbox">
 									<span class="slider round"></span>
 								  </label>
-								  <label>Prediction</label>
+								  <label style= "
+								  position: relative;
+								  margin-bottom: 1.1em;
+								  padding: 10px 1 10px 20px;
+								  font-size: 1.3rem;
+								">Prediction</label>
 			
 							</li>
 					</li>
@@ -224,7 +234,8 @@ select option:hover {
 						
 					<div class="cd-filter-content">
 						<li>
-							<p><h3>-CLUSERING METHOD:</h3></p>
+							<li>
+							<p><h3><b>CLUSERING METHOD:</b></h3></p>
 							</li>
 							<li>
 							<select id="clusterOption">
@@ -234,8 +245,9 @@ select option:hover {
 							</li>
 						</li>	
 						<li>
-							<p><h3>-SET K-MEANS:</h3></p>	
-							</li>	
+						<li>
+							<p><h3>SET K-MEANS:</h3></p>	
+						</li>	
 						<li>
 						
 							<label ><p style="font-size: 1.3rem;">K-means:</p></label>
@@ -261,6 +273,7 @@ select option:hover {
 
 						  </select>
 						</li>
+					</li>
 					</div> <!-- cd-filter-content -->
 						
 						
@@ -270,6 +283,7 @@ select option:hover {
 
 						
 						<div id="settings" >
+							<li>
 						<li>
 						<p><h3 >SETTINGS:</h3></p>
 						</li>
@@ -291,20 +305,27 @@ select option:hover {
 						</li>
 					
 						<li>
-							<p id="coloring1"><h3 id="coloring">-COLORING:</h3></p>
+							<p id="coloring1"><h3 id="coloring">COLORING:</h3></p>
 							</li>
 							<li>
 							<label class="switch">
 								<input id="colorizeCluster" type="checkbox">
 								<span class="slider round"></span>
 							  </label>
-							  <label id="colorizelabel">Colorize</label>
+							  <label id="colorizelabel" style= "
+							  position: relative;
+							  margin-bottom: 1.7em;
+							  padding: 10px 1 10px 20px;
+							  font-size: 1.4rem;
+							">Colorize</label>
+							</li>
 							</li>
 						</div>
 						
 						<div id="listsettings">
+						<li>	
 							<li >
-							  <p><h3 id="noisefilter" >-NOISE FILTER:</h3></p>
+							  <p><h3 id="noisefilter" >NOISE FILTER:</h3></p>
 							</li>
 							<li >
 								<select id="list">
@@ -312,6 +333,7 @@ select option:hover {
 							<option value="20"> All</option>
 								</select>
 							</li>
+						</li>
 						</div>
 							
 					</ul> <!-- cd-filter-content -->
@@ -323,13 +345,13 @@ select option:hover {
 					
 					<div  id="heatmapSetting" class="cd-filter-content cd-filters list">
 						   <ul>
-							<li>
+								<li>
 								<label ><p style="font-size: 1.3rem;">Blur:</p></label>
 								<input style="height: 10px; width: 50%;" type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
 								</li>
 								<li>
 								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
-								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="19" step="0.1" class="slider2" id="radius" >
+								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="14" step="0.1" class="slider2" id="radius" >
 								</li>
 								<li>
 									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>
@@ -340,25 +362,50 @@ select option:hover {
 				</div> <!-- cd-filter-block -->
 				
 				<div>
-					<li>
-					<h4 id="heatmapFilter">Show Heatmap</h4>
+					<h4 id="heatmapFilter" style= "
+						position: relative;
+						margin-bottom: 1.7em;
+						padding: 10px 1 10px 20px;
+						color: #105B70;
+						text-transform: uppercase;
+						font-size: 1.7rem;
+						font-weight: bold;
+					  ">MAP STYLE</h4>
+					<ul>
+				<li style="margin-botton: 1.0em">
+					<input type="radio" id="contactChoice" 
+					name="contact" value="mapnik" checked>
+				   <label for="contactChoice3" style= "
+				   position: relative;
+				   margin-bottom: 1.7em;
+				   padding: 10px 1 10px 20px;
+				   font-size: 1.3rem;
+				   font-weight: bold;
+				 ">Default Map</label>
 				</li>
-				<li>
-					<input type="radio" id="contactChoice"
-					name="contact" value="mapnik">
-				   <label for="contactChoice3">mappa 1</label>
-				</li>
-				<li>
-				   <input type="radio" id="contactChoice"
+				<li style="margin-botton: 1.0em">
+				   <input type="radio" id="contactChoice" style="margin-botton: 1.0em"
 					name="contact" value="thunder">
-				   <label for="contactChoice3">mappa 2</label>
+				   <label for="contactChoice3" style= "
+				   position: relative;
+				   margin-bottom: 1.7em;
+				   padding: 10px 1 10px 20px;
+				   font-size: 1.3rem;
+				   font-weight: bold;
+				 ">White Map</label>
 				</li>
-				<li>
-				   <input type="radio" id="contactChoice"
+				<li style="margin-botton: 1.0em">
+				   <input type="radio" id="contactChoice" style="margin-botton: 1.0em"
 					name="contact" value="stadia">
-				   <label for="contactChoice3">mappa 3</label>
+				   <label for="contactChoice3" style= "
+				   position: relative;
+				   margin-bottom: 1.7em;
+				   padding: 10px 1 10px 20px;
+				   font-size: 1.3rem;
+				   font-weight: bold;
+				 ">Dark Map</label>
 				</li>
-
+			</ul> 
 				</div>
 
 			<a href="#0" class="cd-close">Close</a>

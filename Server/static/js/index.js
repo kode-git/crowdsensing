@@ -103,15 +103,16 @@ var heatMap = 0;
             predictedlayer.clearLayers();
                 } else{
                     if($("#clusterOption").val()=='spatial'){
-                        console.log("entrato");
                         showClusters($("#cluster").val());
                         
 
                     }  else if($("#clusterOption").val()=='spatialnoise'){
-                        console.log("entrato spatial");
 
+
+                        
                         showSpatialNoiseCluster($("#cluster").val());
-                    }else{console.log("NELL ELSE")}
+
+                    }else{}
                 }
             $(this).toggleClass('closed').siblings('#clusterSetting').slideToggle(300);
             if( $('#markerFilter').hasClass('closed')==false){
@@ -186,7 +187,13 @@ var heatMap = 0;
                     'width': '200',
                     'className' : 'popupCustom'
                     }
-                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+'<br>  <span>QoS: </span> '+ feature.properties.qos+'<br>  <span>Privacy: </span> '+ feature.properties.privacy+'<br>';
+                    console.log(feature.properties.qos);
+                    console.log();
+                    var qos=mapBetween(feature.properties.qos,0,100,0,12).toFixed(0);
+                    
+                    var prv=mapBetween(feature.properties.privacy,0,100,0,12).toFixed(0);
+                    console.log("-----------------------------------")
+                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+' db<br>  <span>QoS: </span> '+ qos+'%<br>  <span>Privacy: </span> '+ prv+'%<br>';
                    layer.bindPopup(customPopup,customOptions);
                 }
              
@@ -205,6 +212,9 @@ var heatMap = 0;
         }
     });
 };
+function mapBetween(currentNum, minAllowed, maxAllowed, min, max) {
+    return (maxAllowed - minAllowed) * (currentNum- min) / (max - min) + minAllowed;
+  }
 
 //--------------------------- PREDICTED MARKER-------------------------------------------------------------
    // Show predicted marker 
@@ -318,7 +328,9 @@ map.on("zoomend", function (e) {
 ]).addTo(map);
 
 function showHeatmap() {
-    
+    markerC.clearLayers();
+    map.removeLayer(spatialnoiselayer);
+    heatmaplayer.clearLayers();
     $.ajax({
         url: "/getLocations",
         type: "POST",
@@ -329,17 +341,14 @@ function showHeatmap() {
             var currentZoom= map.getZoom();
             var geoData = geoJson2heat(data, 1);
            // heatMap = new L.heatLayer(geoData,{max:1});
-            console.log(heatMap)
             clusterlayer.clearLayers();
             vertexlayer.clearLayers();
             markerlayer.clearLayers();
             
-    heatmaplayer.clearLayers();
             centroidlayer.clearLayers();
             predictedlayer.clearLayers();
             map.removeLayer(spatialnoiselayer);
          
-            console.log(currentZoom);
             if(map.hasLayer(normal)==true){
             if(currentZoom<=11){
                 heatMap = new L.heatLayer(geoData, {max: (2/16.6)});
@@ -374,7 +383,6 @@ function showHeatmap() {
             }
         } else if(map.hasLayer(jawg_light)==true){
 
-            console.log(map.hasLayer(normal))
            // heatMap = new L.heatLayer(geoData,{max:(2.5/16.6)});
          //-----------------------------------------------
             if(currentZoom<=11){
@@ -412,8 +420,6 @@ function showHeatmap() {
             //---------------------------------------------
             
         } else{
-
-            console.log(map.hasLayer(normal))
             if(currentZoom<=11){
                 heatMap = new L.heatLayer(geoData, {max: 2});
             }else if(currentZoom==12){
@@ -483,7 +489,6 @@ map.on('zoomend', function() {
 function clusterFilter(data,nCluster){
    // console.log(data.features.length)
    // console.log(data.features[0].properties.db)
-   console.log("spatialnoiseee")
    $('#settings').hide();
    $('#listsettings').show();
     var points=[]
@@ -518,7 +523,6 @@ var listColor=getColorArray();
     }));
     $("#list option[value="+nCluster+"]").css({"background-color":  listColor[ nCluster]});
     
-console.log("CLUSTER: ",nCluster," : ",Math.min(... points), '-',Math.max(... points) )
 
 }
 
@@ -591,7 +595,6 @@ function showSpatialNoiseCluster(num) {
             
             map.addLayer(spatialnoiselayer);
             
-            console.log($('#list').length);
             optionsOrdering();
         }
     });
@@ -608,6 +611,8 @@ function showSpatialNoiseCluster(num) {
 
     map.addLayer(spatialnoiselayer);
 }
+
+$('#list option[value=20]').attr('selected','selected');
 };
 
 //-----------------------------NOISE ON FILTER-------------------------------------------------------
@@ -615,15 +620,14 @@ function showSpatialNoiseCluster(num) {
 
 var markerCluster
 function showSpatialNoiseClusterFilter(n) {
-    
-   console.log(n);
-   
+       
     data=dataCluster;
     markerC.clearLayers();
-    console.log("------------------------------------------")
     map.removeLayer(spatialnoiselayer);
 
     var optionSelected = $("option:selected", this);
+    
+$('#list option[value=20]').attr('selected','selected');
     var valueSelected = this.value;
 
     //map.addLayer(spatialnoiselayer);
@@ -632,11 +636,7 @@ function showSpatialNoiseClusterFilter(n) {
            
           // var markerCluster;
           
-    console.log("------------------------------------------")
-    console.log(data.features.length)
-    console.log("------------------------------------------")
 
-           console.log(data.features[1].geometry.coordinates)
            for(i=0;i<data.features.length;i++){
             
                if(data.features[i].properties.cluster==n){
@@ -683,9 +683,7 @@ function optionsOrdering(){
 var options = $("#list option");                    // Collect options 
 options.detach().sort(function(a,b) {               // Detach from select, then Sort
     var at = $(a).text();
-   // console.log(at);
     var bt = $(b).text();   
-   // console.log(bt)      
     return (at > bt)?1:((at < bt)?-1:0);            // Tell the sort function how to order
 });
 options.appendTo("#list"); 
@@ -696,12 +694,6 @@ $('#list option[value=20]').attr('selected','selected');
 
 //---------------------------OPTION RESET-------------------------
 function optionsReset(){
-    /*var length = $('#list > option').length;
-console.log(length);
-for(i=0;i<length;i++){
-    var x = document.getElementById("#list");
-  console.log($('#list > option'));
-*/
 $('#list')
     .find('option')
     .remove()
@@ -801,7 +793,7 @@ function showClusters(mapZoom) {
 
                 }
                
-                var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db + ' </br> <p> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster </p>');
+                var polygon = L.polygon(data.clusters[i].geometry.coordinates, geojsonPolygonOptions).bindPopup('<span>Mean Noise:</span>' +data.clusters[i].properties.db.toFixed(1) + ' </br> <span> ' + data.clusters[i].geometry.coordinates.length + '</span> points belongs to this cluster');
                
                 if(document.getElementById("colorizeCluster").checked==false){
 
@@ -840,14 +832,14 @@ function showClusters(mapZoom) {
                 
                
                   var centroid;
-                  centroid= L.circleMarker(latlng,geojsonMarkerOptions).bindPopup('<h1>' + data.clusters[i].properties.db + 'db </h1>');
+                  centroid= L.circleMarker(latlng,geojsonMarkerOptions).bindPopup('<span>Noise: </span> ' + data.clusters[i].properties.db.toFixed(2) + ' db </h1>');
                 if(data.clusters[i].geometry.coordinates.length>=10){       
                 var icon = L.marker([lat,lng], {
                     icon: L.divIcon({
                         className: 'my-custom-icon',
                         html: data.clusters[i].geometry.coordinates.length
                     })
-                });
+                }).bindPopup('<span>Noise: </span> ' + data.clusters[i].properties.db.toFixed(2) + ' db ');
             }
             else{
                 var icon = L.marker([lat,lng], {
@@ -855,7 +847,7 @@ function showClusters(mapZoom) {
                         className: 'my-custom-icon2',
                         html: data.clusters[i].geometry.coordinates.length
                     })
-                });
+                }).bindPopup('<span>Noise: </span> <h1>' + data.clusters[i].properties.db.toFixed(2) + ' db </h1>');
             }
 
             centroidlayer.addLayer(icon);
@@ -904,7 +896,7 @@ function showClusters(mapZoom) {
 
 
                     
-                    var vertex = L.circleMarker(latlng, geojsonVertexOptions).bindPopup('<h1>' + data.locations[j].properties.db + 'db </h1>');
+                    var vertex = L.circleMarker(latlng, geojsonVertexOptions).bindPopup('<h1> <span>Noise: </span>' + data.locations[j].properties.db + ' db </h1>');
                     
                     vertexlayer.addLayer(vertex);
                     
@@ -1009,8 +1001,6 @@ function getColorHover(value){
 geoJson2heat = function (geojson) {
     
     return geojson.features.map(function (feature) {
-        var db=parseFloat(feature.properties.db/100).toFixed(1);
-    console.log(db);
         return [parseFloat(feature.geometry.coordinates[1]), parseFloat(feature.geometry.coordinates[0]), feature.properties.db];
     });
 }
@@ -1029,15 +1019,12 @@ $('#colorizeMarker').change(function () {
 
 $('#list').change(function () {
     
-    console.log($(this).val())
     if($(this).val()==20){
-        console.log("entrato")
         map.addLayer(spatialnoiselayer);
     }else{
     showSpatialNoiseClusterFilter($(this).val())
     }
     //showHeatmap();
-    console.log($(this).val())
 });
 
 
@@ -1063,10 +1050,8 @@ $('#clusterOption').on('change', function (e) {
     var optionSelected = $("option:selected", this);
     var valueSelected = this.value;
     if(valueSelected=='spatial'){
-        console.log('spatial')
         showClusters($("#cluster").val());
     }  else if(valueSelected=='spatialnoise'){
-        console.log('spatialnoise')
         $('coloring').hide();
         $('coloring1').hide();
         $('noisefilter').hide();
@@ -1251,7 +1236,6 @@ $('#resetFilter').on('click', function () {
 
 $('input[type="radio"]').on('click', function () {
     var value = $(this).val();
-    console.log(value);
     var name = $(this).attr('value');
     if (value == 'mapnik') {
      
@@ -1266,7 +1250,6 @@ $('input[type="radio"]').on('click', function () {
 	maxZoom: 22,
     accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
 }).addTo(map);
-console.log(map.hasLayer(jawg_dark));
 
     } else if (value == 'stadia') {
       jawg_dark= L.tileLayer('https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token={accessToken}', {
@@ -1278,7 +1261,6 @@ console.log(map.hasLayer(jawg_dark));
         
         }).addTo(map);
            
-console.log(map.hasLayer(jawg_dark));
         
         
     }

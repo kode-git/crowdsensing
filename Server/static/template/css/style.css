@@ -467,7 +467,10 @@ xcustom form elements
   color: #471675;
   font-weight: 700;
   font-size: 1.3rem;
+  background-color: gainsboro;
 }
+
+
 
 .cd-filter-block h4 {
   /* filter block title */
