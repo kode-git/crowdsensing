@@ -17,22 +17,22 @@ engine = db.create_engine(
     "postgresql://postgres:blockchain@localhost:5432/csdb")
 con = engine.connect()
 # Read PostGIS database with Geopandas.
-sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=10000;".format(float(sys.argv[2]),float(sys.argv[1]))
+sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=500;".format(float(sys.argv[2]),float(sys.argv[1]))
 
 
 
 data = gpd.read_postgis(sql=sql, con=con, geom_col="coordinates")
 flag=False
 
-
+logger.error(len(data))
 #requering if the number of points are less than ten
-if(len(data)<10):
-    logger.error("less than ten points")
+if(len(data)<3):
+    logger.error("less than three points")
     #if the flag is false there are less than ten point for the query result
     flag=True
     sql = "select id,coordinates,db from loc_ref_points;"
     data = gpd.read_postgis(sql=sql, con=con, geom_col="coordinates")
-logger.error(len(data))
+    logger.error(len(data))
 
 
 #creating the pandas dataframe
