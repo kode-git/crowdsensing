@@ -4,10 +4,12 @@
  * @returns {*} the data with k and range defined in case of automatic location, data itself otherwise
  */
 
+const utils = require('utility')
 const opt = (data) =>{
     if(!data.properties.automatic){
         // it's not an automatic configuration, so we have already
         // parameters for k and range in data
+        data.properties.alpha = utils.calculateAlpha(data)
         return data
     }
     // it's an automatic point, we can catch the alpha and round it
@@ -24,6 +26,7 @@ const opt = (data) =>{
     if(k == undefined) k = 1
     data.properties.neighbour = k
     data.properties.range = range
+    data.properties.alpha = alpha
     return data
 
 

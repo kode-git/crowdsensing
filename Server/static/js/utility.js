@@ -20,7 +20,8 @@ const convertLocations = (results) => {
                 "id": row.id,
                 "db": row.db,
                 "qos" : row.qos,
-                "privacy" : row.privacy
+                "privacy" : row.privacy,
+                "alpha" : row.alpha
             },
             "geometry": {
                 "type": "Point",
@@ -219,6 +220,32 @@ const getIndex = (stack, data) =>{
     return -1
 }
 
+
+/**
+ * calculateAlpha(data) return the alpha from the k and range value
+ * @param data is the data input to calculate alpha
+ * @returns {number|any} is the alpha
+ */
+const calculateAlpha = (data) =>{
+    if(data.automatic == true){
+        return data.properties.alpha;
+    }
+
+    let range = data.properties.range;
+    let k = data.properties.k;
+    let limit = 0
+    if(range < 100) return 0.01;
+    if(k == 1) return 0;
+    else if(k == 2){
+        limit = 0.5
+    } else {
+        limit = 1
+    }
+    return limit * range / 3000
+}
+
+
+
 // module exports
 
 module.exports = {
@@ -227,7 +254,8 @@ module.exports = {
     convertClustersOnDb,
     populate,
     aggregate,
-    getIndex
+    getIndex,
+    calculateAlpha,
     //calculateMeanDB,
 }
 

@@ -18,25 +18,7 @@ and logarithmic summary for noise additions.
  */
 const makePoint = (data, stack) => {
     // load initial parameters
-
-    // neighbour is the number of k user used for k-anonymity
-    let k = data.properties.neighbour
-    // range is the range from point about stack locations considering for spatial cloaking
-    let range = data.properties.range
-    // current dB value of the location
-    let db = data.properties.db
-    // owner of the point, this is used only in the trusted server and not in database
-    let userId = data.properties.userId
-    // timestamp on when the point was sent to the trusted server
-    // we parsing it to the Unix Date to manage in Javascript
     let timestamp = Date.parse(data.properties.timestamp)
-    // time to rest in server stack
-    let minutesTime = data.properties.minutesTime
-    // coordinates of the point
-    let lat = data.geometry.coordinates[0]
-    let long = data.geometry.coordinates[1]
-
-
     // remove from stack elements with out-time
     stack = time(stack, timestamp)
     // consider only points in range, with different user_id and same or < k value
@@ -216,6 +198,7 @@ const spatialCloaking = (points) => {
                 db: 0,
                 QoS : 0,
                 privacy : 0,
+                alpha : 0.5,
                 }
              }
     var centroid = [0,0]
@@ -242,6 +225,7 @@ const spatialCloaking = (points) => {
     // define QoS and Privacy
     point.properties.QoS = makeQoS(points, point)
     point.properties.privacy = makePrivacy(points, point)
+    point.properties.alpha = makeAlpha(points)
     return point;
 }
 
@@ -345,11 +329,27 @@ const makeDirectPoint = (data) => {
             db: data.properties.db,
             QoS : 0,
             privacy : 0,
-
+            alpha : 0,
         }
     }
     // we don't need to manage stack, because the point avoid it
     return point
+
+}
+
+/**
+ * makeAlpha(points) calculate the centroid alpha based on the arithmetic mean of their values
+ * @param points
+ * @returns {number}
+ */
+const makeAlpha = (points) => {
+    let length = points.length;
+    let alpha = 0
+    for(let i = 0; i < length; i++){
+        alpha += points[i].properties.alpha
+    }
+    // TradeOff = Privacy * Alpha + QoS * (1 - Alpha)
+    return +((alpha / length).toFixed(2))
 
 }
 
