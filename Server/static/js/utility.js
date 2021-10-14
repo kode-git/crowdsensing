@@ -148,7 +148,13 @@ const populate = (pool, n) => {
         qos = Math.random() * 12.0
         privacy = Math.random() * 10
         long = Math.random() * (44.5226164783769 - 44.428249953517265) + 44.428249953517265;
-        lat = Math.random() * (11.42506902374428 - 11.280186829752083) + 11.280186829752083
+        lat = Math.random() * (11.42506902374428 - 11.280186829752083) + 11.280186829752083;
+        alpha = Math.random() 
+        
+        min = 0.00,
+        max = 1.00,
+        alpha = +(Math.random() * (max - min) + min).toFixed(2);
+        console.log(alpha)  
         pool.query('INSERT INTO public.loc_ref_points(db, coordinates, qos, privacy)VALUES ($1, ST_Point($2, $3), $4, $5);', [db, long, lat, qos, privacy], (error, results) => {
             if (error) {
                 throw error
@@ -157,6 +163,7 @@ const populate = (pool, n) => {
 
     }
 }
+
 
 /**
  * aggregate(data, stack) verify if in the stack there is an equivalent location passed by the same user
