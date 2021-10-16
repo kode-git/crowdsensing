@@ -25,7 +25,7 @@ var map = L.map('map',{zoomSnap: 0.25,
    normal1.addTo(map);
 
 
-
+   $('#hoverMap').hide();
 $(".leaflet-control-zoom").css("visibility", "hidden");
 $('.cd-filter-block h4').toggleClass('closed').siblings('.cd-filter-content').slideToggle(300);
 $("#colorizeMarker").removeClass().removeAttr('style');
@@ -178,7 +178,8 @@ var heatMap = 0;
                             fillOpacity: 0.8
                         };
                     }
-                   
+                    console.log(latlng);
+
                     return L.circleMarker(latlng, geojsonColorizeOptions);
                 }, onEachFeature: function (feature, layer) {
                     var customOptions =
@@ -187,13 +188,12 @@ var heatMap = 0;
                     'width': '200',
                     'className' : 'popupCustom'
                     }
-                    console.log(feature.properties.qos);
-                    console.log();
+                   // console.log(feature.properties.qos);
                     var qos=mapBetween(feature.properties.qos,0,100,0,12).toFixed(0);
                     
                     var prv=mapBetween(feature.properties.privacy,0,100,0,12).toFixed(0);
                     console.log("-----------------------------------")
-                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+' db<br>  <span>QoS: </span> '+ qos+'%<br>  <span>Privacy: </span> '+ prv+'%<br>';
+                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+' db<br>  <span>QoS: </span> '+ feature.properties.qos+'%<br>  <span>Privacy: </span> '+ feature.properties.privacy+'%<br>';
                    layer.bindPopup(customPopup,customOptions);
                 }
              
@@ -217,12 +217,13 @@ function mapBetween(currentNum, minAllowed, maxAllowed, min, max) {
   }
 
 //--------------------------- PREDICTED MARKER-------------------------------------------------------------
+$('#hoverMap').hide();
    // Show predicted marker 
 function showPredictedMarker(e) {
     load=1;
 
     if(load==1){
-        
+        $('#hoverMap').show();
         $('#loading').show(); 
     }
             predictedlayer.clearLayers();
@@ -260,7 +261,7 @@ function showPredictedMarker(e) {
          load=0;
               
          $('#loading').hide(); 
-
+         $('#hoverMap').hide();
     if(document.getElementById("colorizeMarker").checked==false){
         var geojsonColorizeOptions = {
             radius: 9,
@@ -540,7 +541,7 @@ function showSpatialNoiseCluster(num) {
     spatialnoiselayer.clearLayers();
     load=1;
     if(load==1){
-        
+        $('#hoverMap').show();
         $('#loading').show(); 
     }
     /*
@@ -563,7 +564,7 @@ function showSpatialNoiseCluster(num) {
             }
             
         $('#loading').hide(); 
-
+        $('#hoverMap').hide();
 
             var listColor=getColorArray();        
             var i=0;
@@ -1234,9 +1235,11 @@ $('#resetFilter').on('click', function () {
 // TODO
 // Temporal Radio Buttons
 
-$('input[type="radio"]').on('click', function () {
-    var value = $(this).val();
-    var name = $(this).attr('value');
+$('.filter').on('click', function () {
+
+    console.log($(this).attr('name'))
+    //var name = $(this).attr('value');
+    value=$(this).attr('name');
     if (value == 'mapnik') {
      
     normal=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -17,9 +17,27 @@
 	<script src="/static/template/js2/modernizr.js"></script> <!-- Modernizr -->
 
     <style type="text/css">
-    #map {
-		height: 800px;
+   #hoverMap ,#map {
+		
+		width: 100%;
+		height: 600px;
+		box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+		top:0;
+		position: absolute;
     }
+	
+#hoverMap {
+	background-color: #808080a3;
+	z-index: 1;
+}
+	
+#map-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  
+}
+
 	.switch {
   position: relative;
   display: inline-block;
@@ -36,15 +54,14 @@
 
 /* The slider */
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+	position: absolute;
+    top: -5px;
+    left: 105px;
+    right: -105px;
+    bottom: 5px;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
 }
 
 .slider:before {
@@ -60,11 +77,11 @@
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #7B68EE;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #7B68EE;
 }
 
 input:checked + .slider:before {
@@ -76,19 +93,22 @@ input:checked + .slider:before {
 /* Rounded sliders */
 .slider.round {
   border-radius: 34px;
+ 
 }
 
 .slider.round:before {
   border-radius: 50%;
 }
 .loader {
-  border: 10px solid #f3f3f3; /* Light grey */
-  border-top: 10px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  margin-left:40%;
-  animation: spin 1s linear infinite;
+    border: 18px solid #f3f3f3;
+    border-top: 18px solid #7B68EE;
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    margin-top: 23%;
+    margin-left: 50%;
+    z-index: 10;
+    animation: spin 1s linear infinite;
 }
 .my-custom-icon{
   width: 24px !important;
@@ -162,6 +182,158 @@ select option:hover {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+#clstrMethod{
+
+	background-color: #fcfdff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);}
+#kmnsMethod{
+
+	background-color: #fcfdff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);}
+
+  #colorMethod{
+
+	background-color: #fcfdff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);}
+
+  
+  #predMethod{
+
+	background-color: #fcfdff;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);}
+
+  
+#settingMethod{
+
+	background-color: #fcfdff;
+  border-radius: 10px;
+  height: 125px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);}
+
+#coloringMethod{
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+		background-color: #fcfdff;
+  border-radius: 10px;
+}
+#listsettings{
+	
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+		background-color: #fcfdff;
+  border-radius: 10px;
+}
+#markerFilter{
+	background-color: #5ECBCF;
+	transition: all 1s ease 0s;
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+
+#markerFilter:hover{
+	-webkit-transform: translateY(-3px);
+	transform: translateY(-3px);
+}
+#clusterFilter{
+	background-color:#7B68EE;
+	transition: all 1s ease 0s;
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+	
+}
+
+#heatmapFilter{
+	background-color:#FF02F0;
+	transition: all 1s ease 0s;
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+	font-family: 'Open Sans', sans-serif;
+
+}
+#clusterFilter:hover{-webkit-transform: translateY(-3px);
+	transform: translateY(-3px);}
+
+#heatmapFilter:hover{-webkit-transform: translateY(-3px);
+	transform: translateY(-3px);}
+#clusterOption{
+	border-radius: 5px;
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 5%;
+    margin-top: -10%;
+}
+#list{
+	
+	border-radius: 5px;
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 5%;
+    margin-top: -10%;
+}
+#filter{
+	
+	border-radius: 5px;
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 5%;
+    margin-top: -10%;
+}
+#cluster{
+	border-radius: 5px;
+    margin-left: 10%;
+    width: 80%;
+    margin-bottom: 5%;
+    margin-top: -10%;
+}
+#cnt{
+	margin-bottom:10%;
+
+}
+#loadingMap{
+	left:50%;
+}
+
+#blur{
+	height: 10px;
+    width: 50%;
+    /* padding: 20px; */
+    margin-left: 25%;
+    margin-bottom: 7%;
+}
+
+#radius{
+	height: 10px;
+    width: 50%;
+    /* padding: 20px; */
+    margin-left: 25%;
+    margin-bottom: 7%;
+}
+#resetFilter{
+	padding: 6px;
+    margin-left: 33%;
+    margin-top: 6%;
+
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+	background-color:#FF02F0;
+	border-color: #ce00c0;
+}
+@font-face {
+   font-family: myFirstFont;
+   src: url(sansation_light.woff);
+}
+
+* {
+   font-family: myFirstFont;
+}
+
+/* 
+#allClustering{
+	
+	box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+	background-color: #fcfdff;
+  border-radius: 10px;
+  padding:20px;
+}*/
     </style>
 	<title>Privacy-Aware Crowdsensing | Context-Aware</title>
 </head>
@@ -174,7 +346,12 @@ select option:hover {
 					<li class="placeholder"> 
                         
 					</li> 
-					<li class="filter"><a class="selected" >Privacy-aware Crowdsensing</a></li>
+			
+
+
+					<li  id="mapType" name="mapnik"  class="filter"> <a data-type="all" class="selected" >Normal Map</a></li>
+					<li  id="mapType" name="thunder" class="filter"> <a data-type="1" class="">Light Map</a></li>
+					<li  id="mapType" name="stadia"  class="filter"> <a data-type="1" class="">Dark Map</a></li>
 				</ul> <!-- cd-filters -->
 			</div> <!-- cd-tab-filter -->
 		</div> <!-- cd-tab-filter-wrapper -->
@@ -182,60 +359,69 @@ select option:hover {
 		<section class="cd-gallery">
 			<ul>
 				<div id="map-wrapper">
-
-					<div id="map"></div>
+					<div id="hoverMap">
+						
+						<div id="loadingMap" class="loader"></div>
 					</div>
+					<div id="map"></div>
+			
+		
+						</div>
 				
+						
 				
 				
 			</ul>
 		</section> <!-- cd-gallery -->
-
 		<div class="cd-filter">
 			<form>
 				<div id="a" class="cd-filter-block">
 					<h4 id="markerFilter">Show Markers</h4>
 					
 					<ul id="markerSetting" class="cd-filter-content cd-filters list">
-					<li>
+						
+						<div id="colorMethod">
+						<li>			
 							<li>
-								<input class="filter" data-filter=".check3" type="checkbox" name="colorizeMarker" id="colorizeMarker"   />
-								
-								<label class="checkbox-label" for="checkbox3" style= "
-								position: relative;
-								margin-bottom: 1.1em;
-								padding: 10px 1 10px 20px;
-								font-size: 1.3rem;
-							  ">Colorize</label>
-			
-							</li>
-							<li>
-								<label class="switch">
-									<input id="switchPrediction" type="checkbox">
+								<p><h3 id="h3"><b id="A">COLORING:</b></h3></p>
+								</li>
+							<li>			
+							<label class="switch">
+								<input type="checkbox"   name="colorizeMarker" id="colorizeMarker" >
 									<span class="slider round"></span>
-								  </label>
-								  <label style= "
-								  position: relative;
-								  margin-bottom: 1.1em;
-								  padding: 10px 1 10px 20px;
-								  font-size: 1.3rem;
-								">Prediction</label>
-			
+								</label>
+						</li>
+						</li>
+					</div>
+					<div id="predMethod">
+						<li>
+							<li>
+								<p><h3 id="h3"><b id="A">PREDICTION:</b></h3></p>
+								</li>
+							<li>
+							<li>
+							<label class="switch">
+								<input id="switchPrediction" type="checkbox">
+									<span class="slider round"></span>
+								</label>
 							</li>
-					</li>
+						</li>
+					</div>
 					</ul>
 
 				</div> <!-- cd-filter-block -->
 
-				<div class="cd-filter-block">
+				<div class="cd-filter-block" id="allClustering">
 					<h4 id="clusterFilter">Show Cluestering</h4>
 
 					<ul id="clusterSetting" class="cd-filter-content cd-filters list">
 						
 					<div class="cd-filter-content">
+						
+						<div id="clstrMethod">
 						<li>
 							<li>
-							<p><h3><b>CLUSERING METHOD:</b></h3></p>
+							<p><h3 id="h3"><b id="A">CLUSERING METHOD:</b></h3></p>
 							</li>
 							<li>
 							<select id="clusterOption">
@@ -243,14 +429,18 @@ select option:hover {
 								<option value="spatialnoise">Spatial-Noise Clustering</option>
 							</select>
 							</li>
+							
 						</li>	
+					</div>
+					
+					<div id="kmnsMethod">
 						<li>
+							
 						<li>
-							<p><h3>SET K-MEANS:</h3></p>	
+							<p><h3  id="h3">SET K-MEANS:</h3></p>	
 						</li>	
 						<li>
 						
-							<label ><p style="font-size: 1.3rem;">K-means:</p></label>
 							<select  id="cluster" class="form-select" aria-label="Default select example">
 							<option  selected value="1">1</option>
 							<option value="2">2</option>
@@ -273,7 +463,9 @@ select option:hover {
 
 						  </select>
 						</li>
+					
 					</li>
+					</div>
 					</div> <!-- cd-filter-content -->
 						
 						
@@ -283,49 +475,52 @@ select option:hover {
 
 						
 						<div id="settings" >
+
+						<div id="settingMethod">
+					    <li>
 							<li>
-						<li>
-						<p><h3 >SETTINGS:</h3></p>
-						</li>
-						
-						<li> 
-							<input class="filter" data-filter=".check3" type="checkbox" name="vertexlayer" id="mrk"  checked onchange="checkboxCluster(this)"> 
-							<label class="checkbox-label" for="mrk">Marker</label>
-		
-						</li>
-						<li>
-							<input class="filter" data-filter=".check3" type="checkbox" name="clusterlayer" id="plg" checked onchange="checkboxCluster(this)">
-							<label class="checkbox-label" for="plg">Polygons</label>
-		
-						</li>
-						<li>
-							<input class="filter" data-filter=".check3" type="checkbox" name="centroidlayer" id="cnt"  onchange="checkboxCluster(this)">
-							<label class="checkbox-label" for="cnt">Centroids</label>
-		
-						</li>
-					
-						<li>
-							<p id="coloring1"><h3 id="coloring">COLORING:</h3></p>
+							<p><h3  id="h3" >SETTINGS:</h3></p>
+							</li>
+							
+							<li> 
+								<input class="filter" data-filter=".check3" type="checkbox" name="vertexlayer" id="mrk"  checked onchange="checkboxCluster(this)"> 
+								<label class="checkbox-label" for="mrk">Marker</label>
+			
 							</li>
 							<li>
-							<label class="switch">
-								<input id="colorizeCluster" type="checkbox">
-								<span class="slider round"></span>
-							  </label>
-							  <label id="colorizelabel" style= "
-							  position: relative;
-							  margin-bottom: 1.7em;
-							  padding: 10px 1 10px 20px;
-							  font-size: 1.4rem;
-							">Colorize</label>
+								<input class="filter" data-filter=".check3" type="checkbox" name="clusterlayer" id="plg" checked onchange="checkboxCluster(this)">
+								<label class="checkbox-label" for="plg">Polygons</label>
+			
 							</li>
+							<li>
+								<input class="filter" data-filter=".check3" type="checkbox" name="centroidlayer" id="cnt"  onchange="checkboxCluster(this)">
+								<label class="checkbox-label" for="cnt">Centroids</label>
+			
 							</li>
+						</li>
+						</div>
+						<div id="coloringMethod">
+						<li>
+							<li>
+								<p id="coloring1"><h3  id="h3">COLORING:</h3></p>
+								</li>
+								<li>
+								<label class="switch">
+									<input id="colorizeCluster" type="checkbox">
+									<span class="slider round"></span>
+								</label>
+								</li>
+						</li>
+					</div>
+
+
+
 						</div>
 						
 						<div id="listsettings">
 						<li>	
 							<li >
-							  <p><h3 id="noisefilter" >NOISE FILTER:</h3></p>
+							  <p><h3  id="h3" >NOISE FILTER:</h3></p>
 							</li>
 							<li >
 								<select id="list">
@@ -345,14 +540,36 @@ select option:hover {
 					
 					<div  id="heatmapSetting" class="cd-filter-content cd-filters list">
 						   <ul>
-								<li>
-								<label ><p style="font-size: 1.3rem;">Blur:</p></label>
-								<input style="height: 10px; width: 50%;" type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
-								</li>
-								<li>
-								<label ><p style="font-size: 1.3rem;">Radius:</p></label>
-								<input  style="height: 10px; width: 50%;" type="range" min="1" max="50" value="14" step="0.1" class="slider2" id="radius" >
-								</li>
+								
+
+								<div id="clstrMethod">
+									<li>
+										<li>
+										<p><h3 id="h3"><b id="A">BLUR:</b></h3></p>
+										</li>
+										<li>
+											<input  type="range" min="1" max="50" value="15" step="0.1" class="slider2" id="blur">
+										</li>
+										
+									</li>	
+								</div>
+
+
+								<div id="clstrMethod">
+									<li>
+										<li>
+										<p><h3 id="h3"><b id="A">RADIUS:</b></h3></p>
+										</li>
+										<li>
+											<input  type="range" min="1" max="50" value="14" step="0.1" class="slider2" id="radius" >
+										</li>
+										
+									</li>	
+								</div>
+
+								
+								
+								
 								<li>
 									<button type="button" id="resetFilter" class="btn btn-primary">Reset to default</button>
 								</li>
@@ -361,55 +578,7 @@ select option:hover {
 					
 				</div> <!-- cd-filter-block -->
 				
-				<div>
-					<h4 id="heatmapFilter" style= "
-						position: relative;
-						margin-bottom: 1.7em;
-						padding: 10px 1 10px 20px;
-						color: #105B70;
-						text-transform: uppercase;
-						font-size: 1.7rem;
-						font-weight: bold;
-					  ">MAP STYLE</h4>
-					<ul>
-				<li style="margin-botton: 1.0em">
-					<input type="radio" id="contactChoice" 
-					name="contact" value="mapnik" checked>
-				   <label for="contactChoice3" style= "
-				   position: relative;
-				   margin-bottom: 1.7em;
-				   padding: 10px 1 10px 20px;
-				   font-size: 1.3rem;
-				   font-weight: bold;
-				 ">Default Map</label>
-				</li>
-				<li style="margin-botton: 1.0em">
-				   <input type="radio" id="contactChoice" style="margin-botton: 1.0em"
-					name="contact" value="thunder">
-				   <label for="contactChoice3" style= "
-				   position: relative;
-				   margin-bottom: 1.7em;
-				   padding: 10px 1 10px 20px;
-				   font-size: 1.3rem;
-				   font-weight: bold;
-				 ">White Map</label>
-				</li>
-				<li style="margin-botton: 1.0em">
-				   <input type="radio" id="contactChoice" style="margin-botton: 1.0em"
-					name="contact" value="stadia">
-				   <label for="contactChoice3" style= "
-				   position: relative;
-				   margin-bottom: 1.7em;
-				   padding: 10px 1 10px 20px;
-				   font-size: 1.3rem;
-				   font-weight: bold;
-				 ">Dark Map</label>
-				</li>
-			</ul> 
-				</div>
-
 			<a href="#0" class="cd-close">Close</a>
-			<div id="loading" class="loader"></div>
 			  
 		</div> <!-- cd-filter -->
 	
