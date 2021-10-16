@@ -193,7 +193,13 @@ var heatMap = 0;
                     
                     var prv=mapBetween(feature.properties.privacy,0,100,0,12).toFixed(0);
                     console.log("-----------------------------------")
-                       var customPopup = '<span>Noise: </span> '+ feature.properties.db+' db<br>  <span>QoS: </span> '+ feature.properties.qos+'%<br>  <span>Privacy: </span> '+ feature.properties.privacy+'%<br>';
+                    privacy=feature.properties.privacy;
+                    qos=feature.properties.qos;
+                    alpha=feature.properties.alpha;
+
+                    tradeOff=(privacy*alpha)+ (qos*(1-alpha))
+                    tradeOff=+tradeOff.toFixed(2);
+                    var customPopup = '<span>Noise: </span> '+ feature.properties.db+' db<br>  <span>QoS: </span> '+ feature.properties.qos.toFixed(2)+'<br>  <span>Privacy: </span> '+ feature.properties.privacy.toFixed(2)+'<br> <span>Trade-off: </span> '+ tradeOff +'<br>';
                    layer.bindPopup(customPopup,customOptions);
                 }
              

@@ -28,7 +28,7 @@ var duplicated = {}
  * @param response is the geoJSON to returns
  */
 const getLocations = (request, response) => {
-    pool.query('select db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
+    pool.query('select db, ST_X(coordinates), ST_Y(coordinates), qos, privacy, alpha from loc_ref_points', (error, results) => {
         if (error) {
             // not happen
             throw error

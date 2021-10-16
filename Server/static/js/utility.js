@@ -14,6 +14,7 @@ const convertLocations = (results) => {
     const rLength = results.rows.length
     for(let i = 0; i < rLength; i++) {
         row = results.rows[i] //
+        console.log(row)
         feature = {
             "type": "Feature",
             "properties": {
@@ -155,7 +156,7 @@ const populate = (pool, n) => {
         max = 1.00,
         alpha = +(Math.random() * (max - min) + min).toFixed(2);
         console.log(alpha)  
-        pool.query('INSERT INTO public.loc_ref_points(db, coordinates, qos, privacy)VALUES ($1, ST_Point($2, $3), $4, $5);', [db, long, lat, qos, privacy], (error, results) => {
+        pool.query('INSERT INTO public.loc_ref_points(db, coordinates, qos, privacy,alpha)VALUES ($1, ST_Point($2, $3), $4, $5, $6);', [db, long, lat, qos, privacy,alpha], (error, results) => {
             if (error) {
                 throw error
             }
