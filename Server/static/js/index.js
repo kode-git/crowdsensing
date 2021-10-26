@@ -22,7 +22,7 @@ var map = L.map('map',{zoomSnap: 0.25,
         accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
     })
 
-   normal1.addTo(map);
+   normal.addTo(map);
 
 
    $('#hoverMap').hide();
@@ -295,7 +295,7 @@ function showPredictedMarker(e) {
     'width': '200',
     'className' : 'popupCustom'
     }
-       var customPopup = '<span>Noise: </span> '+ db +'<br>  <span>QoS: </span> <br>  <span>Privacy: </span> <br>';
+       var customPopup = '<h1>PREDICTED MARKER: </h1> <span>Noise: </span> '+ db +'<br>  ';
    circle.bindPopup(customPopup,customOptions);
 
     predictedlayer.addLayer(circle);
@@ -306,24 +306,6 @@ function showPredictedMarker(e) {
 
 }
 
-//---------------------------ZOOMING ALERT -------------------------------------------------------------
-   // Show markers clicking in sidebar showmarkers section
-var start;
-var end;
-var confirmation=false;
-map.on("zoomstart", function (e) { start=e.target._zoom;  });
-map.on("zoomend", function (e) { 
-     end= e.target._zoom;
-     if(end==start-2 || end==start+2 || start==end-2 || start==end+2 || end==start-3 || end==start+3 || start==end-3 || start==end+3){
-        if(confirmation==false){
-         var result =confirm("Use trackpad for a precise zoom!");
-        if (result) {
-            confirmation=true;
-        }
-    }
-    }
-
-    });
 
     
 //---------------------------HEATMAP -------------------------------------------------------------
@@ -357,6 +339,7 @@ function showHeatmap() {
             map.removeLayer(spatialnoiselayer);
          
             if(map.hasLayer(normal)==true){
+                console.log("normal")
             if(currentZoom<=11){
                 heatMap = new L.heatLayer(geoData, {max: (2/16.6)});
             }else if(currentZoom==12){
@@ -389,7 +372,7 @@ function showHeatmap() {
             
             }
         } else if(map.hasLayer(jawg_light)==true){
-
+            console.log("light")
            // heatMap = new L.heatLayer(geoData,{max:(2.5/16.6)});
          //-----------------------------------------------
             if(currentZoom<=11){
@@ -426,42 +409,45 @@ function showHeatmap() {
             
             //---------------------------------------------
             
-        } else{
+        } else if(map.hasLayer(jawg_dark)==true){
+            console.log("balck")
+
+            console.log(currentZoom);
             if(currentZoom<=11){
-                heatMap = new L.heatLayer(geoData, {max: 2});
+                heatMap = new L.heatLayer(geoData, {max: (2/16.6)});
             }else if(currentZoom==12){
                 
-                 heatMap = new L.heatLayer(geoData, {max: 1.5});
+                 heatMap = new L.heatLayer(geoData, {max: (1.5/16.6)});
             }else if(currentZoom==13){
                 
             map.removeLayer(spatialnoiselayer);
-                 heatMap = new L.heatLayer(geoData, {max: 2.5});
+                 heatMap = new L.heatLayer(geoData, {max: (2.5/16.6)});
             }else if(currentZoom==14){
                 
             map.removeLayer(spatialnoiselayer);
-                 heatMap = new L.heatLayer(geoData, {max: 5});
+                 heatMap = new L.heatLayer(geoData, {max: (5/16.6)});
             }else if(currentZoom==15){
                 
             map.removeLayer(spatialnoiselayer);
-                heatMap = new L.heatLayer(geoData, {max: 10});
+                heatMap = new L.heatLayer(geoData, {max: (10/16.6)});
             }else if(currentZoom==16){
                 
             map.removeLayer(spatialnoiselayer);
-                heatMap = new L.heatLayer(geoData, {max: 20});
+                heatMap = new L.heatLayer(geoData, {max: (20/16.6)});
             }else if(currentZoom==17){
                 
             map.removeLayer(spatialnoiselayer);
-                heatMap = new L.heatLayer(geoData, {max: 40});
+                heatMap = new L.heatLayer(geoData, {max: (40/16.6)});
             }else if(currentZoom==18){
                 
-                heatMap = new L.heatLayer(geoData, {radius:radius,max: 80});
+                heatMap = new L.heatLayer(geoData, {radius:radius,max: (80/16.6)});
                 
-            map.removeLayer(spatialnoiselayer);
+            
             }
 
 
 
-        }
+        }else{}
         
             map.removeLayer(spatialnoiselayer);
         heatmaplayer.addLayer(heatMap);
@@ -538,14 +524,17 @@ $('#loading').hide();
 var load;
 var latitudine;
 var longitudine;
-
+var bug=0;
 var dataCluster;
 var lastSpatialNoiseCluster=0;
 function showSpatialNoiseCluster(num) {
     if(lastSpatialNoiseCluster!=num){
+        console.log("AAAAAAAAaa")
     markerC.clearLayers();
     spatialnoiselayer.clearLayers();
     load=1;
+    bug++;
+    
     if(load==1){
         $('#hoverMap').show();
         $('#loading').show(); 
@@ -606,16 +595,22 @@ function showSpatialNoiseCluster(num) {
         }
     });
     lastSpatialNoiseCluster=num;
-}else{
     
+    console.log($('#list'))
+}else{
+    console.log("eeeeeeeeeeeeeeeeeeeee");
+    bug++;
+    console.log($('#list'))
+    $("#settings").css("display", "none");
+    $("#listsettings").css("display", "block");
     heatmaplayer.clearLayers();
     clusterlayer.clearLayers();
     vertexlayer.clearLayers();
     centroidlayer.clearLayers();
     markerlayer.clearLayers();
-    
-   $('#list option[value=20]').attr('selected','selected');
 
+   $('#list option[value=20]').attr('selected','selected');
+   showSpatialNoiseClusterFilter(num)
     map.addLayer(spatialnoiselayer);
 }
 
@@ -1058,14 +1053,21 @@ $('#clusterOption').on('change', function (e) {
     var valueSelected = this.value;
     if(valueSelected=='spatial'){
         showClusters($("#cluster").val());
+        console.log("spatial");
     }  else if(valueSelected=='spatialnoise'){
         $('coloring').hide();
         $('coloring1').hide();
         $('noisefilter').hide();
         $('settings').hide();
-        
         showSpatialNoiseCluster($("#cluster").val());
+        console.log("spatialNOise");
+
     }
+
+
+
+
+
 });
 
 //function to predict a marker db-----------------------------------------------------
@@ -1073,8 +1075,10 @@ var latPredicted;
 var lngPredicted;
 var latlngPredicted;
 map.on('click', function(e) {        
+    var markerOpen=$('#markerFilter').hasClass('closed');
     var boolPrediction=document.getElementById("switchPrediction").checked;
-    if(boolPrediction==true){
+    console.log(markerOpen)
+    if(boolPrediction==true && markerOpen==false){
         showPredictedMarker(e);
          latlngPredicted=e;
 
@@ -1233,11 +1237,14 @@ function colorizeMarker(checkboxElem) {
 
 $('#resetFilter').on('click', function () {
  $('#blur').val(15);
- $('#radius').val(25);
+ $('#radius').val(14);
  showHeatmap();
 });
 
-
+$('#clusterOption').on('click', function () {
+    
+   });
+   
 // TODO
 // Temporal Radio Buttons
 
@@ -1250,17 +1257,23 @@ $('.filter').on('click', function () {
      
     normal=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    })
+    map.addLayer(normal);
     } else if (value == 'thunder') {
         map.removeLayer(normal);
+        map.removeLayer(jawg_dark);
         jawg_light = L.tileLayer('https://{s}.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token={accessToken}', {
 	attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 	minZoom: 0,
 	maxZoom: 22,
     accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
-}).addTo(map);
+})
+map.addLayer(jawg_light);
 
     } else if (value == 'stadia') {
+        map.removeLayer(normal);
+        map.removeLayer(jawg_light);
+
       jawg_dark= L.tileLayer('https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token={accessToken}', {
             attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             minZoom: 0,
@@ -1268,7 +1281,8 @@ $('.filter').on('click', function () {
             //subdomains: 'abcd',
             accessToken: 'DYC9TMc3a5XrmLCwAB8eUseiDg0coujOKgDF7PGnoWMoMZP0nOtNEtK7L7mBoyWr'
         
-        }).addTo(map);
+        })
+        map.addLayer(jawg_dark);
            
         
         

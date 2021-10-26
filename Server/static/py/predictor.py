@@ -17,7 +17,7 @@ engine = db.create_engine(
     "postgresql://postgres:blockchain@localhost:5432/csdb")
 con = engine.connect()
 # Read PostGIS database with Geopandas.
-sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=500;".format(float(sys.argv[2]),float(sys.argv[1]))
+sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=2005;".format(float(sys.argv[2]),float(sys.argv[1]))
 
 
 

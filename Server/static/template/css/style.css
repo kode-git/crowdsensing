@@ -395,8 +395,9 @@ xfilter
   z-index: 3;
 }
 .no-touch .cd-filter .cd-close:hover {
-  background: #aa8208;
+  background: #634db1;
 }
+
 .cd-filter.filter-is-visible {
   -webkit-transform: translateX(0);
   -moz-transform: translateX(0);
