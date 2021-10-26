@@ -17,7 +17,7 @@ engine = db.create_engine(
     "postgresql://postgres:blockchain@localhost:5432/csdb")
 con = engine.connect()
 # Read PostGIS database with Geopandas.
-sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=2005;".format(float(sys.argv[2]),float(sys.argv[1]))
+sql = "select id,coordinates,db from loc_ref_points as l1 where ST_Distance(ST_SetSRID(l1.coordinates,  4326)::geography , ST_GeomFromText('POINT({} {})', 4326)::geography)<=500;".format(float(sys.argv[2]),float(sys.argv[1]))
 
 
 
@@ -47,9 +47,21 @@ train_result = data['db']
 
 #training phase, when we have more than 10 elements near ourpoint, we use the knn regressor
 if flag:
-    regB = MLPRegressor(random_state=1, max_iter=5000).fit(train_data, train_result)
+    #splitting the dataset in train and test sets
+    X_train, X_test, y_train, y_test = train_test_split( train_data, train_result, test_size=0.20, random_state=42, shuffle=True )
+
+    #fitting phase
+    regB = MLPRegressor(random_state=1, max_iter=5000).fit(X_train, y_train)
+
+    #mean squared error evaluation for the regressor
+    # regL= LinearRegression().fit(X_train, y_train)
+    MSEB= mean_squared_error(regB.predict(X_test), y_test)
+    # MSEL= mean_squared_error(regL.predict(X_test), y_test)
+    logger.error( MSEB)
+    # logger.error( MSEL)
 else:
     knn = neighbors.KNeighborsRegressor(3)
+    #fitting phase of the knn regressor
     knn.fit(train_data, train_result)
 
 
