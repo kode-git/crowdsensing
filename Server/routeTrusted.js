@@ -59,6 +59,7 @@ const makeRequest = (point) => {
             st_Y : point.geometry.coordinates[1],
             QoS : point.properties.QoS,
             privacy : point.properties.privacy,
+            alpha: point.properties.alpha,
         })
     )
 
@@ -84,7 +85,8 @@ const makeRequest = (point) => {
 const forwardBackend = (point) => {
     // listening on the server backend
     let [dataRequest, options] = makeRequest(point)
-
+    console.log("Sending to backend the following body...")
+    console.log(dataRequest)
     // create request
     const req = http.request(options, res => {
         // managing of sending data
@@ -124,6 +126,8 @@ const makeSpatialPoint = (data) => {
         // data splitting
         stack = stackAndPoint[0]
         point = stackAndPoint[1]
+        console.log("Log: Generated point is:")
+        console.log(point)
     }
 
     return point

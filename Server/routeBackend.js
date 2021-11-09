@@ -105,18 +105,16 @@ const showClusters = (request, response) => {
 const showClustersOnDb = (request, response) => {
     // const k = parseInt(request.body.k)
     const k = parseInt(request.body.k)
-    console.log(k)
     pool.query('select id, db, ST_X(coordinates), ST_Y(coordinates), qos, privacy from loc_ref_points', (error, results) => {
         if (error) {
             throw error
         }
 
         // locations setting to manage
-        locations = utility.convertLocations(results)
+        let locations = utility.convertLocations(results)
         // taking dataset as a geoJSON clustering on decibels
-        result = clustering.bridgingClustering(k)
-        console.log("RESULTS TAKEN IS: " + JSON.parse(JSON.stringify(result)))
-        dataset = utility.convertClustersOnDb(locations, result)
+        let result = clustering.bridgingClustering(k)
+        let dataset = utility.convertClustersOnDb(locations, result)
         response.status(200).json(dataset)
 
     })
@@ -130,23 +128,21 @@ const showClustersOnDb = (request, response) => {
 const createBackendLocation = (request, response) => {
 
     let point = request.body
-    if(duplicated != request.body){
-        let db = point.db
-        let st_X = point.st_X
-        let st_Y = point.st_Y
-        let QoS = point.QoS
-        let privacy = point.privacy
-        console.log(point)
-        pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy) values ($1, ST_Point($2, $3), $4, $5) on conflict(coordinates) do update set db=$6, qos=$7, privacy=$8;', [db, st_X, st_Y, QoS, privacy, db, QoS, privacy], (error, results) => {
-            if (error) {
-                throw error
-            }
-            console.log('Log: Status success - Successful point insert in the database')
-            response.status(201).send('')
-        })
-    } else {
-        duplicated = request.body
-    }
+
+    let db = point.db
+    let st_X = point.st_X
+    let st_Y = point.st_Y
+    let QoS = point.QoS
+    let privacy = point.privacy
+    let alpha = point.alpha
+    console.log(point)
+    pool.query('insert into public.loc_ref_points(db, coordinates, qos, privacy, alpha) values ($1, ST_Point($3, $2), $4, $5, $9) on conflict(coordinates) do update set db=$6, qos=$7, privacy=$8;', [db, st_X, st_Y, QoS, privacy, db, QoS, privacy, alpha], (error, results) => {
+        if (error) {
+            throw error
+        }
+        console.log('Log: Status success - Successful point insert in the database')
+        response.status(201).send('')
+    })
 
 }
 
@@ -166,10 +162,10 @@ const populate = (request, response) => {
  * @param response is 200 or 500 in
  */
 const prdCall = (request, response) => {
-        point = request.body.myPoint.geometry.coordinates
-         predictor.bridgingPredictor(point).then(function successCallback(result) {
-         result=JSON.parse(JSON.stringify(result));
-         response.status(200).json(result)
+    let point = request.body.myPoint.geometry.coordinates
+    predictor.bridgingPredictor(point).then(function successCallback(result) {
+        result=JSON.parse(JSON.stringify(result));
+        response.status(200).json(result)
           })
 }
 
