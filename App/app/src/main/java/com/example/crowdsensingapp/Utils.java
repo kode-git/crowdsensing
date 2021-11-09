@@ -22,4 +22,14 @@ public class Utils {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+
+    public static double obfuscate(double value, int truncation){
+        //moves the decimal to the right
+        value = value* Math.pow(10, truncation);
+        //determines the floor value
+        value = Math.floor(value);
+        //dividing the floor value by 10 to the power decimalplace
+        value = value / Math.pow(10, truncation);
+        return value;
+    }
 }

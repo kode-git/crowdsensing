@@ -300,9 +300,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             String URL = "http://10.0.2.2:4000/getMeanDb";
-
-
-            Feature pointFeature = Feature.fromGeometry(Point.fromLngLat(actuaLocation.getLongitude(), actuaLocation.getLatitude()));
+            Feature pointFeature = Feature.fromGeometry((Point.fromLngLat(Utils.obfuscate(actuaLocation.getLongitude(),3), Utils.obfuscate(actuaLocation.getLatitude(),3))));
            // pointFeature.addNumberProperty("Range", actualSettings.getRange());
 
 
