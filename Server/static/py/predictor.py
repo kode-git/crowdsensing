@@ -3,11 +3,11 @@ import sqlalchemy as db
 from sklearn.model_selection import train_test_split
 import sys
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error
 from sklearn.neural_network import MLPRegressor
 from sklearn import neighbors
 import logging
-
+from sklearn import preprocessing
 #logger for external console log
 logger = logging.getLogger()
 logger.propogate = True
@@ -40,37 +40,39 @@ train_data = gpd.GeoDataFrame()
 train_data['lat'] = data["coordinates"].x
 train_data['lng'] = data["coordinates"].y
 
-
-
-
 train_result = data['db']
 
-#training phase, when we have more than 10 elements near ourpoint, we use the knn regressor
-if flag:
-    #splitting the dataset in train and test sets
-    X_train, X_test, y_train, y_test = train_test_split( train_data, train_result, test_size=0.20, random_state=42, shuffle=True )
+#setting max and min value for manual value scaling in prediction phase
+myMaxLong=data['coordinates'].y.max(axis=0)
+myMinLong=data['coordinates'].y.min(axis=0)
 
+myMaxLat=data['coordinates'].x.max(axis=0)
+myMinLat=data['coordinates'].x.min(axis=0)
+
+
+#training phase, when we have more than 3 elements near our point, we use the knn regressor
+if flag:
+    train_set= preprocessing.minmax_scale(train_data)
+    #splitting the dataset in train and test sets
+    X_train, X_test, y_train, y_test = train_test_split( train_set, train_result, test_size=0.20, random_state=42, shuffle=True )
     #fitting phase
     regB = MLPRegressor(random_state=1, max_iter=5000).fit(X_train, y_train)
-
-    #mean squared error evaluation for the regressor
-    # regL= LinearRegression().fit(X_train, y_train)
     MSEB= mean_squared_error(regB.predict(X_test), y_test)
-    # MSEL= mean_squared_error(regL.predict(X_test), y_test)
     logger.error( MSEB)
-    # logger.error( MSEL)
 else:
     knn = neighbors.KNeighborsRegressor(3)
     #fitting phase of the knn regressor
     knn.fit(train_data, train_result)
 
+latP = (float(sys.argv[2]) - myMinLat) / (myMaxLat - myMinLat)
+longP=(float(sys.argv[1]) - myMinLong) / (myMaxLong - myMinLong)
 
 
 #Predict and setting up a JSON for the client 
 if not(flag):
     outLine='\"db\":{}'.format(knn.predict([[float(sys.argv[2]),float(sys.argv[1])]])[0] )
 else:
-    outLine='\"db\":{}'.format(regB.predict([[float(sys.argv[2]),float(sys.argv[1])]])[0] )
+    outLine='\"db\":{}'.format(regB.predict([[latP,longP]])[0] )
 
 outLine="{" + outLine + "}"
 
