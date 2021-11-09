@@ -4,7 +4,7 @@
  * @returns {*} the data with k and range defined in case of automatic location, data itself otherwise
  */
 
-const utils = require('utility')
+const utils = require('./utility')
 const opt = (data) =>{
     if(!data.properties.automatic){
         // it's not an automatic configuration, so we have already
