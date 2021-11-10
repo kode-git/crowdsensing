@@ -54,11 +54,11 @@ myMinLat=data['coordinates'].x.min(axis=0)
 if flag:
     train_set= preprocessing.minmax_scale(train_data)
     #splitting the dataset in train and test sets
-    X_train, X_test, y_train, y_test = train_test_split( train_set, train_result, test_size=0.20, random_state=42, shuffle=True )
+    #X_train, X_test, y_train, y_test = train_test_split( train_set, train_result, test_size=0.20, random_state=42, shuffle=True )
     #fitting phase
-    regB = MLPRegressor(random_state=1, max_iter=5000).fit(X_train, y_train)
-    MSEB= mean_squared_error(regB.predict(X_test), y_test)
-    logger.error( MSEB)
+    regB = MLPRegressor(random_state=1, max_iter=5000).fit(train_set, train_result)
+    #MSEB= mean_squared_error(regB.predict(X_test), y_test)
+    #logger.error( MSEB)
 else:
     knn = neighbors.KNeighborsRegressor(3)
     #fitting phase of the knn regressor
