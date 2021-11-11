@@ -511,7 +511,7 @@ var listColor=getColorArray();
     
     $('#list').append($('<option>', {
         value: nCluster,
-        text: "DB: "+Math.min(... points)+ '-'+Math.max(... points) ,
+        text: "DB: "+Math.min(... points).toFixed(0)+ '-'+Math.max(... points).toFixed(0) ,
       
     }));
     $("#list option[value="+nCluster+"]").css({"background-color":  listColor[ nCluster]});
