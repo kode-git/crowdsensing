@@ -10,6 +10,7 @@ Piattaforma di mobile crowdsensing (piattaforma raccolta dati attraverso la coll
 
 ## Funzionalità
 
+<div align="center"><img src="Images/architecture.png"></div>
 La piattaforma è in grado di poter inviare un rumore rilevato in maniera periodica e semi-automatica o manuale andando a definire dei criteri di privacy personalizzati dall'utente front-end. La manipolazione dei dati sensibili viene effettuata all'interno di un server trusted capace di poter stabilire un meccanismo di offuscamento basato sull'algoritmo di spatial cloaking. Ogni rilevamento ha un tempo di vita limitato, scelto dall'utente e rispettato nel trusted server all'interno di una lista logica che ha la funzionalità di buffer di sistema, in modo da aggregare e raccogliere dati provenienti da differenti utenti e utilizzarli per lo spatial cloaking (andando a considerare i principi di privacy definiti dai parametri k e range di ogni rilevazione. Infine, dopo il camuffamento dei dati, si avrà come output un rilevamento offuscato inoltrato al back-end server, visualizzato in una dashboard e salvato in maniera persistente in un database insieme alle informazioni di servizio legate ai criteri di valutazione di Quality of Service e privacy, nonchè del valore di trade-off tra i due. 
 
 ## Tecnologie utilizzate
